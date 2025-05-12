@@ -1,4 +1,7 @@
 # Wordageddon-G17
+<div align="center">
+  <img src="images/Wordageddon%20Logo.png" alt="Wordageddon Logo"/>
+</div>
 
 Un'applicazione desktop ludico-educativa sviluppata in JavaFX per testare la memoria sulle parole più frequenti in documenti testuali.
 

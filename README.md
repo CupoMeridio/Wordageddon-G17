@@ -12,3 +12,9 @@ Un'applicazione desktop ludico-educativa sviluppata in JavaFX per testare la mem
 - **Gestione utenti** con registrazione/login
 - **Pannello amministratore** per gestione documenti
 - **Classifiche** e storico punteggi
+
+## 👨‍💻 Membri
+- [Vittorio Postiglione](https://github.com/CupoMeridio)
+- [Mattia Sanzari](https://github.com/Mattia-Sanzari)
+- [Alessandro Scandone](https://github.com/alescand1)
+- [Sharon Schiavano](https://github.com/sharon-schiavano)

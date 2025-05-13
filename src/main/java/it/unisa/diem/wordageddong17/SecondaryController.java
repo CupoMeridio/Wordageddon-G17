@@ -1,4 +1,4 @@
-package com.mycompany.g17.wordageddon;
+package it.unisa.diem.wordageddong17;
 
 import java.io.IOException;
 import javafx.fxml.FXML;

@@ -1,7 +1,7 @@
-module com.mycompany.g17.wordageddon {
+module it.unisa.diem.wordageddong17 {
     requires javafx.controls;
     requires javafx.fxml;
 
-    opens com.mycompany.g17.wordageddon to javafx.fxml;
-    exports com.mycompany.g17.wordageddon;
+    opens it.unisa.diem.wordageddong17 to javafx.fxml;
+    exports it.unisa.diem.wordageddong17;
 }

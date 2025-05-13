@@ -7,18 +7,19 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import javafx.scene.image.Image;
 
-/**
- * JavaFX App
- */
 public class App extends Application {
 
     private static Scene scene;
 
     @Override
     public void start(Stage stage) throws IOException {
-        scene = new Scene(loadFXML("primary"), 640, 480);
+        scene = new Scene(loadFXML("AppView"));
         stage.setScene(scene);
+        stage.setMaximized(true);
+        stage.setTitle("Wordageddon");
+        stage.getIcons().add(new Image(getClass().getResourceAsStream("/imgs/Wordageddon_Logo.png")));
         stage.show();
     }
 

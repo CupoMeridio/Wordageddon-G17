@@ -1,4 +1,4 @@
-package it.unisa.diem.wordageddong17.controller;
+package fxml;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -6,16 +6,18 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
 
+/**
+ * FXML Controller class
+ *
+ * @author cupom
+ */
 public class AppViewController implements Initializable {
 
+    @FXML
+    private AnchorPane LoginAnchorPane;
     @FXML
     private TextField emailTextField;
     @FXML
@@ -24,24 +26,6 @@ public class AppViewController implements Initializable {
     private Button accediButton;
     @FXML
     private Button passaARegistratiButton;
-    @FXML
-    private VBox schermataDiLogin;
-    @FXML
-    private AnchorPane schermataHome;
-    @FXML
-    private Button startButton;
-    @FXML
-    private Button classificheButton;
-    @FXML
-    private StackPane root;
-    @FXML
-    private VBox contenutoHome;
-    @FXML
-    private Label benvenutoLabel;
-    @FXML
-    private ImageView fotoProfilo;
-    @FXML
-    private VBox dashboardMenu;
 
     /**
      * Initializes the controller class.
@@ -57,15 +41,6 @@ public class AppViewController implements Initializable {
 
     @FXML
     private void passaARegistrati(ActionEvent event) {
-        
-    }
-
-    @FXML
-    private void toggleDashboard(MouseEvent event) {
-    }
-
-    @FXML
-    private void logout(ActionEvent event) {
     }
     
 }

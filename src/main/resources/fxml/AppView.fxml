@@ -1,14 +1,83 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.net.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
 
-<AnchorPane id="AnchorPane" prefHeight="400.0" prefWidth="600.0" styleClass="mainFxmlClass" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unisa.diem.wordageddong17.controller.AppViewController">
-    <stylesheets>
-        <URL value="@/styles/appview.css"/>
-    </stylesheets>
-</AnchorPane>
+<StackPane fx:id="root" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unisa.diem.wordageddong17.controller.AppViewController">
+
+    <!-- Schermata di login -->
+    <VBox fx:id="schermataDiLogin" alignment="CENTER" spacing="20.0">
+        <children>
+            <ImageView fitHeight="150.0" fitWidth="300.0" pickOnBounds="true" preserveRatio="true">
+                <image>
+                    <Image url="@../imgs/Logo_senza_sfondo.png" />
+                </image>
+            </ImageView>
+
+            <HBox alignment="CENTER" spacing="60.0">
+                <children>
+                    <VBox alignment="CENTER" spacing="5.0">
+                        <children>
+                            <Label text="Email" />
+                            <TextField fx:id="emailTextField" promptText="Inserisci la tua email" />
+                        </children>
+                    </VBox>
+                    <VBox alignment="CENTER" spacing="5.0">
+                        <children>
+                            <Label text="Password" />
+                            <TextField fx:id="passwordTextField" promptText="Inserisci la tua password" />
+                        </children>
+                    </VBox>
+                </children>
+            </HBox>
+
+            <Button fx:id="accediButton" onAction="#accedi" text="Accedi" />
+            <Button fx:id="passaARegistratiButton" maxWidth="300" onAction="#passaARegistrati" text="Non hai ancora un account? Registrati!" wrapText="true" />
+        </children>
+    </VBox>
+
+    <!-- Schermata Home -->
+    <AnchorPane fx:id="schermataHome" prefHeight="400.0" prefWidth="600.0" visible="false">
+        <!-- Contenuto principale al centro -->
+        <VBox fx:id="contenutoHome" alignment="CENTER" spacing="20.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="80.0">
+            <children>
+                <ImageView fitHeight="150.0" fitWidth="250.0" pickOnBounds="true" preserveRatio="true">
+                    <image>
+                        <Image url="@../imgs/Logo_senza_sfondo.png" />
+                    </image>
+                </ImageView>
+                <Button fx:id="startButton" text="Start" />
+                <Button fx:id="classificheButton" text="Classifiche" />
+            </children>
+        </VBox>
+
+        <!-- Header in alto a destra -->
+        <HBox alignment="CENTER_RIGHT" spacing="10" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
+            <children>
+                <Label fx:id="benvenutoLabel" text="Benvenuto NomeUtente" />
+                <!-- Foto profilo in alto a destra -->
+                <ImageView fx:id="fotoProfilo" fitHeight="40" fitWidth="40" onMouseClicked="#toggleDashboard" pickOnBounds="true" preserveRatio="true">
+                    <image>
+                        <Image url="@../imgs/person.png" />
+                    </image>
+                </ImageView>
+            </children>
+        </HBox>
+
+        <!-- Menu dashboard (inizialmente nascosto) -->
+        <VBox fx:id="dashboardMenu" alignment="CENTER" spacing="10.0" style="-fx-background-color: white; -fx-padding: 10; -fx-border-color: gray; -fx-border-width: 1;" visible="false" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="55.0">
+            <children>
+                <Button text="Profilo" />
+                <Button text="Impostazioni" />
+                <Button onAction="#logout" text="Logout" />
+            </children>
+        </VBox>
+    </AnchorPane>
+</StackPane>

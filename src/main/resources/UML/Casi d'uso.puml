@@ -1,0 +1,62 @@
+@startuml
+
+skinparam packageStyle rectangle
+skinparam nodesep 100  // Aumenta lo spazio verticale tra i nodi
+skinparam ranksep 100  // Aumenta lo spazio orizzontale tra i nodi
+
+left to right direction
+actor Utente
+Amministratore-> Utente
+
+
+
+
+actor "Giocatore Ospite" as Ospite 
+actor Database 
+
+rectangle Applicazione {
+  usecase "Login" as UC1
+  usecase "Registrazione" as UC2
+  usecase "Inserimento documento" as UC3
+  usecase "Inserimento stopwords" as UC4
+  usecase "Sessione di gioco (online)" as UC5
+  usecase "Sessione di gioco (offline)" as UC6
+  usecase "Selezione preferenze" as UC7
+  
+   UC5 <.. UC7 : <<extend>>
+  UC1 ..> UC2 : <<extend>>
+  
+  UC3 ..|> UC1 : <<include>>
+  UC4 ..|> UC1 : <<include>>
+  UC5 ..|> UC1 : <<include>>
+  UC7 ..|> UC1 : <<include>>
+  
+}
+
+Utente -- UC1
+Database -- UC1
+
+Utente -- UC2
+Database -- UC2
+
+
+
+
+Amministratore -- UC3
+Database -- UC3
+
+Amministratore -- UC4
+Database -- UC4
+
+
+
+Ospite -- UC6
+
+Utente -- UC7
+Database -- UC7
+Utente -- UC5
+Database -- UC5
+
+
+
+@enduml

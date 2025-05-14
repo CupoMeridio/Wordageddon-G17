@@ -25,7 +25,7 @@
             <artifactId>javafx-fxml</artifactId>
             <version>13</version>
         </dependency>
-        
+                
         <!-- Sicurezza: bcrypt per hash delle password -->
         <dependency>
             <groupId>org.mindrot</groupId>
@@ -39,6 +39,15 @@
             <artifactId>postgresql</artifactId>
             <version>42.7.5</version>
         </dependency>
+        
+        <!-- dotenv per il caricamento delle variabili d'ambiente -->
+        <dependency>
+            <groupId>io.github.cdimascio</groupId>
+            <artifactId>dotenv-java</artifactId>
+            <version>3.2.0</version>
+            <type>jar</type>
+        </dependency>
+        
     </dependencies>
     
     

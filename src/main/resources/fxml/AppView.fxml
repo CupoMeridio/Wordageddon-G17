@@ -4,6 +4,7 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
@@ -51,6 +52,7 @@
 
             <!-- Schermata Home -->
             <AnchorPane fx:id="schermataHome" prefHeight="400.0" prefWidth="600.0" visible="false">
+
                 <!-- Contenuto principale -->
                 <VBox fx:id="contenutoHome" alignment="CENTER" layoutY="179.0" spacing="20.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="179.0">
                     <children>
@@ -98,8 +100,8 @@
                                     <Label text="Facile" />
                                     <TableView fx:id="facileTable" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
                                         <columns>
-                                            <TableColumn prefWidth="100.0" text="Nome" />
-                                            <TableColumn prefWidth="100.0" text="Punteggio" />
+                                            <TableColumn prefWidth="105.0" text="Nome" />
+                                            <TableColumn prefWidth="93.0" text="Punteggio" />
                                         </columns>
                                         <columnResizePolicy>
                                             <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
@@ -107,6 +109,7 @@
                                     </TableView>
                                 </children>
                             </VBox>
+
                             <!-- Media -->
                             <VBox alignment="TOP_CENTER">
                                 <children>
@@ -122,6 +125,7 @@
                                     </TableView>
                                 </children>
                             </VBox>
+
                             <!-- Difficile -->
                             <VBox alignment="TOP_CENTER">
                                 <children>
@@ -139,7 +143,44 @@
                             </VBox>
                         </children>
                     </HBox>
-               <Button fx:id="chiudiClassificheButton" mnemonicParsing="false" onAction="#chiudiClassificheOnAction" text="Chiudi classifiche" />
+                    <Button fx:id="chiudiClassificheButton" onAction="#chiudiClassificheOnAction" text="Chiudi classifiche" />
+                </children>
+            </VBox>
+
+            <!-- Schermata Selezione Difficoltà -->
+            <VBox fx:id="schermataSelezioneDifficoltà" alignment="CENTER" prefHeight="200.0" prefWidth="100.0" spacing="10.0" visible="false">
+                <children>
+                    <Label text="Seleziona livello di difficoltà" />
+                    <HBox alignment="TOP_CENTER" spacing="10.0">
+                        <children>
+                            <!-- Facile -->
+                            <VBox alignment="TOP_CENTER" spacing="10.0">
+                                <children>
+                                    <Label text="Facile" />
+                                    <TextArea editable="false" prefHeight="200.0" prefWidth="200.0" text="Descrizione delle caratteristiche in modalità facile" wrapText="true" />
+                                    <Button fx:id="selezionaFacileButton" onAction="#selezionaFacileButtonOnAction" text="Seleziona facile" />
+                                </children>
+                            </VBox>
+
+                            <!-- Medio -->
+                            <VBox alignment="TOP_CENTER" spacing="10.0">
+                                <children>
+                                    <Label text="Medio" />
+                                    <TextArea editable="false" prefHeight="200.0" prefWidth="200.0" text="Descrizione delle caratteristiche in modalità medio" wrapText="true" />
+                                    <Button fx:id="selezionaMedioButton" onAction="#selezionaMedioButtonOnAction" text="Seleziona medio" />
+                                </children>
+                            </VBox>
+
+                            <!-- Difficile -->
+                            <VBox alignment="TOP_CENTER" spacing="10.0">
+                                <children>
+                                    <Label text="Difficile" />
+                                    <TextArea editable="false" prefHeight="200.0" prefWidth="200.0" text="Descrizione delle caratteristiche in modalità difficile" wrapText="true" />
+                                    <Button fx:id="selezionaDifficileButton" onAction="#selezionaDifficileButtonOnAction" text="Seleziona difficile" />
+                                </children>
+                            </VBox>
+                        </children>
+                    </HBox>
                 </children>
             </VBox>
 

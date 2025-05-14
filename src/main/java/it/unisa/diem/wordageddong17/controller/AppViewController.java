@@ -56,6 +56,14 @@ public class AppViewController implements Initializable {
     private TableView<?> difficileTable;
     @FXML
     private Button chiudiClassificheButton;
+    @FXML
+    private VBox schermataSelezioneDifficoltà;
+    @FXML
+    private Button selezionaFacileButton;
+    @FXML
+    private Button selezionaMedioButton;
+    @FXML
+    private Button selezionaDifficileButton;
 
     /**
      * Initializes the controller class.
@@ -92,6 +100,18 @@ public class AppViewController implements Initializable {
 
     @FXML
     private void chiudiClassificheOnAction(ActionEvent event) {
+    }
+
+    @FXML
+    private void selezionaFacileButtonOnAction(ActionEvent event) {
+    }
+
+    @FXML
+    private void selezionaMedioButtonOnAction(ActionEvent event) {
+    }
+
+    @FXML
+    private void selezionaDifficileButtonOnAction(ActionEvent event) {
     }
     
 }

@@ -7,10 +7,12 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
@@ -42,6 +44,18 @@ public class AppViewController implements Initializable {
     private ImageView fotoProfilo;
     @FXML
     private VBox dashboardMenu;
+    @FXML
+    private HBox quickInfoUtente;
+    @FXML
+    private VBox schermataClassifiche;
+    @FXML
+    private TableView<?> facileTable;
+    @FXML
+    private TableView<?> mediaTable;
+    @FXML
+    private TableView<?> difficileTable;
+    @FXML
+    private Button chiudiClassificheButton;
 
     /**
      * Initializes the controller class.
@@ -51,14 +65,6 @@ public class AppViewController implements Initializable {
         // TODO
     }    
 
-    @FXML
-    private void accedi(ActionEvent event) {
-    }
-
-    @FXML
-    private void passaARegistrati(ActionEvent event) {
-        
-    }
 
     @FXML
     private void toggleDashboard(MouseEvent event) {
@@ -66,6 +72,26 @@ public class AppViewController implements Initializable {
 
     @FXML
     private void logout(ActionEvent event) {
+    }
+
+    @FXML
+    private void accediOnAction(ActionEvent event) {
+    }
+
+    @FXML
+    private void passaARegistratiOnAction(ActionEvent event) {
+    }
+
+    @FXML
+    private void startOnAction(ActionEvent event) {
+    }
+
+    @FXML
+    private void classificheOnAction(ActionEvent event) {
+    }
+
+    @FXML
+    private void chiudiClassificheOnAction(ActionEvent event) {
     }
     
 }

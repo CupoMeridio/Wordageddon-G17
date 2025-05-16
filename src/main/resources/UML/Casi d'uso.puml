@@ -21,7 +21,7 @@ rectangle Applicazione {
   usecase "Inserimento stopwords" as UC4
   usecase "Sessione di gioco (online)" as UC5
   usecase "Sessione di gioco (offline)" as UC6
-  usecase "Selezione preferenze" as UC7
+  usecase "Seleziona preferenze partita" as UC7
   
    UC5 <.. UC7 : <<extend>>
   UC1 ..> UC2 : <<extend>>

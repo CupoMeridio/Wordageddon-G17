@@ -17,11 +17,11 @@ actor Database
 rectangle Applicazione {
   usecase "Login" as UC1
   usecase "Registrazione" as UC2
-  usecase "Inserimento documento" as UC3
-  usecase "Inserimento stopwords" as UC4
-  usecase "Sessione di gioco (online)" as UC5
-  usecase "Sessione di gioco (offline)" as UC6
-  usecase "Selezione preferenze" as UC7
+  usecase "Inserimento documento (Online)" as UC3
+  usecase "Inserimento stopwords (Online)" as UC4
+  usecase "Sessione di gioco (Online)" as UC5
+  usecase "Sessione di gioco (Offline)" as UC6
+  usecase "Selezione preferenze partita" as UC7
   
    UC5 <.. UC7 : <<extend>>
   UC1 ..> UC2 : <<extend>>
@@ -48,14 +48,14 @@ Database -- UC3
 Amministratore -- UC4
 Database -- UC4
 
-
+Utente -- UC5
+Database -- UC5
 
 Ospite -- UC6
 
 Utente -- UC7
 Database -- UC7
-Utente -- UC5
-Database -- UC5
+
 
 
 

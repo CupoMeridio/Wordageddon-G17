@@ -1,0 +1,75 @@
+@startuml
+
+' Dichiarazione delle classi/interfacce
+
+interface DosLogin
+
+interface DosRegistrazione
+
+interface DosSessioneDiGioco
+
+interface DosAmministratore
+
+class DatabaseLogin
+
+class DatabaseRegistrazione
+
+class DatabaseSessioneDiGioco
+
+class DatabaseAmministratore
+
+class Utente
+
+class Amministratore
+
+class GiocatoreOspite
+
+abstract class SessioneDiGioco
+
+class SessioneDiGiocoOnline
+
+class SessioneDiGiocoOffline
+
+class RunMain
+
+class AppViewController
+
+' Relazioni tra classi
+
+DosLogin ..|> DatabaseLogin
+
+DosRegistrazione ..|> DatabaseRegistrazione
+
+DosAmministratore ..|> DatabaseAmministratore
+
+DosSessioneDiGioco ..|> DatabaseSessioneDiGioco
+
+SessioneDiGiocoOnline --|> SessioneDiGioco
+
+SessioneDiGiocoOffline --|> SessioneDiGioco
+
+SessioneDiGioco ..> DosSessioneDiGioco
+
+Utente <|--	Amministratore
+
+Utente ..> DosLogin
+
+Amministratore ..> DosAmministratore
+
+Utente ..> DosRegistrazione
+
+GiocatoreOspite -- SessioneDiGiocoOffline
+
+Utente -- SessioneDiGiocoOnline
+
+' Per ora mettiamo una view e una classe
+
+RunMain -- AppViewController
+
+AppViewController --> SessioneDiGioco
+
+AppViewControllerOffline --> GiocatoreOspite
+
+AppViewController --> Utente
+ 
+@enduml

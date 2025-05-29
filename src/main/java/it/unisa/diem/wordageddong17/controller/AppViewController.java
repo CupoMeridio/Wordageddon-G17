@@ -123,25 +123,46 @@ public class AppViewController implements Initializable {
     @FXML
     private void toggleDashboard(MouseEvent event) {
     }
-
+    
     @FXML
     private void logout(ActionEvent event) {
-    }
+        // Nasconde tutte le schermate e mostra solo il login
+        schermataDiLogin.setVisible(true);
+        schermataHome.setVisible(false);
+        schermataClassifiche.setVisible(false);
+        schermataSelezioneDifficoltà.setVisible(false);
+        dashboardMenu.setVisible(false);
+        
+        // Reset dei campi di login
+        emailTextField.clear();
+        passwordTextField.clear();
+    } // TODO: Implementare il logout 
 
     @FXML
     private void chiudiClassificheOnAction(ActionEvent event) {
+        schermataClassifiche.setVisible(false);
+        contenutoHome.setVisible(true);
     }
 
     @FXML
     private void selezionaFacileButtonOnAction(ActionEvent event) {
+        // Imposta la difficoltà su facile e inizia il gioco
+        schermataSelezioneDifficoltà.setVisible(false);
+        // TODO: Implementare l'avvio del gioco con difficoltà facile
     }
 
     @FXML
     private void selezionaMedioButtonOnAction(ActionEvent event) {
+        // Imposta la difficoltà su medio e inizia il gioco
+        schermataSelezioneDifficoltà.setVisible(false);
+        // TODO: Implementare l'avvio del gioco con difficoltà media
     }
 
     @FXML
     private void selezionaDifficileButtonOnAction(ActionEvent event) {
+        // Imposta la difficoltà su difficile e inizia il gioco
+        schermataSelezioneDifficoltà.setVisible(false);
+        // TODO: Implementare l'avvio del gioco con difficoltà difficile
     }
     
 }

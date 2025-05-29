@@ -38,6 +38,7 @@ public class DatabaseRegistrazioneLogin implements DosRegistrazione, DosLogin{
             pstmt.setString(1, username); // inserisce l' utente nella prima posizione del preparestatment
             pstmt.setString(2, email);
             pstmt.setString(3, passwordCriptata);
+            pstmt.setString(4, foto);
             pstmt.execute();// esegue il prepare statment
     }   catch (SQLException ex) {
             Logger.getLogger(DatabaseRegistrazioneLogin.class.getName()).log(Level.SEVERE, null, ex);

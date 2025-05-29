@@ -29,7 +29,7 @@ public class DatabaseRegistrazioneLogin implements DosRegistrazione, DosLogin{
     * 
     */
     @Override
-    public void inserisciUtente(String username, String email, String password, String foto) {
+    public void inserisciUtente(String username, String email, String password, byte[] foto) {
         
             String passwordCriptata = this.hashPassword(password);
         String query= "Insert into utente(username, email, password, foto_profilo) values (?,?,?,?) ";
@@ -38,7 +38,7 @@ public class DatabaseRegistrazioneLogin implements DosRegistrazione, DosLogin{
             pstmt.setString(1, username); // inserisce l' utente nella prima posizione del preparestatment
             pstmt.setString(2, email);
             pstmt.setString(3, passwordCriptata);
-            pstmt.setString(4, foto);
+            pstmt.setBytes(4, foto);
             pstmt.execute();// esegue il prepare statment
     }   catch (SQLException ex) {
             Logger.getLogger(DatabaseRegistrazioneLogin.class.getName()).log(Level.SEVERE, null, ex);
@@ -68,7 +68,7 @@ public class DatabaseRegistrazioneLogin implements DosRegistrazione, DosLogin{
             try (PreparedStatement pstmt = db.getConnection().prepareStatement(query)) {
             pstmt.setString(1, email); // inserisce l' utente nella prima posizione del preparestatment
             ResultSet result = pstmt.executeQuery();
-            pwPresa = result.getString(password);
+            pwPresa = result.getString("password");
         }catch (SQLException ex) {
             Logger.getLogger(DatabaseRegistrazioneLogin.class.getName()).log(Level.SEVERE, null, ex);
         }

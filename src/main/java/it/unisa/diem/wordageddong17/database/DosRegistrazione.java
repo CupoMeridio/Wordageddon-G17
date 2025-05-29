@@ -10,6 +10,6 @@ package it.unisa.diem.wordageddong17.database;
  */
 public interface DosRegistrazione {
     
-    public void inserisciUtente( String username, String email, String password,String foto);
+    public void inserisciUtente( String username, String email, String password,byte[] foto);
     
 }

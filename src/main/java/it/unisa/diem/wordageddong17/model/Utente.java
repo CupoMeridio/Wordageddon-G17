@@ -24,6 +24,14 @@ public class Utente {
         this.tipo = tipo;
     }
 
+    public Utente(String username, String email, int punteggio, String giocatore) {
+        this.username = username;
+        this.email = email;
+        this.punteggioMigliore = punteggio;
+        this.tipo = giocatore;
+        fotoProfilo = null;
+    }
+
     public String getUsername() {
         return username;
     }

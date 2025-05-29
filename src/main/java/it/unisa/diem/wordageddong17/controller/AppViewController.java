@@ -5,7 +5,9 @@
 package it.unisa.diem.wordageddong17.controller;
 
 import it.unisa.diem.wordageddong17.database.DatabaseRegistrazioneLogin;
+import it.unisa.diem.wordageddong17.model.Utente;
 import java.net.URL;
+import java.util.Base64;
 import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -197,16 +199,14 @@ public class AppViewController implements Initializable {
     
     /** @brief Istanza singleton del database per autenticazione */
     private final DatabaseRegistrazioneLogin db = DatabaseRegistrazioneLogin.getInstance();
-    
+    private Utente utente; 
 
     /**
      * Initializes the controller class.
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // TODO
-        //nasconde la dashboard inizialmente
-        dashboardMenu.setVisible(false);
+        
     }    
 
     /**
@@ -406,5 +406,46 @@ public class AppViewController implements Initializable {
         alert.setHeaderText(null);
         alert.setContentText(messaggio);
         alert.showAndWait();
+    }
+
+    @FXML
+    private void registerButtonOnAction(ActionEvent event) {
+        String base64Stringa = "";
+        byte[] immagineByte = Base64.getDecoder().decode(base64Stringa);
+        if(this.isValidEmail(email.getText())){
+            if(password.getText().equals(repeatPassword.getText())){
+            db.inserisciUtente(username.getText(), email.getText(), password.getText(), immagineByte);
+                    chiudiTutto();
+                    schermataHome.setVisible(true);
+                    benvenutoLabel.setText("Benvenuto"+username.getText());
+                    utente=new Utente(username.getText(), email.getText(), 0, "giocatore");
+                    pulisciTutto();
+            }
+            else{
+                mostraAlert("Password non corrispondenti", "Le due password inserite non corrispondono",Alert.AlertType.ERROR);
+            }
+        }
+        else{
+            mostraAlert("Email non valida", "L'email inserita non è valida.",Alert.AlertType.ERROR);
+        }
+        
+    }
+    
+    private void chiudiTutto(){
+        schermataDiRegistrazione.setVisible(false);
+        schermataDiLogin.setVisible(false);
+        schermataHome.setVisible(false);
+        schermataClassifiche.setVisible(false);
+        schermataSelezioneDifficoltà.setVisible(false);
+        dashboardMenu.setVisible(false);
+    }
+    
+    private void pulisciTutto(){
+        emailTextField.textProperty().set("");
+        passwordTextField.textProperty().set("");
+        username.textProperty().set("");
+        email.textProperty().set("");
+        password.textProperty().set("");
+        repeatPassword.textProperty().set("");
     }
 }

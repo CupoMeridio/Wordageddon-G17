@@ -1,10 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.*?>
-<?import java.lang.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.image.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TableColumn?>
@@ -19,14 +15,14 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unisa.diem.wordageddong17.controller.AppViewController">
+<BorderPane prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unisa.diem.wordageddong17.controller.AppViewController">
 
     <center>
         <StackPane fx:id="root" alignment="CENTER">
            <children>
    
                <!-- Schermata di login -->
-               <VBox fx:id="schermataDiLogin" alignment="CENTER" maxWidth="600" spacing="20.0" visible="false">
+               <VBox fx:id="schermataDiLogin" alignment="CENTER" maxWidth="600" spacing="20.0">
                    <children>
                        <ImageView fitHeight="150.0" fitWidth="300.0" pickOnBounds="true" preserveRatio="true">
                            <image>
@@ -191,7 +187,7 @@
                        </HBox>
                    </children>
                </VBox>
-            <HBox fx:id="schermataDiRegistrazione" prefHeight="100.0" prefWidth="200.0">
+            <HBox fx:id="schermataDiRegistrazione" prefHeight="100.0" prefWidth="200.0" visible="false">
                <children>
                   <VBox layoutY="100.0" prefHeight="517.0" prefWidth="400.0">
                      <children>
@@ -224,7 +220,7 @@
                                  </padding>
                               </Label>
                               <TextField fx:id="repeatPassword" promptText="Repeat password" />
-                              <Button fx:id="registerButton" mnemonicParsing="false" prefHeight="45.0" prefWidth="163.0" text="Registrati">
+                              <Button fx:id="registerButton" mnemonicParsing="false" onAction="#registerButtonOnAction" prefHeight="45.0" prefWidth="163.0" text="Registrati">
                                  <VBox.margin>
                                     <Insets left="50.0" top="30.0" />
                                  </VBox.margin>

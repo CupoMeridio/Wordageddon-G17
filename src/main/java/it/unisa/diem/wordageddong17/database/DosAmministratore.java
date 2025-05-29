@@ -10,4 +10,9 @@ package it.unisa.diem.wordageddong17.database;
  */
 public interface DosAmministratore {
     
+    public boolean CaricareStopwords(String email, byte[] documentoStopwords, String nomefile);
+    public boolean CaricareTesto(String email,String nomeFile, String difficolta, byte[] file);
+    public byte[] PrendiStopwords(String nomeFile);
+    public byte[] PrendiTesto(String nomeDocumento);
+    public boolean CancellaTesto(String nomeDocumento);
 }

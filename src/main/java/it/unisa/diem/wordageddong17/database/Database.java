@@ -55,14 +55,14 @@ public class Database {
      * @throws IllegalStateException se una delle variabili d'ambiente {@code DBNAME}, {@code USERNAME} o {@code PASSWORD} non è impostata.
      * @throws RuntimeException se si verifica un errore durante la connessione al database.
      */
-    private Database() {
+   private Database() {
         if (dbname == null || username == null || password == null) {
             throw new IllegalStateException("Variabili d'ambiente DBNAME, USERNAME o PASSWORD non sono impostate.");
         }
 
         try {
-            String url = "jdbc:mysql://localhost:3306/" + dbname + "?useSSL=false&serverTimezone=UTC";
-            connection = DriverManager.getConnection(url, username, password);
+            String url ="jdbc:postgresql://wordageddon-cupomeridio.i.aivencloud.com:17446/"+dbname+"?ssl=require&user="+username+"&password="+password;
+            connection= DriverManager.getConnection(url);
             System.out.println("Connessione al database riuscita.");
         } catch (SQLException e) {
             e.printStackTrace();

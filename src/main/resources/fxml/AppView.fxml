@@ -15,7 +15,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unisa.diem.wordageddong17.controller.AppViewController">
+<BorderPane prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/13" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unisa.diem.wordageddong17.controller.AppViewController">
 
     <center>
         <StackPane fx:id="root" alignment="CENTER">
@@ -241,7 +241,7 @@
                      <children>
                         <VBox prefHeight="600.0" prefWidth="426.0">
                            <children>
-                              <ImageView fx:id="imageView" fitHeight="208.0" fitWidth="204.0" pickOnBounds="true" preserveRatio="true">
+                              <ImageView fx:id="imageView" fitHeight="208.0" fitWidth="204.0" pickOnBounds="true" preserveRatio="true" onMouseClicked="#caricaIMG" xmlns:fx="http://javafx.com/fxml">
                                  <VBox.margin>
                                     <Insets left="100.0" top="200.0" />
                                  </VBox.margin>

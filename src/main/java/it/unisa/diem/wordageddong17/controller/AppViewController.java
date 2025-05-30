@@ -6,9 +6,14 @@ package it.unisa.diem.wordageddong17.controller;
 
 import it.unisa.diem.wordageddong17.database.DatabaseRegistrazioneLogin;
 import it.unisa.diem.wordageddong17.model.Utente;
+import java.io.File;
+import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
 import java.util.Base64;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -17,12 +22,14 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
 
 /**
  * FXML Controller class
@@ -200,7 +207,7 @@ public class AppViewController implements Initializable {
     /** @brief Istanza singleton del database per autenticazione */
     private final DatabaseRegistrazioneLogin db = DatabaseRegistrazioneLogin.getInstance();
     private Utente utente; 
-
+    private byte[] fotoProfiloBytes=null;   // -> vediamo se c'è una soluzione migliore
     /**
      * Initializes the controller class.
      */
@@ -410,11 +417,9 @@ public class AppViewController implements Initializable {
 
     @FXML
     private void registerButtonOnAction(ActionEvent event) {
-        String base64Stringa = "";
-        byte[] immagineByte = Base64.getDecoder().decode(base64Stringa);
         if(this.isValidEmail(email.getText())){
             if(password.getText().equals(repeatPassword.getText())){
-            db.inserisciUtente(username.getText(), email.getText(), password.getText(), immagineByte);
+            db.inserisciUtente(username.getText(), email.getText(), password.getText(), this.fotoProfiloBytes);
                     chiudiTutto();
                     schermataHome.setVisible(true);
                     benvenutoLabel.setText("Benvenuto"+username.getText());
@@ -430,6 +435,27 @@ public class AppViewController implements Initializable {
         }
         
     }
+    @FXML
+    private void caricaIMG(){
+    
+        FileChooser file= new FileChooser();
+        file.setTitle("Scegli l'immagine");
+        file.getExtensionFilters().addAll( new FileChooser.ExtensionFilter("Immagini", "*.png", "*.jpg", "*.jpeg"));
+        File img = file.showOpenDialog(null);
+        if (img != null){
+            try {
+                this.fotoProfiloBytes= Files.readAllBytes(img.toPath());
+                 mostraAlert("Immagine Selezionata ", "Immagine selezionata corettamente",Alert.AlertType.INFORMATION);
+                 this.imageView.setImage(new Image(img.toURI().toString()));
+            } catch (IOException ex) {
+                 mostraAlert("Errore nel caricare l' immagine ", "Ieccezione dell'errore",Alert.AlertType.ERROR);
+            }
+        }else{
+             mostraAlert("Immagine non Selezionata ", "Immagine selezionata corettamente",Alert.AlertType.INFORMATION);
+        }
+    }
+    
+    
     
     private void chiudiTutto(){
         schermataDiRegistrazione.setVisible(false);

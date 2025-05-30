@@ -4,6 +4,8 @@
  */
 package it.unisa.diem.wordageddong17.database;
 
+import java.util.List;
+
 /**
  *
  * @author Mattia Sanzari
@@ -12,5 +14,6 @@ public interface DosLogin {
     
     public String prendiUsername(String email);
     public boolean verificaPassword(String email, String password);
+    public List<Object> prendiUtente(String email);
     
 }

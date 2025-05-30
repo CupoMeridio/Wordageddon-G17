@@ -24,7 +24,7 @@ public class Utente {
         this.tipo = tipo;
     }
 
-    public Utente(String username, String email, int punteggio, String giocatore) {
+    public Utente(String username, String email, float punteggio, String giocatore) {
         this.username = username;
         this.email = email;
         this.punteggioMigliore = punteggio;

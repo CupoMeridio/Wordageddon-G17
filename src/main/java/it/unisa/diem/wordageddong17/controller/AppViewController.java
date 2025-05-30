@@ -6,17 +6,22 @@ package it.unisa.diem.wordageddong17.controller;
 
 import it.unisa.diem.wordageddong17.database.DatabaseRegistrazioneLogin;
 import it.unisa.diem.wordageddong17.model.Utente;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Base64;
+import java.util.List;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Point2D;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -253,14 +258,24 @@ public class AppViewController implements Initializable {
       
       boolean pwCorretta = db.verificaPassword(email, password);
       
-      if(pwCorretta){
+      if(pwCorretta){   
           String username = db.prendiUsername(email);
-          benvenutoLabel.setText("Benvenuto " + username);
-          
-          emailTextField.clear();
-          passwordTextField.clear();
-          schermataDiLogin.setVisible(false);
-          schermataHome.setVisible(true);
+              benvenutoLabel.setText("Benvenuto " + username);
+              List<Object> L= db.prendiUtente(email);
+              
+             /* L.add(result.getString("email"));
+                L.add(result.getString("username"));
+                L.add(result.getFloat("punteggio_migliore"));
+                L.add(result.getBytes("foto_profilo"));
+                L.add(result.getString("tipo"));*/
+             if(L.get(0).getClass().equals(String.class.getClass())){
+                 
+             }
+              
+              emailTextField.clear();
+              passwordTextField.clear();
+              schermataDiLogin.setVisible(false);
+              schermataHome.setVisible(true);
       } else {
           mostraAlert("Errore", "Email o password errati", Alert.AlertType.WARNING);
       }
@@ -423,8 +438,12 @@ public class AppViewController implements Initializable {
                     chiudiTutto();
                     schermataHome.setVisible(true);
                     benvenutoLabel.setText("Benvenuto"+username.getText());
+                if(this.fotoProfiloBytes == null){
                     utente=new Utente(username.getText(), email.getText(), 0, "giocatore");
-                    pulisciTutto();
+                }else{
+                     utente=new Utente(username.getText(), email.getText(), 0,this.fotoProfiloBytes, "giocatore");
+                }
+                pulisciTutto();
             }
             else{
                 mostraAlert("Password non corrispondenti", "Le due password inserite non corrispondono",Alert.AlertType.ERROR);
@@ -441,12 +460,14 @@ public class AppViewController implements Initializable {
         FileChooser file= new FileChooser();
         file.setTitle("Scegli l'immagine");
         file.getExtensionFilters().addAll( new FileChooser.ExtensionFilter("Immagini", "*.png", "*.jpg", "*.jpeg"));
-        File img = file.showOpenDialog(null);
+        File img = file.showOpenDialog(this.imageView.getScene().getWindow());
         if (img != null){
             try {
                 this.fotoProfiloBytes= Files.readAllBytes(img.toPath());
                  mostraAlert("Immagine Selezionata ", "Immagine selezionata corettamente",Alert.AlertType.INFORMATION);
-                 this.imageView.setImage(new Image(img.toURI().toString()));
+                //this.imageView.setImage(new Image(img.toURI().toString()));
+                
+                 this.imageView.setImage(this.getImageFromByte(this.fotoProfiloBytes));
             } catch (IOException ex) {
                  mostraAlert("Errore nel caricare l' immagine ", "Ieccezione dell'errore",Alert.AlertType.ERROR);
             }
@@ -455,7 +476,10 @@ public class AppViewController implements Initializable {
         }
     }
     
-    
+    private Image getImageFromByte(byte[] img){
+        ByteArrayInputStream bis = new ByteArrayInputStream(img);
+        return(  new Image(bis));
+    }
     
     private void chiudiTutto(){
         schermataDiRegistrazione.setVisible(false);

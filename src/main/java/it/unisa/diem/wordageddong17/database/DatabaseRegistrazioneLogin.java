@@ -7,6 +7,8 @@ package it.unisa.diem.wordageddong17.database;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.mindrot.jbcrypt.BCrypt;
@@ -53,7 +55,9 @@ public class DatabaseRegistrazioneLogin implements DosRegistrazione, DosLogin{
             try (PreparedStatement pstmt = db.getConnection().prepareStatement(query)) {
             pstmt.setString(1, email); // inserisce l' utente nella prima posizione del preparestatment
             ResultSet result = pstmt.executeQuery();
-            usernamePresa = result.getString(email);
+            if(result.next()){
+                usernamePresa = result.getString("username");
+            }
     }   catch (SQLException ex) {
             Logger.getLogger(DatabaseRegistrazioneLogin.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -66,9 +70,13 @@ public class DatabaseRegistrazioneLogin implements DosRegistrazione, DosLogin{
         String query= "Select password from utente where email= ? ";
         String pwPresa=null;
             try (PreparedStatement pstmt = db.getConnection().prepareStatement(query)) {
-            pstmt.setString(1, email); // inserisce l' utente nella prima posizione del preparestatment
+            pstmt.setString(1, email); 
             ResultSet result = pstmt.executeQuery();
-            pwPresa = result.getString("password");
+            if(result.next()){
+                pwPresa = result.getString("password");
+            }else{
+                return false;
+            }
         }catch (SQLException ex) {
             Logger.getLogger(DatabaseRegistrazioneLogin.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -108,6 +116,30 @@ public class DatabaseRegistrazioneLogin implements DosRegistrazione, DosLogin{
 
     private boolean checkPassword(String password, String hashed) {
         return BCrypt.checkpw(password, hashed);
+    }
+
+    @Override
+    public List<Object> prendiUtente(String email) {
+        ResultSet result=null;
+        List<Object> L= new ArrayList<>();
+        String query= "SELECT username, email, punteggio_migliore, foto_profilo, tipo\n" +
+"	FROM utente where email= ?;";
+         try (PreparedStatement pstmt = db.getConnection().prepareStatement(query)) {
+            pstmt.setString(1, email); 
+            result = pstmt.executeQuery();
+            if(result.next()){
+                L.add(result.getString("email"));
+                L.add(result.getString("username"));
+                L.add(result.getFloat("punteggio_migliore"));
+                L.add(result.getBytes("foto_profilo"));
+                L.add(result.getString("tipo"));
+            }
+         }catch(SQLException ex) {
+            Logger.getLogger(DatabaseRegistrazioneLogin.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+         
+         return L;
     }
     
      /**

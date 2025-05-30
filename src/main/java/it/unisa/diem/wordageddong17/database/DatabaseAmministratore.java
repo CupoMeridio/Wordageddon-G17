@@ -53,7 +53,9 @@ public class DatabaseAmministratore implements DosAmministratore {
         try (PreparedStatement pstmt = db.getConnection().prepareStatement(query)) {
             pstmt.setString(1, nomeFile); // inserisce il nome  nella prima posizione del preparestatment
             ResultSet r = pstmt.executeQuery();
+            if(r.next()){
             risultato = r.getBytes("documento");
+            }
             }   catch (SQLException ex) {
             Logger.getLogger(DatabaseRegistrazioneLogin.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -104,7 +106,9 @@ public class DatabaseAmministratore implements DosAmministratore {
             
             pstmt.setString(1, nomeDocumento); // inserisce l' utente nella prima posizione del preparestatment  
             ResultSet r= pstmt.executeQuery();
+            if(r.next()){
             risultato=r.getBytes("documento");
+            }
         }catch (SQLException ex) {
             Logger.getLogger(DatabaseRegistrazioneLogin.class.getName()).log(Level.SEVERE, null, ex);
         }

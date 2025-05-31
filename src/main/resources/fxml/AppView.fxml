@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextArea?>
@@ -15,7 +15,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/13" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unisa.diem.wordageddong17.controller.AppViewController">
+<BorderPane prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unisa.diem.wordageddong17.controller.AppViewController">
 
     <center>
         <StackPane fx:id="root" alignment="CENTER">
@@ -41,7 +41,7 @@
                                <VBox alignment="CENTER" spacing="5.0">
                                    <children>
                                        <Label text="Password" />
-                                       <TextField fx:id="passwordTextField" alignment="CENTER" promptText="Inserisci la tua password" />
+                                       <PasswordField fx:id="passwordTextField" alignment="CENTER" promptText="Inserisci la tua password" />
                                    </children>
                                </VBox>
                            </children>
@@ -187,74 +187,36 @@
                        </HBox>
                    </children>
                </VBox>
-            <HBox fx:id="schermataDiRegistrazione" prefHeight="100.0" prefWidth="200.0" visible="false">
-               <children>
-                  <VBox layoutY="100.0" prefHeight="517.0" prefWidth="400.0">
-                     <children>
-                        <VBox layoutY="100.0" prefHeight="600.0" prefWidth="400.0">
-                           <children>
-                              <Label fx:id="usernameLabel" text="Username">
-                                 <padding>
-                                    <Insets bottom="10.0" />
-                                 </padding>
-                              </Label>
-                              <TextField fx:id="username" minHeight="-Infinity" minWidth="-Infinity" prefHeight="31.0" prefWidth="240.0" promptText="Username..." />
-                              <Label fx:id="emailLabel" text="E-mail">
-                                 <VBox.margin>
-                                    <Insets />
-                                 </VBox.margin>
-                                 <padding>
-                                    <Insets bottom="10.0" top="10.0" />
-                                 </padding>
-                              </Label>
-                              <TextField fx:id="email" promptText="mariorossi@gmail.com" />
-                              <Label fx:id="passwordLabel" text="Password">
-                                 <padding>
-                                    <Insets bottom="10.0" top="10.0" />
-                                 </padding>
-                              </Label>
-                              <TextField fx:id="password" promptText="Password" />
-                              <Label fx:id="repeatLabel" text="Repeat password">
-                                 <padding>
-                                    <Insets bottom="10.0" top="10.0" />
-                                 </padding>
-                              </Label>
-                              <TextField fx:id="repeatPassword" promptText="Repeat password" />
-                              <Button fx:id="registerButton" mnemonicParsing="false" onAction="#registerButtonOnAction" prefHeight="45.0" prefWidth="163.0" text="Registrati">
-                                 <VBox.margin>
-                                    <Insets left="50.0" top="30.0" />
-                                 </VBox.margin>
-                              </Button>
-                              <Button fx:id="registerPageLogin" mnemonicParsing="false" prefHeight="46.0" prefWidth="348.0" text="Hai già un account? Effettua il login">
-                                 <VBox.margin>
-                                    <Insets top="10.0" />
-                                 </VBox.margin>
-                              </Button>
-                           </children>
-                           <padding>
-                              <Insets left="50.0" right="50.0" top="150.0" />
-                           </padding>
-                        </VBox>
-                     </children>
-                  </VBox>
-                  <HBox prefHeight="600.0" prefWidth="396.0">
-                     <children>
-                        <VBox prefHeight="600.0" prefWidth="426.0">
-                           <children>
-                              <ImageView fx:id="imageView" fitHeight="208.0" fitWidth="204.0" pickOnBounds="true" preserveRatio="true" onMouseClicked="#caricaIMG" xmlns:fx="http://javafx.com/fxml">
-                                 <VBox.margin>
-                                    <Insets left="100.0" top="200.0" />
-                                 </VBox.margin>
-                                 <image>
-                                    <Image url="@../imgs/Profile_avatar_placeholder_large.png" />
-                                 </image>
-                              </ImageView>
-                           </children>
-                        </VBox>
-                     </children>
-                  </HBox>
-               </children>
-            </HBox>
+            <HBox fx:id="schermataDiRegistrazione" alignment="CENTER" spacing="50" style="-fx-padding: 40;" visible="false">
+        <children>
+            <!-- Form di registrazione -->
+            <VBox alignment="CENTER" maxWidth="400" spacing="15" HBox.hgrow="ALWAYS">
+                <Label fx:id="usernameLabel" text="Username" />
+                <TextField fx:id="username" maxWidth="Infinity" promptText="Username..." />
+
+                <Label fx:id="emailLabel" text="E-mail" />
+                <TextField fx:id="email" maxWidth="Infinity" promptText="mariorossi@gmail.com" />
+
+                <Label fx:id="passwordLabel" text="Password" />
+                <PasswordField fx:id="password" maxWidth="Infinity" promptText="Password" />
+
+                <Label fx:id="repeatLabel" text="Repeat password" />
+                <PasswordField fx:id="repeatPassword" maxWidth="Infinity" promptText="Repeat password" />
+
+                <Button fx:id="registerButton" maxWidth="Infinity" onAction="#registerButtonOnAction" text="Registrati" />
+                <Button fx:id="registerPageLogin" maxWidth="Infinity" onAction="#passaALogin" text="Hai già un account? Effettua il login" />
+            </VBox>
+
+            <!-- Immagine profilo -->
+            <VBox alignment="CENTER" maxWidth="300" HBox.hgrow="ALWAYS">
+                <ImageView fx:id="imageView" fitHeight="208" fitWidth="208" onMouseClicked="#caricaIMG" pickOnBounds="true" preserveRatio="true">
+                    <image>
+                        <Image url="@../imgs/Profile_avatar_placeholder_large.png" />
+                    </image>
+                </ImageView>
+            </VBox>
+        </children>
+    </HBox>
            </children>
 
         </StackPane>

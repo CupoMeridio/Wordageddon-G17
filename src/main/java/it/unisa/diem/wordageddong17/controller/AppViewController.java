@@ -1,27 +1,16 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/javafx/FXMLController.java to edit this template
- */
 package it.unisa.diem.wordageddong17.controller;
 
 import it.unisa.diem.wordageddong17.database.DatabaseRegistrazioneLogin;
 import it.unisa.diem.wordageddong17.model.Utente;
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.IOException;
 import java.net.URL;
-import java.nio.file.Files;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Base64;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.geometry.Point2D;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -38,8 +27,6 @@ import javafx.stage.FileChooser;
 
 /**
  * FXML Controller class
- *
- * @author giaro
  */
 
 /**
@@ -249,6 +236,7 @@ public class AppViewController implements Initializable {
       
       if(email.isEmpty() || password.isEmpty()){
           mostraAlert("Errore\n", "I campi non possono essere vuoti\n", Alert.AlertType.WARNING);
+          return;
       } 
       
       if (!isValidEmail(email)) {
@@ -258,23 +246,37 @@ public class AppViewController implements Initializable {
       
       boolean pwCorretta = db.verificaPassword(email, password);
       
-      if(pwCorretta){   
-          String username = db.prendiUsername(email);
-              benvenutoLabel.setText("Benvenuto " + username);
-              List<Object> L= db.prendiUtente(email);
-              
-             /* L.add(result.getString("email"));
-                L.add(result.getString("username"));
-                L.add(result.getFloat("punteggio_migliore"));
-                L.add(result.getBytes("foto_profilo"));
-                L.add(result.getString("tipo"));*/
-             if(L.get(0).getClass().equals(String.class.getClass())){
-                 
-             }
-              
+      if(pwCorretta){
+            String emailU=null;
+            String usernameU=null;
+            float punteggioU=0;
+            byte[] fotoU=null;
+            String tipoU=null;
+              List<Object> L = db.prendiUtente(email);
+
+            if (L != null && L.size() >= 5) {
+                if (L.get(0) instanceof String) emailU = (String) L.get(0);
+                if (L.get(1) instanceof String) usernameU = (String) L.get(1);
+                if (L.get(2) instanceof Float) punteggioU = (Float) L.get(2);
+                else if (L.get(2) instanceof Double) punteggioU = ((Double) L.get(2)).floatValue(); // nel caso arrivi double
+                if (L.get(3) instanceof byte[]) fotoU = (byte[]) L.get(3);
+                if (L.get(4) instanceof String) tipoU = (String) L.get(4);
+                } else {
+                mostraAlert("Errore", "Dati utente incompleti o nulli", Alert.AlertType.ERROR);
+                return;
+}
+              if(fotoU!=null && fotoU.length > 0){
+                  this.utente = new Utente(usernameU,emailU,punteggioU,fotoU,tipoU);
+                  fotoProfilo.setImage(getImageFromByte(fotoU));
+              }
+              else{
+                  this.utente = new Utente(usernameU,emailU,punteggioU,tipoU);
+                  fotoProfilo.setImage(getPlaceholderImage());
+              }
+              benvenutoLabel.setText("Benvenuto "+usernameU);
               emailTextField.clear();
               passwordTextField.clear();
-              schermataDiLogin.setVisible(false);
+              chiudiTutto();
               schermataHome.setVisible(true);
       } else {
           mostraAlert("Errore", "Email o password errati", Alert.AlertType.WARNING);
@@ -290,11 +292,7 @@ public class AppViewController implements Initializable {
      */
     @FXML
     private void passaARegistratiOnAction(ActionEvent event) {
-        schermataDiLogin.setVisible(false);
-        schermataHome.setVisible(false);
-        schermataClassifiche.setVisible(false);
-        schermataSelezioneDifficoltà.setVisible(false);
-        dashboardMenu.setVisible(false);
+        chiudiTutto();
         
         schermataDiRegistrazione.setVisible(true);
         
@@ -310,11 +308,7 @@ public class AppViewController implements Initializable {
     @FXML
     private void startOnAction(ActionEvent event) {
         
-        schermataDiLogin.setVisible(false);
-        schermataHome.setVisible(false);
-        schermataClassifiche.setVisible(false);
-        schermataSelezioneDifficoltà.setVisible(false);
-        dashboardMenu.setVisible(false);
+        chiudiTutto();
         
         schermataSelezioneDifficoltà.setVisible(true);
     }
@@ -363,8 +357,8 @@ public class AppViewController implements Initializable {
 
     @FXML
     private void chiudiClassificheOnAction(ActionEvent event) {
-        schermataClassifiche.setVisible(false);
-        contenutoHome.setVisible(true);
+        chiudiTutto();
+        schermataHome.setVisible(true);
     }
 
     @FXML
@@ -440,8 +434,10 @@ public class AppViewController implements Initializable {
                     benvenutoLabel.setText("Benvenuto"+username.getText());
                 if(this.fotoProfiloBytes == null){
                     utente=new Utente(username.getText(), email.getText(), 0, "giocatore");
+                    fotoProfilo.setImage(getPlaceholderImage());
                 }else{
                      utente=new Utente(username.getText(), email.getText(), 0,this.fotoProfiloBytes, "giocatore");
+                     fotoProfilo.setImage(getImageFromByte(this.fotoProfiloBytes));
                 }
                 pulisciTutto();
             }
@@ -454,25 +450,43 @@ public class AppViewController implements Initializable {
         }
         
     }
-    @FXML
-    private void caricaIMG(){
     
-        FileChooser file= new FileChooser();
-        file.setTitle("Scegli l'immagine");
-        file.getExtensionFilters().addAll( new FileChooser.ExtensionFilter("Immagini", "*.png", "*.jpg", "*.jpeg"));
-        File img = file.showOpenDialog(this.imageView.getScene().getWindow());
-        if (img != null){
-            try {
-                this.fotoProfiloBytes= Files.readAllBytes(img.toPath());
-                 mostraAlert("Immagine Selezionata ", "Immagine selezionata corettamente",Alert.AlertType.INFORMATION);
-                //this.imageView.setImage(new Image(img.toURI().toString()));
-                
-                 this.imageView.setImage(this.getImageFromByte(this.fotoProfiloBytes));
-            } catch (IOException ex) {
-                 mostraAlert("Errore nel caricare l' immagine ", "Ieccezione dell'errore",Alert.AlertType.ERROR);
-            }
-        }else{
-             mostraAlert("Immagine non Selezionata ", "Immagine selezionata corettamente",Alert.AlertType.INFORMATION);
+    @FXML
+    private void caricaIMG() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.getExtensionFilters().addAll(
+            new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg", "*.gif")
+        );
+        File file = fileChooser.showOpenDialog(null);
+
+        if (file != null) {
+            // Caricamento in background
+            Task<Image> loadImageTask = new Task<>() {
+                @Override
+                protected Image call() throws Exception {
+                    return new Image(file.toURI().toString());
+                }
+            };
+
+            loadImageTask.setOnSucceeded(event -> {
+                Image image = loadImageTask.getValue();
+                if (image != null) {
+                    fotoProfilo.setImage(image);
+                    mostraAlert("Successo", "Immagine selezionata correttamente", Alert.AlertType.INFORMATION);
+                } else {
+                    mostraAlert("Errore", "Errore nel caricamento dell'immagine", Alert.AlertType.ERROR);
+                }
+            });
+
+            loadImageTask.setOnFailed(event -> {
+                mostraAlert("Errore", "Errore nel caricamento dell'immagine", Alert.AlertType.ERROR);
+            });
+
+            new Thread(loadImageTask).start();
+
+        } else {
+            // Nessun file selezionato: messaggio corretto
+            mostraAlert("Info", "Nessuna immagine selezionata", Alert.AlertType.INFORMATION);
         }
     }
     
@@ -497,5 +511,15 @@ public class AppViewController implements Initializable {
         email.textProperty().set("");
         password.textProperty().set("");
         repeatPassword.textProperty().set("");
+    }
+    
+    private Image getPlaceholderImage() {
+        return new Image(getClass().getResource("/imgs/person.png").toExternalForm());
+    }
+
+    @FXML
+    private void passaALogin(ActionEvent event) {
+        chiudiTutto();
+        schermataDiLogin.setVisible(true);
     }
 }

@@ -1,7 +1,4 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package it.unisa.diem.wordageddong17.database;
 
 import java.sql.PreparedStatement;
@@ -40,7 +37,11 @@ public class DatabaseRegistrazioneLogin implements DosRegistrazione, DosLogin{
             pstmt.setString(1, username); // inserisce l' utente nella prima posizione del preparestatment
             pstmt.setString(2, email);
             pstmt.setString(3, passwordCriptata);
-            pstmt.setBytes(4, foto);
+            if (foto != null) {
+                pstmt.setBytes(4, foto);
+            } else {
+                pstmt.setNull(4, java.sql.Types.BINARY);
+            }
             pstmt.execute();// esegue il prepare statment
     }   catch (SQLException ex) {
             Logger.getLogger(DatabaseRegistrazioneLogin.class.getName()).log(Level.SEVERE, null, ex);
@@ -80,7 +81,8 @@ public class DatabaseRegistrazioneLogin implements DosRegistrazione, DosLogin{
         }catch (SQLException ex) {
             Logger.getLogger(DatabaseRegistrazioneLogin.class.getName()).log(Level.SEVERE, null, ex);
         }
-           return this.checkPassword(password, pwPresa); // controlla se la password è corretta 
+        if (pwPresa == null) return false;
+        return this.checkPassword(password, pwPresa);
     }
         
     

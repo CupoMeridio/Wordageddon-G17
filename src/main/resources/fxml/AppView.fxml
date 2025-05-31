@@ -22,7 +22,7 @@
            <children>
    
                <!-- Schermata di login -->
-               <VBox fx:id="schermataDiLogin" alignment="CENTER" maxWidth="600" spacing="20.0">
+               <VBox fx:id="schermataDiLogin" alignment="CENTER" spacing="20.0">
                    <children>
                        <ImageView fitHeight="150.0" fitWidth="300.0" pickOnBounds="true" preserveRatio="true">
                            <image>
@@ -57,7 +57,7 @@
       <children>
       
                       <!-- Contenuto principale -->
-                      <VBox fx:id="contenutoHome" alignment="CENTER" layoutY="179.0" spacing="20.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="179.0">
+                      <VBox fx:id="contenutoHome" alignment="CENTER" layoutY="179.0" spacing="20.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                           <children>
                               <ImageView fitHeight="150.0" fitWidth="250.0" pickOnBounds="true" preserveRatio="true">
                                   <image>
@@ -93,16 +93,16 @@
                </AnchorPane>
    
                <!-- Schermata Classifiche -->
-               <VBox fx:id="schermataClassifiche" alignment="TOP_CENTER" maxWidth="700.0" spacing="10.0" visible="false">
+               <VBox fx:id="schermataClassifiche" alignment="CENTER" spacing="10.0" visible="false">
                    <children>
                        <Label text="Classifiche globali" />
                        <HBox alignment="TOP_CENTER" spacing="20.0" VBox.vgrow="ALWAYS">
                            <children>
                                <!-- Facile -->
-                               <VBox alignment="TOP_CENTER" prefWidth="200.0">
+                               <VBox alignment="TOP_CENTER">
                                    <children>
                                        <Label text="Facile" />
-                                       <TableView fx:id="facileTable" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
+                                       <TableView fx:id="facileTable" VBox.vgrow="ALWAYS">
                                            <columns>
                                                <TableColumn prefWidth="105.0" text="Nome" />
                                                <TableColumn prefWidth="93.0" text="Punteggio" />
@@ -118,7 +118,7 @@
                                <VBox alignment="TOP_CENTER">
                                    <children>
                                        <Label text="Media" />
-                                       <TableView fx:id="mediaTable" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
+                                       <TableView fx:id="mediaTable" VBox.vgrow="ALWAYS">
                                            <columns>
                                                <TableColumn prefWidth="100.0" text="Nome" />
                                                <TableColumn prefWidth="100.0" text="Punteggio" />
@@ -134,7 +134,7 @@
                                <VBox alignment="TOP_CENTER">
                                    <children>
                                        <Label text="Difficile" />
-                                       <TableView fx:id="difficileTable" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
+                                       <TableView fx:id="difficileTable" VBox.vgrow="ALWAYS">
                                            <columns>
                                                <TableColumn prefWidth="100.0" text="Nome" />
                                                <TableColumn prefWidth="100.0" text="Punteggio" />

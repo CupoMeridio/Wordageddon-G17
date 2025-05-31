@@ -23,6 +23,8 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.shape.Circle;
+import javafx.scene.shape.Rectangle;
 import javafx.stage.FileChooser;
 
 /**
@@ -205,6 +207,8 @@ public class AppViewController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        ritagliaQuadrato(imageView, 250);  // per la schermata di registrazione
+        ritagliaCerchio(fotoProfilo, 40);
         
     }    
 
@@ -471,7 +475,7 @@ public class AppViewController implements Initializable {
             loadImageTask.setOnSucceeded(event -> {
                 Image image = loadImageTask.getValue();
                 if (image != null) {
-                    fotoProfilo.setImage(image);
+                    imageView.setImage(image);
                     mostraAlert("Successo", "Immagine selezionata correttamente", Alert.AlertType.INFORMATION);
                 } else {
                     mostraAlert("Errore", "Errore nel caricamento dell'immagine", Alert.AlertType.ERROR);
@@ -522,4 +526,51 @@ public class AppViewController implements Initializable {
         chiudiTutto();
         schermataDiLogin.setVisible(true);
     }
+    
+    private void ritagliaQuadrato(ImageView imageView, double dimensione) {
+        imageView.setFitWidth(dimensione);
+        imageView.setFitHeight(dimensione);
+        imageView.setPreserveRatio(true);
+
+        Rectangle clip = new Rectangle(dimensione, dimensione);
+        imageView.setClip(clip);
+
+        // Centrare l'immagine ritagliando l'eccesso con viewport
+        imageView.imageProperty().addListener((obs, oldImg, newImg) -> {
+            if (newImg != null) {
+                double imgWidth = newImg.getWidth();
+                double imgHeight = newImg.getHeight();
+
+                double viewportSize = Math.min(imgWidth, imgHeight); // lato minore per ritaglio quadrato
+                double xOffset = (imgWidth - viewportSize) / 2;
+                double yOffset = (imgHeight - viewportSize) / 2;
+
+                imageView.setViewport(new javafx.geometry.Rectangle2D(xOffset, yOffset, viewportSize, viewportSize));
+            }
+        });
+    }
+    
+    private void ritagliaCerchio(ImageView imageView, double dimensione) {
+        imageView.setFitWidth(dimensione);
+        imageView.setFitHeight(dimensione);
+        imageView.setPreserveRatio(true);
+
+        // Clip circolare centrata
+        Circle clip = new Circle(dimensione / 2, dimensione / 2, dimensione / 2);
+        imageView.setClip(clip);
+
+        imageView.imageProperty().addListener((obs, oldImg, newImg) -> {
+            if (newImg != null) {
+                double imgWidth = newImg.getWidth();
+                double imgHeight = newImg.getHeight();
+
+                double viewportSize = Math.min(imgWidth, imgHeight); // ritaglio centrato
+                double xOffset = (imgWidth - viewportSize) / 2;
+                double yOffset = (imgHeight - viewportSize) / 2;
+
+                imageView.setViewport(new javafx.geometry.Rectangle2D(xOffset, yOffset, viewportSize, viewportSize));
+            }
+        });
+    }
+    
 }

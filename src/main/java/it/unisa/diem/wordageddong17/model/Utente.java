@@ -4,16 +4,20 @@
  */
 package it.unisa.diem.wordageddong17.model;
 
+import it.unisa.diem.wordageddong17.database.DatabaseUtente;
+import it.unisa.diem.wordageddong17.database.DosUtente;
+
 /**
  *
  * @author Mattia Sanzari
  */
 public class Utente {
     
-    private final String username;
+    DosUtente db;
+    private String username;
     private final String email;
     private final float punteggioMigliore;
-    private final byte[] fotoProfilo;
+    private byte[] fotoProfilo;
     private final String tipo; // -> futura enumerazione
 
     public Utente(String username, String email, float punteggioMigliore, byte[] fotoProfilo, String tipo) {
@@ -22,6 +26,7 @@ public class Utente {
         this.punteggioMigliore = punteggioMigliore;
         this.fotoProfilo = fotoProfilo;
         this.tipo = tipo;
+        db= DatabaseUtente.getInstance();
     }
 
     public Utente(String username, String email, float punteggio, String giocatore) {
@@ -52,6 +57,24 @@ public class Utente {
         return tipo;
     }
 
+    public void setUsername(String username) {
+        if(db.modificaUsername(email, username)){
+            this.username = username;
+        }else{
+            System.out.println("User name non cambiato");
+        }
+    }
+
+    public void setFotoProfilo(byte[] fotoProfilo) {
+        if(db.modificaFotoProfilo(email, fotoProfilo)){
+            this.fotoProfilo = fotoProfilo;
+        }else{
+            System.out.println("Foto name non cambiato");
+        }
+    }
+    
+    
+    
     @Override
     public String toString() {
         return "Utente{" + "username=" + username + ", email=" + email + ", punteggioMigliore=" + punteggioMigliore + ", fotoProfilo=" + fotoProfilo + ", tipo=" + tipo + '}';

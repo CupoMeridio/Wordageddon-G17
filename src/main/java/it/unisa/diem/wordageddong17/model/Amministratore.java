@@ -5,6 +5,7 @@
 package it.unisa.diem.wordageddong17.model;
 
 import it.unisa.diem.wordageddong17.database.DatabaseAmministratore;
+import it.unisa.diem.wordageddong17.database.DosAmministratore;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -19,7 +20,7 @@ import javafx.stage.FileChooser;
  */
 public class Amministratore extends Utente {
     
-    DatabaseAmministratore db;
+    DosAmministratore db;// deve dipendere dalla interfaccia 
     
     public Amministratore(String username, String email, float punteggioMigliore, byte[] fotoProfilo, String tipo) {
         super(username, email, punteggioMigliore, fotoProfilo, tipo);
@@ -33,7 +34,7 @@ public class Amministratore extends Utente {
        if(db.CaricareTesto(this.getEmail(), Nomefile, Difficolta, documentoDaCaricare)){
            System.out.println("Documento caricato");
        }else{
-            System.out.println("Documento non caricato");
+           System.out.println("Documento non caricato");
        }
     }
     

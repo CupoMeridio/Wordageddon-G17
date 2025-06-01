@@ -15,7 +15,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unisa.diem.wordageddong17.controller.AppViewController">
+<BorderPane xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unisa.diem.wordageddong17.controller.AppViewController">
 
     <center>
         <StackPane fx:id="root" alignment="CENTER">
@@ -104,6 +104,7 @@
                                        <Label text="Facile" />
                                        <TableView fx:id="facileTable" VBox.vgrow="ALWAYS">
                                            <columns>
+                                    <TableColumn prefWidth="75.0" text="Posizione" />
                                                <TableColumn prefWidth="105.0" text="Nome" />
                                                <TableColumn prefWidth="93.0" text="Punteggio" />
                                            </columns>
@@ -120,6 +121,7 @@
                                        <Label text="Media" />
                                        <TableView fx:id="mediaTable" VBox.vgrow="ALWAYS">
                                            <columns>
+                                    <TableColumn prefWidth="75.0" text="Posizione" />
                                                <TableColumn prefWidth="100.0" text="Nome" />
                                                <TableColumn prefWidth="100.0" text="Punteggio" />
                                            </columns>
@@ -136,6 +138,7 @@
                                        <Label text="Difficile" />
                                        <TableView fx:id="difficileTable" VBox.vgrow="ALWAYS">
                                            <columns>
+                                    <TableColumn prefWidth="75.0" text="Posizione" />
                                                <TableColumn prefWidth="100.0" text="Nome" />
                                                <TableColumn prefWidth="100.0" text="Punteggio" />
                                            </columns>

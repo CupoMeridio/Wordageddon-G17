@@ -7,6 +7,7 @@ import java.io.File;
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
+import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -202,6 +203,9 @@ public class AppViewController implements Initializable {
     private final DatabaseRegistrazioneLogin db = DatabaseRegistrazioneLogin.getInstance();
     private Utente utente; 
     private byte[] fotoProfiloBytes=null;   // -> vediamo se c'è una soluzione migliore
+    private ObservableList<String> classificaFacile;
+    private ObservableList<String> classificaMedia;
+    private ObservableList<String> classificaDifficile;
     /**
      * Initializes the controller class.
      */

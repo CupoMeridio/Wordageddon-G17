@@ -1,6 +1,7 @@
 package it.unisa.diem.wordageddong17.controller;
 
 import it.unisa.diem.wordageddong17.database.DatabaseRegistrazioneLogin;
+import it.unisa.diem.wordageddong17.model.TipoUtente;
 import it.unisa.diem.wordageddong17.model.Utente;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -270,11 +271,11 @@ public class AppViewController implements Initializable {
                 return;
 }
               if(fotoU!=null && fotoU.length > 0){
-                  this.utente = new Utente(usernameU,emailU,punteggioU,fotoU,tipoU);
+                  this.utente = new Utente(usernameU,emailU,punteggioU,fotoU,TipoUtente.valueOf(tipoU));
                   fotoProfilo.setImage(getImageFromByte(fotoU));
               }
               else{
-                  this.utente = new Utente(usernameU,emailU,punteggioU,tipoU);
+                  this.utente = new Utente(usernameU,emailU,punteggioU,TipoUtente.valueOf(tipoU));
                   fotoProfilo.setImage(getPlaceholderImage());
               }
               benvenutoLabel.setText("Benvenuto "+usernameU);
@@ -437,10 +438,10 @@ public class AppViewController implements Initializable {
                     schermataHome.setVisible(true);
                     benvenutoLabel.setText("Benvenuto"+username.getText());
                 if(this.fotoProfiloBytes == null){
-                    utente=new Utente(username.getText(), email.getText(), 0, "giocatore");
+                    utente=new Utente(username.getText(), email.getText(), 0, TipoUtente.giocatore);
                     fotoProfilo.setImage(getPlaceholderImage());
                 }else{
-                     utente=new Utente(username.getText(), email.getText(), 0,this.fotoProfiloBytes, "giocatore");
+                     utente=new Utente(username.getText(), email.getText(), 0,this.fotoProfiloBytes, TipoUtente.giocatore);
                      fotoProfilo.setImage(getImageFromByte(this.fotoProfiloBytes));
                 }
                 pulisciTutto();

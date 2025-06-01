@@ -4,6 +4,7 @@
  */
 package it.unisa.diem.wordageddong17.database;
 
+import it.unisa.diem.wordageddong17.model.Utente;
 import java.util.List;
 
 /**
@@ -14,6 +15,6 @@ public interface DosLogin {
     
     public String prendiUsername(String email);
     public boolean verificaPassword(String email, String password);
-    public List<Object> prendiUtente(String email);
+    public Utente prendiUtente(String email);
     
 }

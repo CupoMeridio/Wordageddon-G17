@@ -1,6 +1,8 @@
 
 package it.unisa.diem.wordageddong17.database;
 
+import it.unisa.diem.wordageddong17.model.TipoUtente;
+import it.unisa.diem.wordageddong17.model.Utente;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -121,27 +123,36 @@ public class DatabaseRegistrazioneLogin implements DosRegistrazione, DosLogin{
     }
 
     @Override
-    public List<Object> prendiUtente(String email) {
+    public Utente prendiUtente(String email) {
         ResultSet result=null;
-        List<Object> L= new ArrayList<>();
+        Utente u=null;
         String query= "SELECT username, email, punteggio_migliore, foto_profilo, tipo\n" +
 "	FROM utente where email= ?;";
          try (PreparedStatement pstmt = db.getConnection().prepareStatement(query)) {
             pstmt.setString(1, email); 
             result = pstmt.executeQuery();
             if(result.next()){
-                L.add(result.getString("email"));
-                L.add(result.getString("username"));
-                L.add(result.getFloat("punteggio_migliore"));
-                L.add(result.getBytes("foto_profilo"));
-                L.add(result.getString("tipo"));
+                byte[] fotoProfilo = result.getBytes("foto_profilo");
+                if(fotoProfilo == null){
+                u=new Utente(result.getString("username"),
+                        result.getString("email"),
+                        result.getFloat("punteggio_migliore"),
+                        TipoUtente.valueOf(result.getString("tipo").trim())
+                        );
+                }else{
+                    u=new Utente(
+                        result.getString("username"),
+                        result.getString("email"),
+                        result.getFloat("punteggio_migliore"),
+                        fotoProfilo,
+                        TipoUtente.valueOf(result.getString("tipo").trim())
+                    );
+                } 
             }
          }catch(SQLException ex) {
             Logger.getLogger(DatabaseRegistrazioneLogin.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
-         
-         return L;
+        }       
+         return u;
     }
     
      /**

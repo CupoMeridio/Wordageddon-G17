@@ -252,33 +252,8 @@ public class AppViewController implements Initializable {
       boolean pwCorretta = db.verificaPassword(email, password);
       
       if(pwCorretta){
-            String emailU=null;
-            String usernameU=null;
-            float punteggioU=0;
-            byte[] fotoU=null;
-            String tipoU=null;
-              List<Object> L = db.prendiUtente(email);
-
-            if (L != null && L.size() >= 5) {
-                if (L.get(0) instanceof String) emailU = (String) L.get(0);
-                if (L.get(1) instanceof String) usernameU = (String) L.get(1);
-                if (L.get(2) instanceof Float) punteggioU = (Float) L.get(2);
-                else if (L.get(2) instanceof Double) punteggioU = ((Double) L.get(2)).floatValue(); // nel caso arrivi double
-                if (L.get(3) instanceof byte[]) fotoU = (byte[]) L.get(3);
-                if (L.get(4) instanceof String) tipoU = (String) L.get(4);
-                } else {
-                mostraAlert("Errore", "Dati utente incompleti o nulli", Alert.AlertType.ERROR);
-                return;
-}
-              if(fotoU!=null && fotoU.length > 0){
-                  this.utente = new Utente(usernameU,emailU,punteggioU,fotoU,TipoUtente.valueOf(tipoU));
-                  fotoProfilo.setImage(getImageFromByte(fotoU));
-              }
-              else{
-                  this.utente = new Utente(usernameU,emailU,punteggioU,TipoUtente.valueOf(tipoU));
-                  fotoProfilo.setImage(getPlaceholderImage());
-              }
-              benvenutoLabel.setText("Benvenuto "+usernameU);
+              Utente u = db.prendiUtente(email);       
+              benvenutoLabel.setText("Benvenuto "+ u.getUsername());
               emailTextField.clear();
               passwordTextField.clear();
               chiudiTutto();

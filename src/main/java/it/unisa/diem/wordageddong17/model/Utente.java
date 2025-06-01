@@ -14,9 +14,9 @@ public class Utente {
     private final String email;
     private final float punteggioMigliore;
     private byte[] fotoProfilo;
-    private final String tipo; // -> futura enumerazione
+    private TipoUtente tipo; // -> presente enumerazione
 
-    public Utente(String username, String email, float punteggioMigliore, byte[] fotoProfilo, String tipo) {
+    public Utente(String username, String email, float punteggioMigliore, byte[] fotoProfilo, TipoUtente tipo) {
         this.username = username;
         this.email = email;
         this.punteggioMigliore = punteggioMigliore;
@@ -25,11 +25,11 @@ public class Utente {
         db= DatabaseUtente.getInstance();
     }
 
-    public Utente(String username, String email, float punteggio, String giocatore) {
+    public Utente(String username, String email, float punteggio, TipoUtente tipo) {
         this.username = username;
         this.email = email;
         this.punteggioMigliore = punteggio;
-        this.tipo = giocatore;
+        this.tipo = tipo;
         fotoProfilo = null;
     }
 
@@ -49,7 +49,7 @@ public class Utente {
         return fotoProfilo;
     }
 
-    public String getTipo() {
+    public TipoUtente getTipo() {
         return tipo;
     }
 

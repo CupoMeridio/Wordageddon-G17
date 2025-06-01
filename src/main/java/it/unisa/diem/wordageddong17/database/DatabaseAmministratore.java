@@ -116,7 +116,7 @@ public class DatabaseAmministratore implements DosAmministratore {
     }
     
     
-         /**
+  /**
      * Classe statica interna che contiene l'istanza Singleton della classe {@code Database}.
      * <p>
      * L'istanza viene creata solo quando la classe {@code Holder} viene caricata, garantendo la thread safety.

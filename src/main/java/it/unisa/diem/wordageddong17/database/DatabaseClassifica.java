@@ -1,10 +1,10 @@
 package it.unisa.diem.wordageddong17.database;
 
 import it.unisa.diem.wordageddong17.model.Classifica;
+import it.unisa.diem.wordageddong17.model.LivelloPartita;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -31,7 +31,7 @@ public class DatabaseClassifica {
             pstmt.setString(1, difficolta);
             ResultSet result = pstmt.executeQuery();
             while(result.next()){
-                L.add(new Classifica(result.getString("username"),result.getTimestamp("data"),result.getFloat("punti"),LivelloPartita.Valueof(result.getString("difficolta")));
+                L.add(new Classifica(result.getString("username"),result.getTimestamp("data"),result.getFloat("punti"),LivelloPartita.valueOf(result.getString("difficolta"))));
             }
         }
         catch (SQLException ex) {

@@ -22,7 +22,7 @@ public class Amministratore extends Utente {
     
     DosAmministratore db;// deve dipendere dalla interfaccia 
     
-    public Amministratore(String username, String email, float punteggioMigliore, byte[] fotoProfilo, String tipo) {
+    public Amministratore(String username, String email, float punteggioMigliore, byte[] fotoProfilo, TipoUtente tipo) {
         super(username, email, punteggioMigliore, fotoProfilo, tipo);
         db= DatabaseAmministratore.getInstance();
     }

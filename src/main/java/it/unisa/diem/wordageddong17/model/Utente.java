@@ -18,7 +18,7 @@ public class Utente {
     private final String email;
     private final float punteggioMigliore;
     private byte[] fotoProfilo;
-    private TipoUtente tipo; // -> futura enumerazione
+    private TipoUtente tipo; // -> presente enumerazione
 
     public Utente(String username, String email, float punteggioMigliore, byte[] fotoProfilo, TipoUtente tipo) {
         this.username = username;

@@ -4,10 +4,15 @@
  */
 package it.unisa.diem.wordageddong17.database;
 
+import it.unisa.diem.wordageddong17.model.LivelloPartita;
+import java.util.List;
+
 /**
  *
  * @author Mattia Sanzari
  */
 public interface DosSessioneDiGioco {
     
+    public byte[] prendiStopwords(String nomeFile);
+    public List<byte[]> prendiDocumenti(LivelloPartita livello);
 }

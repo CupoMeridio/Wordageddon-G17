@@ -61,15 +61,14 @@ public class DatabaseClassifica implements DosClassifica {
     @Override
     public List<Classifica> prendiClassifica(LivelloPartita difficolta) {
         List<Classifica> L = new ArrayList<>();
-        String query = "SELECT utente.username, MAX(data) AS data, MAX(punti) AS miglior_punteggio, difficolta\n"
+        String query = "SELECT utente.username, data, MAX(punti) AS miglior_punteggio, difficolta\n"
                 + "FROM punteggio\n"
                 + "JOIN utente ON utente.email = punteggio.email_utente\n"
                 + "WHERE difficolta = ?\n"
-                + "GROUP BY utente.username, difficolta\n"
+                + "GROUP BY utente.username, difficolta, data\n"
                 + "ORDER BY miglior_punteggio DESC;";
     
         try (PreparedStatement pstmt = db.getConnection().prepareStatement(query)) {
-            // Use the database-friendly value
             pstmt.setString(1, difficolta.getDbValue());
         
             ResultSet result = pstmt.executeQuery();
@@ -108,5 +107,71 @@ public class DatabaseClassifica implements DosClassifica {
      */
     public static DatabaseClassifica getInstance() {
         return DatabaseClassifica.Holder.INSTANCE;
+    }
+    
+    public List<Classifica> recuperaCronologiaPartite(String email){
+        List<Classifica> L = new ArrayList<>();
+        String query = "SELECT utente.username, data, punti , difficolta\n"
+                + "FROM punteggio\n"
+                + "JOIN utente ON utente.email = punteggio.email_utente\n"
+                + "WHERE punteggio.email_utente= ?\n"
+                + "ORDER BY data DESC;";
+    
+        try (PreparedStatement pstmt = db.getConnection().prepareStatement(query)) {
+            pstmt.setString(1, email);
+        
+            ResultSet result = pstmt.executeQuery();
+            while(result.next()) {
+                L.add(new Classifica(
+                    result.getString("username"),
+                    result.getTimestamp("data"),
+                    result.getFloat("punti"),
+                    LivelloPartita.fromDbValue(result.getString("difficolta"))));
+            }
+        }
+        catch (SQLException ex) {
+            Logger.getLogger(DatabaseClassifica.class.getName()).log(Level.SEVERE, "Errore nel recupero della cronologia delle partite.", ex);
+        }
+        return L;
+    }
+    
+    public int recuperaNumeroPartite(String email, String difficoltà){
+        int n = 0;
+        String query = "SELECT COUNT(*) AS n_p\n"
+                + "FROM punteggio\n"
+                + "WHERE email_utente = ?\n"
+                + "AND difficolta = ?";
+        try (PreparedStatement pstmt = db.getConnection().prepareStatement(query)) {
+            pstmt.setString(1, email);
+            pstmt.setString(2, difficoltà);
+        
+            ResultSet result = pstmt.executeQuery();
+            if(result.next())
+                n = result.getInt("n_p");
+            }
+        catch (SQLException ex) {
+            Logger.getLogger(DatabaseClassifica.class.getName()).log(Level.SEVERE, "Errore nel recupero del numero di partite", ex);
+        }
+        return n;
+    }
+    
+    public float recuperaMigliorPunteggio(String email, String difficoltà){
+        float punteggio = 0;
+        String query = "SELECT MAX(punti) AS max_p\n"
+                + "FROM punteggio\n"
+                + "WHERE email_utente= ?\n"
+                + "AND difficolta = ?";
+        try (PreparedStatement pstmt = db.getConnection().prepareStatement(query)) {
+            pstmt.setString(1, email);
+            pstmt.setString(2, difficoltà);
+        
+            ResultSet result = pstmt.executeQuery();
+            if(result.next())
+                punteggio = result.getFloat("max_p");
+            }
+        catch (SQLException ex) {
+            Logger.getLogger(DatabaseClassifica.class.getName()).log(Level.SEVERE, "Errore nel recupero del numero di partite", ex);
+        }
+        return punteggio;
     }
 }

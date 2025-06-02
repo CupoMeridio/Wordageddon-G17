@@ -1,11 +1,6 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package it.unisa.diem.wordageddong17.database;
 
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -51,7 +46,7 @@ public class DatabaseUtente implements DosUtente{
     }
     
     
-         /**
+    /**
      * Classe statica interna che contiene l'istanza Singleton della classe {@code Database}.
      * <p>
      * L'istanza viene creata solo quando la classe {@code Holder} viene caricata, garantendo la thread safety.

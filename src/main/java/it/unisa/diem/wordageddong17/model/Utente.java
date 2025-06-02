@@ -12,23 +12,20 @@ public class Utente {
     DosUtente db;
     private String username;
     private final String email;
-    private final float punteggioMigliore;
     private byte[] fotoProfilo;
     private TipoUtente tipo; // -> presente enumerazione
 
-    public Utente(String username, String email, float punteggioMigliore, byte[] fotoProfilo, TipoUtente tipo) {
+    public Utente(String username, String email, byte[] fotoProfilo, TipoUtente tipo) {
         this.username = username;
         this.email = email;
-        this.punteggioMigliore = punteggioMigliore;
         this.fotoProfilo = fotoProfilo;
         this.tipo = tipo;
         db= DatabaseUtente.getInstance();
     }
 
-    public Utente(String username, String email, float punteggio, TipoUtente tipo) {
+    public Utente(String username, String email, TipoUtente tipo) {
         this.username = username;
         this.email = email;
-        this.punteggioMigliore = punteggio;
         this.tipo = tipo;
         fotoProfilo = null;
     }
@@ -41,9 +38,6 @@ public class Utente {
         return email;
     }
 
-    public float getPunteggioMigliore() {
-        return punteggioMigliore;
-    }
 
     public byte[] getFotoProfilo() {
         return fotoProfilo;
@@ -73,7 +67,7 @@ public class Utente {
     
     @Override
     public String toString() {
-        return "Utente{" + "username=" + username + ", email=" + email + ", punteggioMigliore=" + punteggioMigliore + ", fotoProfilo=" + fotoProfilo + ", tipo=" + tipo + '}';
+        return "Utente{" + "username=" + username + ", email=" + email + ", fotoProfilo=" + fotoProfilo + ", tipo=" + tipo + '}';
     }
     
     

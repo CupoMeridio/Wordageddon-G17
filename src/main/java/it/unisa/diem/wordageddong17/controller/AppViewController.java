@@ -9,8 +9,11 @@ import it.unisa.diem.wordageddong17.model.Utente;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.net.URL;
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyIntegerWrapper;
 import javafx.collections.FXCollections;
@@ -21,6 +24,8 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
@@ -205,19 +210,7 @@ public class AppViewController implements Initializable {
     
     /** @brief Container per la schermata di registrazione */
     @FXML
-    private HBox schermataDiRegistrazione;
-    
-    // ========== ATTRIBUTI PRIVATI ==========
-    
-    /** @brief Istanza singleton del database per autenticazione */
-    private final DatabaseRegistrazioneLogin db = DatabaseRegistrazioneLogin.getInstance();
-    private final DatabaseClassifica sbc = DatabaseClassifica.getInstance();
-    private Utente utente; 
-    private byte[] fotoProfiloBytes=null;   // -> vediamo se c'è una soluzione migliore
-    
-    private ObservableList<Classifica> classificaFacile;
-    private ObservableList<Classifica> classificaMedia;
-    private ObservableList<Classifica> classificaDifficile;
+    private HBox schermataDiRegistrazione;    
     @FXML
     private TableColumn<Classifica, Integer> facilePosizione;
     @FXML
@@ -236,16 +229,81 @@ public class AppViewController implements Initializable {
     private TableColumn<Classifica, String> difficileNome;
     @FXML
     private TableColumn<Classifica, Float> difficilePunteggio;
+    @FXML
+    private VBox schermataInfoUtente;
+    @FXML
+    private Label usernameInfoUtente;
+    @FXML
+    private Label emailInfoUtente;
+    @FXML
+    private Label n_facile;
+    @FXML
+    private Label migliore_facile;
+    @FXML
+    private Label n_medio;
+    @FXML
+    private Label migliore_medio;
+    @FXML
+    private Label n_difficile;
+    @FXML
+    private Label migliore_difficile;
+    @FXML
+    private ImageView immagineInfoUtente;
+    @FXML
+    private TableView<Classifica> cronologiaPartite;
+    @FXML
+    private TableColumn<Classifica, Timestamp> dataCronologiaPartite;
+    @FXML
+    private TableColumn<Classifica, String> difficoltàCronologiaPartite;
+    @FXML
+    private TableColumn<Classifica, Float> punteggioCronologiaPartite;
+    @FXML
+    private DatePicker dataInizio;
+    @FXML
+    private DatePicker dataFine;
+    @FXML
+    private DatePicker punteggioMinimo;
+    @FXML
+    private DatePicker punteggioMassimo;
+    @FXML
+    private CheckBox checkFacile;
+    @FXML
+    private CheckBox checkMedio;
+    @FXML
+    private CheckBox checkDifficile;
+    @FXML
+    private Button tornaAllaHomepage;
+    @FXML
+    private Button infoProfiloButton;
+    
+        // ========== ATTRIBUTI PRIVATI ==========
+    
+    /** @brief Istanza singleton del database per autenticazione */
+    private final DatabaseRegistrazioneLogin db = DatabaseRegistrazioneLogin.getInstance();
+    private final DatabaseClassifica sbc = DatabaseClassifica.getInstance();
+    private Utente utente; 
+    private byte[] fotoProfiloBytes=null;   // -> vediamo se c'è una soluzione migliore
+    
+    private ObservableList<Classifica> classificaFacile;
+    private ObservableList<Classifica> classificaMedia;
+    private ObservableList<Classifica> classificaDifficile;
+    private ObservableList<Classifica> listaCronologiaPartite;
+    private Task<Void> currentLoadingTask;
+    
+    
     /**
      * Initializes the controller class.
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        chiudiTutto();
+        schermataDiLogin.setVisible(true);
         ritagliaQuadrato(imageView, 250);  // per la schermata di registrazione
         ritagliaCerchio(fotoProfilo, 40);
         classificaFacile= FXCollections.observableArrayList();
         classificaMedia = FXCollections.observableArrayList();
         classificaDifficile = FXCollections.observableArrayList();
+        listaCronologiaPartite = FXCollections.observableArrayList();
         
         initializeClassifiche();
 
@@ -291,16 +349,18 @@ public class AppViewController implements Initializable {
       boolean pwCorretta = db.verificaPassword(email, password);
       
       if(pwCorretta){
-              Utente u = db.prendiUtente(email);       
-              benvenutoLabel.setText("Benvenuto "+ u.getUsername());
+              utente = db.prendiUtente(email);       
+              benvenutoLabel.setText("Benvenuto "+ utente.getUsername());
               emailTextField.clear();
               passwordTextField.clear();
               chiudiTutto();
-              schermataHome.setVisible(true);
+              schermataHome.setVisible(true); 
       } else {
           mostraAlert("Errore", "Email o password errati", Alert.AlertType.WARNING);
       }
-        
+      if(utente != null) {
+        initializeCronologiaPartite();
+      }
     }
     /**
      * @brief Reindirizza l'utente alla schermata di registrazione
@@ -333,7 +393,7 @@ public class AppViewController implements Initializable {
     }
     
     
-    private Task<Void> currentLoadingTask;
+
      /**
      * @brief Mostra la schermata delle classifiche 
      * 
@@ -399,17 +459,11 @@ public class AppViewController implements Initializable {
     
     @FXML
     private void logout(ActionEvent event) {
-        // Nasconde tutte le schermate e mostra solo il login
-        schermataDiLogin.setVisible(true);
-        schermataHome.setVisible(false);
-        schermataClassifiche.setVisible(false);
-        schermataSelezioneDifficoltà.setVisible(false);
+        utente=null;
+        chiudiTutto();
         dashboardMenu.setVisible(false);
-        
-        // Reset dei campi di login
-        emailTextField.clear();
-        passwordTextField.clear();
-    } // TODO: Implementare il logout 
+        pulisciTutto();
+    }
 
     @FXML
     private void chiudiClassificheOnAction(ActionEvent event) {
@@ -490,12 +544,12 @@ public class AppViewController implements Initializable {
             db.inserisciUtente(username.getText(), email.getText(), password.getText(), this.fotoProfiloBytes);
                     chiudiTutto();
                     schermataHome.setVisible(true);
-                    benvenutoLabel.setText("Benvenuto"+username.getText());
+                    benvenutoLabel.setText("Benvenuto "+username.getText());
                 if(this.fotoProfiloBytes == null){
-                    utente=new Utente(username.getText(), email.getText(), 0, TipoUtente.giocatore);
+                    utente=new Utente(username.getText(), email.getText(), TipoUtente.giocatore);
                     fotoProfilo.setImage(getPlaceholderImage());
                 }else{
-                     utente=new Utente(username.getText(), email.getText(), 0,this.fotoProfiloBytes, TipoUtente.giocatore);
+                     utente=new Utente(username.getText(), email.getText(), this.fotoProfiloBytes, TipoUtente.giocatore);
                      fotoProfilo.setImage(getImageFromByte(this.fotoProfiloBytes));
                 }
                 pulisciTutto();
@@ -561,6 +615,7 @@ public class AppViewController implements Initializable {
         schermataClassifiche.setVisible(false);
         schermataSelezioneDifficoltà.setVisible(false);
         dashboardMenu.setVisible(false);
+        schermataInfoUtente.setVisible(false);
     }
     
     private void pulisciTutto(){
@@ -570,6 +625,15 @@ public class AppViewController implements Initializable {
         email.textProperty().set("");
         password.textProperty().set("");
         repeatPassword.textProperty().set("");
+        usernameInfoUtente.textProperty().set("");
+        emailInfoUtente.setText("");
+        n_difficile.setText("");
+        n_facile.setText("");
+        n_medio.setText("");
+        dataInizio.getEditor().clear();
+        dataFine.getEditor().clear();
+        dataFine.setValue(null);
+        dataInizio.setValue(null);
     }
     
     private Image getPlaceholderImage() {
@@ -673,6 +737,74 @@ public class AppViewController implements Initializable {
         table.getSortOrder().add(punteggioCol);
         table.sort();
     
+    }
+
+    @FXML
+    private void passaAInfoProfilo(ActionEvent event) {
+        if (currentLoadingTask != null && currentLoadingTask.isRunning()) {
+            currentLoadingTask.cancel();
+        }
+    
+        chiudiTutto();
+        schermataInfoUtente.setVisible(true);
+    
+        // Aggiorna subito le info utente (non dipendono dal DB)
+        usernameInfoUtente.setText("Username: "+utente.getUsername());
+        emailInfoUtente.setText("E-mail: "+utente.getEmail());
+    
+        currentLoadingTask = new Task<Void>() {
+            @Override
+            protected Void call() throws Exception {
+                if (isCancelled()) return null;
+            
+                // Carica dati in background
+                List<Classifica> cronologiaPartiteList = sbc.recuperaCronologiaPartite(utente.getEmail());
+                int facileCount = sbc.recuperaNumeroPartite(utente.getEmail(), LivelloPartita.FACILE.getDbValue());
+                int medioCount = sbc.recuperaNumeroPartite(utente.getEmail(), LivelloPartita.MEDIO.getDbValue());
+                int difficileCount = sbc.recuperaNumeroPartite(utente.getEmail(), LivelloPartita.DIFFICILE.getDbValue());
+                float facilePunteggio = sbc.recuperaMigliorPunteggio(utente.getEmail(), LivelloPartita.FACILE.getDbValue());
+                float medioPunteggio = sbc.recuperaMigliorPunteggio(utente.getEmail(), LivelloPartita.MEDIO.getDbValue());
+                float difficilePunteggio = sbc.recuperaMigliorPunteggio(utente.getEmail(), LivelloPartita.DIFFICILE.getDbValue());
+
+                Platform.runLater(() -> {
+                    listaCronologiaPartite.setAll(cronologiaPartiteList);
+                    n_facile.setText("N° partite difficoltà facile:"+String.valueOf(facileCount));
+                    n_medio.setText("N° partite difficoltà media: "+String.valueOf(medioCount));
+                    n_difficile.setText("N° partite difficoltà difficile: "+String.valueOf(difficileCount));
+                    migliore_facile.setText(String.format("Miglior punteggio in difficoltà facile: %.1f", facilePunteggio));
+                    migliore_medio.setText(String.format("Miglior punteggio in difficoltà media: %.1f", medioPunteggio));
+                    migliore_difficile.setText(String.format("Miglior punteggio in difficoltà difficile: %.1f", difficilePunteggio));
+                });
+            
+                return null;
+            }
+        };
+    
+        currentLoadingTask.setOnFailed(e -> {
+            Throwable ex = currentLoadingTask.getException();
+            Logger.getLogger(AppViewController.class.getName()).log(Level.SEVERE, "Errore nel caricamento info profilo", ex);
+            Platform.runLater(() -> 
+                mostraAlert("Errore", "Impossibile caricare i dati del profilo", Alert.AlertType.ERROR));
+        });
+    
+    new Thread(currentLoadingTask).start(); 
+}
+    
+
+    private void initializeCronologiaPartite() {
+        dataCronologiaPartite.setCellValueFactory(new PropertyValueFactory<>("data"));
+        difficoltàCronologiaPartite.setCellValueFactory(new PropertyValueFactory<>("difficolta"));
+        punteggioCronologiaPartite.setCellValueFactory(new PropertyValueFactory("punti"));
+        cronologiaPartite.setItems(listaCronologiaPartite);
+        usernameInfoUtente.setText("Username: "+utente.getUsername());
+        emailInfoUtente.setText("E-mail: "+utente.getEmail());
+    }
+
+    @FXML
+    private void chiudiInfoUtente(ActionEvent event) {
+        chiudiTutto();
+        pulisciTutto();
+        schermataHome.setVisible(true);
     }
     
 }

@@ -6,8 +6,6 @@ import it.unisa.diem.wordageddong17.model.Utente;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.mindrot.jbcrypt.BCrypt;
@@ -174,7 +172,7 @@ public class DatabaseRegistrazioneLogin implements DosRegistrazione, DosLogin{
     public Utente prendiUtente(String email) {
         ResultSet result=null;
         Utente u=null;
-        String query= "SELECT username, email, punteggio_migliore, foto_profilo, tipo\n" +
+        String query= "SELECT username, email, foto_profilo, tipo\n" +
 "	FROM utente where email= ?;";
          try (PreparedStatement pstmt = db.getConnection().prepareStatement(query)) {
             pstmt.setString(1, email); 
@@ -184,14 +182,12 @@ public class DatabaseRegistrazioneLogin implements DosRegistrazione, DosLogin{
                 if(fotoProfilo == null){
                 u=new Utente(result.getString("username"),
                         result.getString("email"),
-                        result.getFloat("punteggio_migliore"),
                         TipoUtente.valueOf(result.getString("tipo").trim())
                         );
                 }else{
                     u=new Utente(
                         result.getString("username"),
                         result.getString("email"),
-                        result.getFloat("punteggio_migliore"),
                         fotoProfilo,
                         TipoUtente.valueOf(result.getString("tipo").trim())
                     );

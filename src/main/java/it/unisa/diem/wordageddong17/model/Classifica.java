@@ -7,20 +7,20 @@ import java.time.LocalDateTime;
  * @author cupom
  */
 public class Classifica {
-    private final String email_utente;
+    private final String username;
     private final Timestamp data;
     private final float punti;
     private final LivelloPartita difficolta;
 
     public Classifica(String email_utente, Timestamp data, float punti, LivelloPartita difficolta) {
-        this.email_utente = email_utente;
+        this.username = email_utente;
         this.data = data;
         this.punti = punti;
         this.difficolta = difficolta;
     }
 
-    public String getEmail_utente() {
-        return email_utente;
+    public String getUsername() {
+        return username;
     }
 
     public Timestamp getData() {
@@ -37,8 +37,9 @@ public class Classifica {
 
     @Override
     public String toString() {
-        return "Classifica{" + "email_utente=" + email_utente + ", data=" + data + ", punti=" + punti + ", difficolta=" + difficolta + '}';
+        return "Classifica{" + "username=" + username + ", data=" + data + ", punti=" + punti + ", difficolta=" + difficolta + '}';
     }
+
     
     
     

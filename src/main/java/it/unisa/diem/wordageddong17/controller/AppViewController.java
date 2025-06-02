@@ -1,6 +1,9 @@
 package it.unisa.diem.wordageddong17.controller;
 
+import it.unisa.diem.wordageddong17.database.DatabaseClassifica;
 import it.unisa.diem.wordageddong17.database.DatabaseRegistrazioneLogin;
+import it.unisa.diem.wordageddong17.model.Classifica;
+import it.unisa.diem.wordageddong17.model.LivelloPartita;
 import it.unisa.diem.wordageddong17.model.TipoUtente;
 import it.unisa.diem.wordageddong17.model.Utente;
 import java.io.ByteArrayInputStream;
@@ -8,6 +11,9 @@ import java.io.File;
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
+import javafx.application.Platform;
+import javafx.beans.property.ReadOnlyIntegerWrapper;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
@@ -16,8 +22,11 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.TableCell;
+import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -118,15 +127,15 @@ public class AppViewController implements Initializable {
     
     /** @brief Tabella classifiche livello facile */
     @FXML
-    private TableView<?> facileTable;
+    private TableView<Classifica> facileTable;
     
     /** @brief Tabella classifiche livello medio */
     @FXML
-    private TableView<?> mediaTable;
+    private TableView<Classifica> mediaTable;
     
     /** @brief Tabella classifiche livello difficile */
     @FXML
-    private TableView<?> difficileTable;
+    private TableView<Classifica> difficileTable;
     
     /** @brief Pulsante per chiudere la schermata classifiche */
     @FXML
@@ -202,12 +211,31 @@ public class AppViewController implements Initializable {
     
     /** @brief Istanza singleton del database per autenticazione */
     private final DatabaseRegistrazioneLogin db = DatabaseRegistrazioneLogin.getInstance();
+    private final DatabaseClassifica sbc = DatabaseClassifica.getInstance();
     private Utente utente; 
     private byte[] fotoProfiloBytes=null;   // -> vediamo se c'è una soluzione migliore
     
-    private ObservableList<String> classificaFacile;
-    private ObservableList<String> classificaMedia;
-    private ObservableList<String> classificaDifficile;
+    private ObservableList<Classifica> classificaFacile;
+    private ObservableList<Classifica> classificaMedia;
+    private ObservableList<Classifica> classificaDifficile;
+    @FXML
+    private TableColumn<Classifica, Integer> facilePosizione;
+    @FXML
+    private TableColumn<Classifica, String> facileNome;
+    @FXML
+    private TableColumn<Classifica, Float> facilePunteggio;
+    @FXML
+    private TableColumn<Classifica, Integer> mediaPosizione;
+    @FXML
+    private TableColumn<Classifica, String> mediaNome;
+    @FXML
+    private TableColumn<Classifica, Float> mediaPunteggio;
+    @FXML
+    private TableColumn<Classifica, Integer> difficilePosizione;
+    @FXML
+    private TableColumn<Classifica, String> difficileNome;
+    @FXML
+    private TableColumn<Classifica, Float> difficilePunteggio;
     /**
      * Initializes the controller class.
      */
@@ -215,6 +243,12 @@ public class AppViewController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         ritagliaQuadrato(imageView, 250);  // per la schermata di registrazione
         ritagliaCerchio(fotoProfilo, 40);
+        classificaFacile= FXCollections.observableArrayList();
+        classificaMedia = FXCollections.observableArrayList();
+        classificaDifficile = FXCollections.observableArrayList();
+        
+        initializeClassifiche();
+
         
     }    
 
@@ -297,6 +331,9 @@ public class AppViewController implements Initializable {
         
         schermataSelezioneDifficoltà.setVisible(true);
     }
+    
+    
+    private Task<Void> currentLoadingTask;
      /**
      * @brief Mostra la schermata delle classifiche 
      * 
@@ -306,14 +343,48 @@ public class AppViewController implements Initializable {
      */
     @FXML
     private void classificheOnAction(ActionEvent event) {
-        schermataDiLogin.setVisible(false);
-        schermataHome.setVisible(false);
-        schermataClassifiche.setVisible(false);
-        schermataSelezioneDifficoltà.setVisible(false);
-        dashboardMenu.setVisible(false);
-        
+        // Interrompi eventuale caricamento in corso
+        if (currentLoadingTask != null && currentLoadingTask.isRunning()) {
+            currentLoadingTask.cancel();
+        }
+
+        chiudiTutto();
         schermataClassifiche.setVisible(true);
+
+        currentLoadingTask = new Task<Void>() {
+            @Override
+            protected Void call() throws Exception {
+                if (isCancelled()) return null;
+            
+                List<Classifica> facile = sbc.prendiClassifica(LivelloPartita.FACILE);
+                if (isCancelled()) return null;
+            
+                List<Classifica> medio = sbc.prendiClassifica(LivelloPartita.MEDIO);
+                if (isCancelled()) return null;
+            
+                List<Classifica> difficile = sbc.prendiClassifica(LivelloPartita.DIFFICILE);
+                if (isCancelled()) return null;
+
+                Platform.runLater(() -> {
+                    classificaFacile.setAll(facile);
+                    classificaMedia.setAll(medio);
+                    classificaDifficile.setAll(difficile);
+                });
+            
+                return null;
+            }
+        };
+
+        currentLoadingTask.setOnFailed(e -> {
+    Throwable exception = currentLoadingTask.getException();
+    Platform.runLater(() -> 
+        mostraAlert("Errore", "Caricamento fallito: " + exception.getMessage(), Alert.AlertType.ERROR));
+    exception.printStackTrace(); // Log to console
+});
+
+        new Thread(currentLoadingTask).start();
     }
+                
     /**
      * @brief Toggle della visibilità del menu dashboard utente
      * 
@@ -342,6 +413,9 @@ public class AppViewController implements Initializable {
 
     @FXML
     private void chiudiClassificheOnAction(ActionEvent event) {
+        if (currentLoadingTask != null && currentLoadingTask.isRunning()) {
+            currentLoadingTask.cancel();
+        }
         chiudiTutto();
         schermataHome.setVisible(true);
     }
@@ -552,6 +626,53 @@ public class AppViewController implements Initializable {
                 imageView.setViewport(new javafx.geometry.Rectangle2D(xOffset, yOffset, viewportSize, viewportSize));
             }
         });
+    }
+
+    private void initializeClassifiche() {
+        // Inizializza le tabelle
+        setupTable(facileTable, facilePosizione, facileNome, facilePunteggio, classificaFacile);
+        setupTable(mediaTable, mediaPosizione, mediaNome, mediaPunteggio, classificaMedia);
+        setupTable(difficileTable, difficilePosizione, difficileNome, difficilePunteggio, classificaDifficile);
+    }
+    
+    
+    //Informazioni reperite da: https://stackoverflow.com/questions/33353014/creating-a-row-index-column-in-javafx
+    private void setupTable(TableView<Classifica> table, TableColumn<Classifica, Integer> posizioneCol,TableColumn<Classifica, String> nomeCol, TableColumn<Classifica, Float> punteggioCol, ObservableList<Classifica> data) {
+        // Configura le colonne
+        nomeCol.setCellValueFactory(new PropertyValueFactory<>("username"));
+        punteggioCol.setCellValueFactory(new PropertyValueFactory<>("punti"));
+    
+        // Configura colonna posizione con emoji
+        posizioneCol.setCellFactory(col -> new TableCell<Classifica, Integer>() {
+            @Override
+            protected void updateItem(Integer posizione, boolean empty) {
+                super.updateItem(posizione, empty);
+            
+                if (empty || posizione == null) {
+                    setText(null);
+                    setGraphic(null);
+                } else {
+                    switch (posizione) {
+                        case 1: setText("🥇"); break;
+                        case 2: setText("🥈"); break;
+                        case 3: setText("🥉"); break;
+                        default: setText(posizione.toString());
+                    }
+                }
+            }
+        });
+    
+        posizioneCol.setCellValueFactory(cellData -> {
+            int index = cellData.getTableView().getItems().indexOf(cellData.getValue()) + 1;
+            return new ReadOnlyIntegerWrapper(index).asObject();
+        });
+    
+        // Imposta i dati e abilita ordinamento
+        table.setItems(data);
+        punteggioCol.setSortType(TableColumn.SortType.DESCENDING);
+        table.getSortOrder().add(punteggioCol);
+        table.sort();
+    
     }
     
 }

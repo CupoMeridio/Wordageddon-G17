@@ -5,6 +5,18 @@
   <artifactId>WordageddonG17</artifactId>
   <version>1.0-SNAPSHOT</version>
   <build>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+      </resource>
+      <resource>
+        <targetPath>${project.build.outputDirectory}</targetPath>
+        <directory>${project.basedir}</directory>
+        <includes>
+          <include>.env</include>
+        </includes>
+      </resource>
+    </resources>
     <plugins>
       <plugin>
         <artifactId>maven-shade-plugin</artifactId>
@@ -18,7 +30,7 @@
             <configuration>
               <transformers>
                 <transformer>
-                  <mainClass>it.unisa.diem.team02.RunMain</mainClass>
+                  <mainClass>it.unisa.diem.wordageddong17.RunMain</mainClass>
                 </transformer>
                 <transformer />
                 <transformer>
@@ -92,8 +104,8 @@
     </plugins>
   </build>
   <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.target>11</maven.compiler.target>
     <maven.compiler.source>11</maven.compiler.source>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 </project>

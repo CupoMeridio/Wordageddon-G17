@@ -104,9 +104,9 @@
                                        <Label text="Facile" />
                                        <TableView fx:id="facileTable" VBox.vgrow="ALWAYS">
                                            <columns>
-                                    <TableColumn prefWidth="75.0" text="Posizione" />
-                                               <TableColumn prefWidth="105.0" text="Nome" />
-                                               <TableColumn prefWidth="93.0" text="Punteggio" />
+                                    <TableColumn fx:id="facilePosizione" editable="false" prefWidth="75.0" sortable="false" text="Posizione" />
+                                               <TableColumn fx:id="facileNome" editable="false" prefWidth="105.0" sortable="false" text="Nome" />
+                                               <TableColumn fx:id="facilePunteggio" editable="false" prefWidth="93.0" sortable="false" text="Punteggio" />
                                            </columns>
                                            <columnResizePolicy>
                                                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
@@ -121,9 +121,9 @@
                                        <Label text="Media" />
                                        <TableView fx:id="mediaTable" VBox.vgrow="ALWAYS">
                                            <columns>
-                                    <TableColumn prefWidth="75.0" text="Posizione" />
-                                               <TableColumn prefWidth="100.0" text="Nome" />
-                                               <TableColumn prefWidth="100.0" text="Punteggio" />
+                                    <TableColumn fx:id="mediaPosizione" editable="false" prefWidth="75.0" sortable="false" text="Posizione" />
+                                               <TableColumn fx:id="mediaNome" editable="false" prefWidth="100.0" sortable="false" text="Nome" />
+                                               <TableColumn fx:id="mediaPunteggio" editable="false" prefWidth="100.0" sortable="false" text="Punteggio" />
                                            </columns>
                                            <columnResizePolicy>
                                                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
@@ -138,9 +138,9 @@
                                        <Label text="Difficile" />
                                        <TableView fx:id="difficileTable" VBox.vgrow="ALWAYS">
                                            <columns>
-                                    <TableColumn prefWidth="75.0" text="Posizione" />
-                                               <TableColumn prefWidth="100.0" text="Nome" />
-                                               <TableColumn prefWidth="100.0" text="Punteggio" />
+                                    <TableColumn fx:id="difficilePosizione" editable="false" prefWidth="75.0" sortable="false" text="Posizione" />
+                                               <TableColumn fx:id="difficileNome" editable="false" prefWidth="100.0" sortable="false" text="Nome" />
+                                               <TableColumn fx:id="difficilePunteggio" editable="false" prefWidth="100.0" sortable="false" text="Punteggio" />
                                            </columns>
                                            <columnResizePolicy>
                                                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />

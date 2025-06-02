@@ -11,18 +11,45 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
+ * Implementazione dell'interfaccia {@code DosAmministratore} per la gestione delle operazioni
+ * amministrative sul database.
+ * <p>
+ * Questa classe fornisce metodi per la gestione di stopwords e testi nel sistema,
+ * permettendo agli amministratori di caricare, recuperare e cancellare documenti.
+ * Implementa il pattern Singleton per garantire una sola istanza della classe.
+ * </p>
+ * 
  * @author Mattia Sanzari
  */
 public class DatabaseAmministratore implements DosAmministratore {
-
+    /**
+    * Istanza del database utilizzata per le operazioni di accesso ai dati.
+    */
     private Database db;
 
+    /**
+     * Costruttore della classe DatabaseAmministratore.
+     * 
+     * Inizializza l'istanza del database utilizzando il pattern Singleton.
+     * 
+     */
     public DatabaseAmministratore() {
         db= Database.getInstance();
     }
     
-    
+      /**
+     * Carica o aggiorna un file di stopwords nel database.
+     * <p>
+     * Se un file con lo stesso nome esiste già, viene aggiornato con il nuovo contenuto.
+     * Utilizza la clausola ON CONFLICT per gestire i duplicati.
+     * </p>
+     * 
+     * @param email l'email dell'amministratore che carica il file
+     * @param documentoStopwords il contenuto del file di stopwords come array di byte
+     * @param nomeFile il nome del file da salvare nel database
+     * @return {@code true} se l'operazione è stata eseguita con successo, {@code false} altrimenti
+     * 
+     */
     @Override
     public boolean CaricareStopwords(String email, byte[] documentoStopwords, String nomeFile) {
         String query= "INSERT INTO stopwords(\n" +
@@ -44,7 +71,17 @@ public class DatabaseAmministratore implements DosAmministratore {
         return risultato;
     }
 
-  
+    /**
+     * Recupera il contenuto di un file di stopwords dal database.
+     * <p>
+     * Cerca il file specificato nella tabella stopwords e restituisce il suo contenuto
+     * sotto forma di array di byte.
+     * </p>
+     * 
+     * @param nomeFile il nome del file di stopwords da recuperare
+     * @return l'array di byte contenente il documento, oppure {@code null} se il file non esiste
+     * 
+     */
 
     @Override
     public byte[] PrendiStopwords(String nomeFile) {
@@ -62,6 +99,15 @@ public class DatabaseAmministratore implements DosAmministratore {
         return risultato;
     }
 
+    /**
+     * Cancella un testo dal database.
+     * 
+     * Rimuove definitivamente il documento specificato dalla tabella testo.
+     * 
+     * @param nomeDocumento il nome del documento da cancellare
+     * @return {@code true} se l'operazione è stata eseguita con successo, {@code false} altrimenti
+     * 
+     */
     @Override
     public boolean CancellaTesto(String nomeDocumento) {
        String query="DELETE FROM public.testo WHERE nome_file= ?;";
@@ -76,6 +122,20 @@ public class DatabaseAmministratore implements DosAmministratore {
     }
 
 
+    /**
+     * Carica un nuovo testo nel database.
+     * <p>
+     * Inserisce un nuovo documento nella tabella testo con le informazioni specificate.
+     * Il documento viene associato all'amministratore che lo carica.
+     * </p>
+     * 
+     * @param email l'email dell'amministratore che carica il testo
+     * @param nomeFile il nome del file da salvare
+     * @param difficolta il livello di difficoltà del testo
+     * @param file il contenuto del file come array di byte
+     * @return {@code true} se l'operazione è stata eseguita con successo, {@code false} altrimenti
+     * 
+     */
     @Override
     public boolean CaricareTesto(String email, String nomeFile, String difficolta, byte[] file) {
         String query= "INSERT INTO testo(\n" +
@@ -96,6 +156,17 @@ public class DatabaseAmministratore implements DosAmministratore {
         return risultato;
     }
 
+    /**
+     * Recupera il contenuto di un testo dal database.
+     * <p>
+     * Cerca il documento specificato nella tabella testo e restituisce il suo contenuto
+     * sotto forma di array di byte.
+     * </p>
+     * 
+     * @param nomeDocumento il nome del documento da recuperare
+     * @return l'array di byte contenente il documento, oppure {@code null} se il documento non esiste
+     */
+    
     @Override
     public byte[] PrendiTesto(String nomeDocumento) {
         

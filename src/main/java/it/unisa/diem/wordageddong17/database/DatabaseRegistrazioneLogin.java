@@ -13,26 +13,62 @@ import java.util.logging.Logger;
 import org.mindrot.jbcrypt.BCrypt;
 
 /**
- *
+ * Implementazione delle interfacce {@code DosRegistrazione} e {@code DosLogin} per la gestione
+ * delle operazioni di registrazione e autenticazione degli utenti nel database.
+ * <p>
+ * Questa classe fornisce funzionalità complete per:
+ * <ul>
+ * <li>Registrazione di nuovi utenti con crittografia delle password</li>
+ * <li>Autenticazione degli utenti esistenti</li>
+ * <li>Recupero di informazioni utente dal database</li>
+ * <li>Gestione sicura delle password utilizzando BCrypt</li>
+ * </ul>
+ * </p>
+ * <p>
+ * Implementa il pattern Singleton per garantire una sola istanza della classe
+ * e utilizza BCrypt per la crittografia sicura delle password.
+ * </p>
+ * 
  * @author Mattia Sanzari
  */
 public class DatabaseRegistrazioneLogin implements DosRegistrazione, DosLogin{
 
+    /**
+     * Istanza del database utilizzata per le operazioni di accesso ai dati.
+     */
+    
     private Database db;  
     
-    
+    /**
+     * Costruttore privato della classe DatabaseRegistrazioneLogin.
+     * <p>
+     * Inizializza l'istanza del database utilizzando il pattern Singleton.
+     * Il costruttore è privato per garantire l'implementazione del pattern Singleton.
+     * </p>
+     */
+
     private DatabaseRegistrazioneLogin() {
         db= Database.getInstance();
     }
 
-    /**
-    * La classe inserisce l' utente
-    * 
-    */
+     /**
+     * Inserisce un nuovo utente nel database.
+     * <p>
+     * Questo metodo registra un nuovo utente nel sistema crittografando automaticamente
+     * la password utilizzando BCrypt prima di salvarla nel database. La foto profilo
+     * è opzionale e può essere null.
+     * </p>
+     * 
+     * @param username il nome utente univoco per l'utente
+     * @param email l'indirizzo email dell'utente 
+     * @param password la password in chiaro dell'utente (verrà automaticamente crittografata)
+     * @param foto l'immagine del profilo dell'utente come array di byte, può essere {@code null}
+     * 
+     */
     @Override
     public void inserisciUtente(String username, String email, String password, byte[] foto) {
         
-            String passwordCriptata = this.hashPassword(password);
+        String passwordCriptata = this.hashPassword(password);
         String query= "Insert into utente(username, email, password, foto_profilo) values (?,?,?,?) ";
         
             try (PreparedStatement pstmt = db.getConnection().prepareStatement(query)) {
@@ -49,7 +85,19 @@ public class DatabaseRegistrazioneLogin implements DosRegistrazione, DosLogin{
             Logger.getLogger(DatabaseRegistrazioneLogin.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-        
+     
+     /**
+     * Recupera il nome utente associato a un indirizzo email.
+     * <p>
+     * Questo metodo esegue una query per trovare il nome utente corrispondente
+     * all'email specificata. 
+     * </p>
+     * 
+     * @param email l'indirizzo email dell'utente di cui recuperare il nome utente
+     * @return il nome utente associato all'email, oppure {@code null} se non trovato
+     * 
+     * 
+     */
     @Override
     public String prendiUsername(String email) {
              

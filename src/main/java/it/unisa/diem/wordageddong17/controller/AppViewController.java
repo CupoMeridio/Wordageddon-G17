@@ -2,22 +2,28 @@ package it.unisa.diem.wordageddong17.controller;
 
 import it.unisa.diem.wordageddong17.database.DatabaseClassifica;
 import it.unisa.diem.wordageddong17.database.DatabaseRegistrazioneLogin;
+import it.unisa.diem.wordageddong17.database.DatabaseUtente;
 import it.unisa.diem.wordageddong17.model.Classifica;
 import it.unisa.diem.wordageddong17.model.LivelloPartita;
 import it.unisa.diem.wordageddong17.model.TipoUtente;
 import it.unisa.diem.wordageddong17.model.Utente;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.function.UnaryOperator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyIntegerWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -31,6 +37,7 @@ import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextFormatter;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -46,169 +53,242 @@ import javafx.stage.FileChooser;
 /**
  * FXML Controller class
  */
-
 /**
  * @class AppViewController
  * @brief Controller FXML principale per l'applicazione WordAged
- * 
- * Questa classe gestisce tutte le interazioni dell'interfaccia utente principale,
- * inclusi login, registrazione, navigazione tra schermate e avvio del gioco.
- * Implementa il pattern MVC per separare la logica di controllo dalla vista.
- * 
- * @details Il controller gestisce le seguenti funzionalità principali:
- * - Autenticazione utente (login/registrazione)
- * - Navigazione tra diverse schermate
- * - Gestione del profilo utente
- * - Avvio del gioco con selezione difficoltà
- * - Visualizzazione classifiche
- * 
+ *
+ * Questa classe gestisce tutte le interazioni dell'interfaccia utente
+ * principale, inclusi login, registrazione, navigazione tra schermate e avvio
+ * del gioco. Implementa il pattern MVC per separare la logica di controllo
+ * dalla vista.
+ *
+ * @details Il controller gestisce le seguenti funzionalità principali: -
+ * Autenticazione utente (login/registrazione) - Navigazione tra diverse
+ * schermate - Gestione del profilo utente - Avvio del gioco con selezione
+ * difficoltà - Visualizzazione classifiche
+ *
  */
 public class AppViewController implements Initializable {
 
-   // ========== COMPONENTI FXML ==========
-    
-    /** @brief Container principale per tutte le schermate */
+    // ========== COMPONENTI FXML ==========
+    /**
+     * @brief Container principale per tutte le schermate
+     */
     @FXML
     private StackPane root;
-    
+
     // Schermata Login
-    /** @brief Container per la schermata di login */
+    /**
+     * @brief Container per la schermata di login
+     */
     @FXML
     private VBox schermataDiLogin;
-    
-    /** @brief Campo di input per l'email nel login */
+
+    /**
+     * @brief Campo di input per l'email nel login
+     */
     @FXML
     private TextField emailTextField;
-    
-    /** @brief Campo di input per la password nel login */
+
+    /**
+     * @brief Campo di input per la password nel login
+     */
     @FXML
     private TextField passwordTextField;
-    
-    /** @brief Pulsante per confermare il login */
+
+    /**
+     * @brief Pulsante per confermare il login
+     */
     @FXML
     private Button accediButton;
-    
-    /** @brief Pulsante per passare alla registrazione */
+
+    /**
+     * @brief Pulsante per passare alla registrazione
+     */
     @FXML
     private Button passaARegistratiButton;
-    
+
     // Schermata Home
-    /** @brief Container per la schermata home */
+    /**
+     * @brief Container per la schermata home
+     */
     @FXML
     private AnchorPane schermataHome;
-    
-    /** @brief Container per il contenuto principale della home */
+
+    /**
+     * @brief Container per il contenuto principale della home
+     */
     @FXML
     private VBox contenutoHome;
-    
-    /** @brief Pulsante per avviare il gioco */
+
+    /**
+     * @brief Pulsante per avviare il gioco
+     */
     @FXML
     private Button startButton;
-    
-    /** @brief Pulsante per visualizzare le classifiche */
+
+    /**
+     * @brief Pulsante per visualizzare le classifiche
+     */
     @FXML
     private Button classificheButton;
-    
-    /** @brief Container per le informazioni utente in alto a destra */
+
+    /**
+     * @brief Container per le informazioni utente in alto a destra
+     */
     @FXML
     private HBox quickInfoUtente;
-    
-    /** @brief Label di benvenuto con nome utente */
+
+    /**
+     * @brief Label di benvenuto con nome utente
+     */
     @FXML
     private Label benvenutoLabel;
-    
-    /** @brief Immagine del profilo utente (cliccabile) */
+
+    /**
+     * @brief Immagine del profilo utente (cliccabile)
+     */
     @FXML
     private ImageView fotoProfilo;
-    
-    /** @brief Menu dropdown del dashboard utente */
+
+    /**
+     * @brief Menu dropdown del dashboard utente
+     */
     @FXML
     private VBox dashboardMenu;
-    
+
+    @FXML
+    private Button newDocument;
+
+    @FXML
+    private Button stopwordList;
+
     // Schermata Classifiche
-    /** @brief Container per la schermata delle classifiche */
+    /**
+     * @brief Container per la schermata delle classifiche
+     */
     @FXML
     private VBox schermataClassifiche;
-    
-    /** @brief Tabella classifiche livello facile */
+
+    /**
+     * @brief Tabella classifiche livello facile
+     */
     @FXML
     private TableView<Classifica> facileTable;
-    
-    /** @brief Tabella classifiche livello medio */
+
+    /**
+     * @brief Tabella classifiche livello medio
+     */
     @FXML
     private TableView<Classifica> mediaTable;
-    
-    /** @brief Tabella classifiche livello difficile */
+
+    /**
+     * @brief Tabella classifiche livello difficile
+     */
     @FXML
     private TableView<Classifica> difficileTable;
-    
-    /** @brief Pulsante per chiudere la schermata classifiche */
+
+    /**
+     * @brief Pulsante per chiudere la schermata classifiche
+     */
     @FXML
     private Button chiudiClassificheButton;
-    
+
     // Schermata Selezione Difficoltà
-    /** @brief Container per la selezione della difficoltà */
+    /**
+     * @brief Container per la selezione della difficoltà
+     */
     @FXML
     private VBox schermataSelezioneDifficoltà;
-    
-    /** @brief Pulsante per selezionare difficoltà facile */
+
+    /**
+     * @brief Pulsante per selezionare difficoltà facile
+     */
     @FXML
     private Button selezionaFacileButton;
-    
-    /** @brief Pulsante per selezionare difficoltà media */
+
+    /**
+     * @brief Pulsante per selezionare difficoltà media
+     */
     @FXML
     private Button selezionaMedioButton;
-    
-    /** @brief Pulsante per selezionare difficoltà difficile */
+
+    /**
+     * @brief Pulsante per selezionare difficoltà difficile
+     */
     @FXML
     private Button selezionaDifficileButton;
-    
+
     // Schermata Registrazione
-    /** @brief Label per il campo username */
+    /**
+     * @brief Label per il campo username
+     */
     @FXML
     private Label usernameLabel;
-    
-    /** @brief Campo di input per l'username nella registrazione */
+
+    /**
+     * @brief Campo di input per l'username nella registrazione
+     */
     @FXML
     private TextField username;
-    
-    /** @brief Label per il campo email */
+
+    /**
+     * @brief Label per il campo email
+     */
     @FXML
     private Label emailLabel;
-    
-    /** @brief Campo di input per l'email nella registrazione */
+
+    /**
+     * @brief Campo di input per l'email nella registrazione
+     */
     @FXML
     private TextField email;
-    
-    /** @brief Label per il campo password */
+
+    /**
+     * @brief Label per il campo password
+     */
     @FXML
     private Label passwordLabel;
-    
-    /** @brief Campo di input per la password nella registrazione */
+
+    /**
+     * @brief Campo di input per la password nella registrazione
+     */
     @FXML
     private TextField password;
-    
-    /** @brief Label per il campo conferma password */
+
+    /**
+     * @brief Label per il campo conferma password
+     */
     @FXML
     private Label repeatLabel;
-    
-    /** @brief Campo di input per confermare la password */
+
+    /**
+     * @brief Campo di input per confermare la password
+     */
     @FXML
     private TextField repeatPassword;
-    
-    /** @brief Pulsante per confermare la registrazione */
+
+    /**
+     * @brief Pulsante per confermare la registrazione
+     */
     @FXML
     private Button registerButton;
-    
-    /** @brief Pulsante per tornare al login dalla registrazione */
+
+    /**
+     * @brief Pulsante per tornare al login dalla registrazione
+     */
     @FXML
     private Button registerPageLogin;
-    
-    /** @brief Immagine del profilo nella registrazione */
+
+    /**
+     * @brief Immagine del profilo nella registrazione
+     */
     @FXML
     private ImageView imageView;
-    
-    /** @brief Container per la schermata di registrazione */
+
+    /**
+     * @brief Container per la schermata di registrazione
+     */
     @FXML
     private HBox schermataDiRegistrazione;    
     @FXML
@@ -262,9 +342,9 @@ public class AppViewController implements Initializable {
     @FXML
     private DatePicker dataFine;
     @FXML
-    private DatePicker punteggioMinimo;
+    private TextField punteggioMinimo;
     @FXML
-    private DatePicker punteggioMassimo;
+    private TextField punteggioMassimo;
     @FXML
     private CheckBox checkFacile;
     @FXML
@@ -281,8 +361,8 @@ public class AppViewController implements Initializable {
     /** @brief Istanza singleton del database per autenticazione */
     private final DatabaseRegistrazioneLogin db = DatabaseRegistrazioneLogin.getInstance();
     private final DatabaseClassifica sbc = DatabaseClassifica.getInstance();
+    private final DatabaseUtente udb = DatabaseUtente.getInstance();
     private Utente utente; 
-    private byte[] fotoProfiloBytes=null;   // -> vediamo se c'è una soluzione migliore
     
     private ObservableList<Classifica> classificaFacile;
     private ObservableList<Classifica> classificaMedia;
@@ -300,48 +380,46 @@ public class AppViewController implements Initializable {
         schermataDiLogin.setVisible(true);
         ritagliaQuadrato(imageView, 250);  // per la schermata di registrazione
         ritagliaCerchio(fotoProfilo, 40);
-        classificaFacile= FXCollections.observableArrayList();
+        classificaFacile = FXCollections.observableArrayList();
         classificaMedia = FXCollections.observableArrayList();
         classificaDifficile = FXCollections.observableArrayList();
         listaCronologiaPartite = FXCollections.observableArrayList();
-        
         initializeClassifiche();
+        initializeInfoUtente();
 
-        
-    }    
+    }
 
     /**
      * @brief Gestisce il processo di login dell'utente
-     * 
-     * Valida i dati inseriti dall'utente e procede con l'autenticazione
-     * tramite il database. In caso di successo, reindirizza alla home.
-     * 
+     *
+     * Valida i dati inseriti dall'utente e procede con l'autenticazione tramite
+     * il database. In caso di successo, reindirizza alla home.
+     *
      * @param event Evento generato dal click sul pulsante di login
-     * 
+     *
      * @pre I campi email e password devono contenere dati validi
-     * @post In caso di successo, l'utente viene autenticato e reindirizzato alla home
-     * 
-     * @details Validazioni eseguite:
-     * - Verifica che i campi non siano vuoti
-     * - Controllo formato email valido
-     * - Verifica credenziali tramite database
-     * 
+     * @post In caso di successo, l'utente viene autenticato e reindirizzato
+     * alla home
+     *
+     * @details Validazioni eseguite: - Verifica che i campi non siano vuoti -
+     * Controllo formato email valido - Verifica credenziali tramite database
+     *
      * @see mostraAlert()
      * @see isValidEmail()
      * @see DatabaseRegistrazioneLogin#verificaPassword()
      */
     @FXML
     private void accediOnAction(ActionEvent event) {
-        
-      String email = emailTextField.getText();
-      String password = passwordTextField.getText();
-      
-      if(email.isEmpty() || password.isEmpty()){
-          mostraAlert("Errore\n", "I campi non possono essere vuoti\n", Alert.AlertType.WARNING);
-          return;
-      } 
-      
-      if (!isValidEmail(email)) {
+
+        String email = emailTextField.getText();
+        String password = passwordTextField.getText();
+
+        if (email.isEmpty() || password.isEmpty()) {
+            mostraAlert("Errore\n", "I campi non possono essere vuoti\n", Alert.AlertType.WARNING);
+            return;
+        }
+
+        if (!isValidEmail(email)) {
             mostraAlert("Errore", "Inserisci un indirizzo email valido.", Alert.AlertType.WARNING);
             return;
         }
@@ -349,7 +427,8 @@ public class AppViewController implements Initializable {
       boolean pwCorretta = db.verificaPassword(email, password);
       
       if(pwCorretta){
-              utente = db.prendiUtente(email);       
+              utente = db.prendiUtente(email);
+              configuraPulsantiAdmin();
               benvenutoLabel.setText("Benvenuto "+ utente.getUsername());
               emailTextField.clear();
               passwordTextField.clear();
@@ -362,33 +441,34 @@ public class AppViewController implements Initializable {
         initializeCronologiaPartite();
       }
     }
+
     /**
      * @brief Reindirizza l'utente alla schermata di registrazione
-     * 
+     *
      * @param event Evento generato dal click sul pulsante di registrazione
-     * 
+     *
      * @post La schermata di registrazione viene visualizzata
      */
     @FXML
     private void passaARegistratiOnAction(ActionEvent event) {
         chiudiTutto();
-        
+
         schermataDiRegistrazione.setVisible(true);
-        
-        
+
     }
+
     /**
      * @brief Avvia il processo di selezione difficoltà per iniziare il gioco
-     * 
+     *
      * @param event Evento generato dal click sul pulsante Start
-     * 
+     *
      * @post Viene visualizzata la schermata di selezione difficoltà
      */
     @FXML
     private void startOnAction(ActionEvent event) {
-        
+
         chiudiTutto();
-        
+
         schermataSelezioneDifficoltà.setVisible(true);
     }
     
@@ -398,7 +478,7 @@ public class AppViewController implements Initializable {
      * @brief Mostra la schermata delle classifiche 
      * 
      * @param event Evento generato dal click sul pulsante Classifiche
-     * 
+     *
      * @post Viene visualizzata la schermata classifiche con i dati caricati
      */
     @FXML
@@ -414,55 +494,64 @@ public class AppViewController implements Initializable {
         currentLoadingTask = new Task<Void>() {
             @Override
             protected Void call() throws Exception {
-                if (isCancelled()) return null;
-            
+                if (isCancelled()) {
+                    return null;
+                }
+
                 List<Classifica> facile = sbc.prendiClassifica(LivelloPartita.FACILE);
-                if (isCancelled()) return null;
-            
+                if (isCancelled()) {
+                    return null;
+                }
+
                 List<Classifica> medio = sbc.prendiClassifica(LivelloPartita.MEDIO);
-                if (isCancelled()) return null;
-            
+                if (isCancelled()) {
+                    return null;
+                }
+
                 List<Classifica> difficile = sbc.prendiClassifica(LivelloPartita.DIFFICILE);
-                if (isCancelled()) return null;
+                if (isCancelled()) {
+                    return null;
+                }
 
                 Platform.runLater(() -> {
                     classificaFacile.setAll(facile);
                     classificaMedia.setAll(medio);
                     classificaDifficile.setAll(difficile);
                 });
-            
+
                 return null;
             }
         };
 
         currentLoadingTask.setOnFailed(e -> {
-    Throwable exception = currentLoadingTask.getException();
-    Platform.runLater(() -> 
-        mostraAlert("Errore", "Caricamento fallito: " + exception.getMessage(), Alert.AlertType.ERROR));
-    exception.printStackTrace(); // Log to console
-});
+            Throwable exception = currentLoadingTask.getException();
+            Platform.runLater(()
+                    -> mostraAlert("Errore", "Caricamento fallito: " + exception.getMessage(), Alert.AlertType.ERROR));
+            exception.printStackTrace(); // Log to console
+        });
 
         new Thread(currentLoadingTask).start();
     }
-                
+
     /**
      * @brief Toggle della visibilità del menu dashboard utente
-     * 
-     * @param event Evento del mouse 
-     * 
+     *
+     * @param event Evento del mouse
+     *
      * @post Il menu dashboard cambia stato di visibilità
      */
     @FXML
     private void toggleDashboard(MouseEvent event) {
         dashboardMenu.setVisible(!dashboardMenu.isVisible());
     }
-    
+
     @FXML
     private void logout(ActionEvent event) {
         utente=null;
         chiudiTutto();
         dashboardMenu.setVisible(false);
         pulisciTutto();
+        fotoProfilo.setImage(getPlaceholderImage());
     }
 
     @FXML
@@ -494,40 +583,36 @@ public class AppViewController implements Initializable {
         schermataSelezioneDifficoltà.setVisible(false);
         // TODO: Implementare l'avvio del gioco con difficoltà difficile
     }
-    
-    
+
     /**
      * @brief Valida il formato di un indirizzo email
-     * 
+     *
      * Utilizza una regex per verificare che l'email abbia un formato valido
      * secondo gli standard comuni.
-     * 
+     *
      * @param email Stringa contenente l'email da validare
      * @return true se l'email ha un formato valido, false altrimenti
-     * 
-     * @details Pattern regex utilizzato:
-     * - Caratteri alfanumerici, +, _, ., - prima della @
-     * - Dominio con caratteri alfanumerici, . e -
-     * - Estensione di almeno 2 caratteri
+     *
+     * @details Pattern regex utilizzato: - Caratteri alfanumerici, +, _, ., -
+     * prima della @ - Dominio con caratteri alfanumerici, . e - - Estensione di
+     * almeno 2 caratteri
      */
-    
     private boolean isValidEmail(String email) {
         return email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$");
     }
-    
-    
-    
+
     /**
      * @brief Mostra una finestra di alert all'utente
-     * 
-     * Crea e visualizza una finestra di JavaFX con il messaggio specificato.
-     * Il tipo di alert determina l'icona e il colore del dialog.
-     * 
+     *
+     * Crea e visualizza una finestra di JavaFX con il messaggio specificato. Il
+     * tipo di alert determina l'icona e il colore del dialog.
+     *
      * @param titolo Titolo della finestra di alert
      * @param messaggio Testo del messaggio da mostrare
      * @param tipo Tipo di alert (INFORMATION, WARNING, ERROR, CONFIRMATION)
-     * 
-     * @post Viene mostrato un dialog modale che blocca l'interazione fino alla chiusura
+     *
+     * @post Viene mostrato un dialog modale che blocca l'interazione fino alla
+     * chiusura
      */
     private void mostraAlert(String titolo, String messaggio, Alert.AlertType tipo) {
         Alert alert = new Alert(tipo);
@@ -537,78 +622,60 @@ public class AppViewController implements Initializable {
         alert.showAndWait();
     }
 
+
     @FXML
     private void registerButtonOnAction(ActionEvent event) {
-        if(this.isValidEmail(email.getText())){
-            if(password.getText().equals(repeatPassword.getText())){
-            db.inserisciUtente(username.getText(), email.getText(), password.getText(), this.fotoProfiloBytes);
-                    chiudiTutto();
-                    schermataHome.setVisible(true);
-                    benvenutoLabel.setText("Benvenuto "+username.getText());
-                if(this.fotoProfiloBytes == null){
-                    utente=new Utente(username.getText(), email.getText(), TipoUtente.giocatore);
-                    fotoProfilo.setImage(getPlaceholderImage());
-                }else{
-                     utente=new Utente(username.getText(), email.getText(), this.fotoProfiloBytes, TipoUtente.giocatore);
-                     fotoProfilo.setImage(getImageFromByte(this.fotoProfiloBytes));
-                }
-                pulisciTutto();
-            }
-            else{
-                mostraAlert("Password non corrispondenti", "Le due password inserite non corrispondono",Alert.AlertType.ERROR);
+        if (!isValidEmail(email.getText())) {
+            mostraAlert("Email non valida", "L'email inserita non è valida.", Alert.AlertType.ERROR);
+            return;
+        }
+
+        if (!password.getText().equals(repeatPassword.getText())) {
+            mostraAlert("Password non corrispondenti", "Le due password inserite non corrispondono", Alert.AlertType.ERROR);
+            return;
+        }
+
+        byte[] immagineBytes = null;
+        Image immagine = imageView.getImage();
+        if (immagine != null && immagine.getUrl() != null && !immagine.getUrl().contains("person.png")) {
+            try {
+                // Prendiamo il file selezionato
+                String url = immagine.getUrl().replace("file:", "");
+                immagineBytes = Files.readAllBytes(new File(url).toPath());
+            } catch (IOException e) {
+                mostraAlert("Errore", "Errore nella lettura dell'immagine", Alert.AlertType.ERROR);
             }
         }
-        else{
-            mostraAlert("Email non valida", "L'email inserita non è valida.",Alert.AlertType.ERROR);
+
+        db.inserisciUtente(username.getText(), email.getText(), password.getText(), immagineBytes);
+        chiudiTutto();
+        configuraPulsantiAdmin();
+        schermataHome.setVisible(true);
+        benvenutoLabel.setText("Benvenuto " + username.getText());
+
+        if (immagineBytes == null) {
+            utente = new Utente(username.getText(), email.getText(), TipoUtente.giocatore);
+            fotoProfilo.setImage(getPlaceholderImage());
+        } else {
+            utente = new Utente(username.getText(), email.getText(), immagineBytes, TipoUtente.giocatore);
+            fotoProfilo.setImage(new Image(new ByteArrayInputStream(immagineBytes)));
         }
-        
+
+        pulisciTutto();
     }
-    
+
+
     @FXML
     private void caricaIMG() {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.getExtensionFilters().addAll(
-            new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg", "*.gif")
-        );
-        File file = fileChooser.showOpenDialog(null);
-
-        if (file != null) {
-            // Caricamento in background
-            Task<Image> loadImageTask = new Task<>() {
-                @Override
-                protected Image call() throws Exception {
-                    return new Image(file.toURI().toString());
-                }
-            };
-
-            loadImageTask.setOnSucceeded(event -> {
-                Image image = loadImageTask.getValue();
-                if (image != null) {
-                    imageView.setImage(image);
-                    mostraAlert("Successo", "Immagine selezionata correttamente", Alert.AlertType.INFORMATION);
-                } else {
-                    mostraAlert("Errore", "Errore nel caricamento dell'immagine", Alert.AlertType.ERROR);
-                }
-            });
-
-            loadImageTask.setOnFailed(event -> {
-                mostraAlert("Errore", "Errore nel caricamento dell'immagine", Alert.AlertType.ERROR);
-            });
-
-            new Thread(loadImageTask).start();
-
-        } else {
-            // Nessun file selezionato: messaggio corretto
-            mostraAlert("Info", "Nessuna immagine selezionata", Alert.AlertType.INFORMATION);
-        }
+        scegliImmagine(imageView);
     }
-    
-    private Image getImageFromByte(byte[] img){
+
+    private Image getImageFromByte(byte[] img) {
         ByteArrayInputStream bis = new ByteArrayInputStream(img);
-        return(  new Image(bis));
+        return (new Image(bis));
     }
-    
-    private void chiudiTutto(){
+
+    private void chiudiTutto() {
         schermataDiRegistrazione.setVisible(false);
         schermataDiLogin.setVisible(false);
         schermataHome.setVisible(false);
@@ -617,8 +684,8 @@ public class AppViewController implements Initializable {
         dashboardMenu.setVisible(false);
         schermataInfoUtente.setVisible(false);
     }
-    
-    private void pulisciTutto(){
+
+    private void pulisciTutto() {
         emailTextField.textProperty().set("");
         passwordTextField.textProperty().set("");
         username.textProperty().set("");
@@ -635,7 +702,7 @@ public class AppViewController implements Initializable {
         dataFine.setValue(null);
         dataInizio.setValue(null);
     }
-    
+
     private Image getPlaceholderImage() {
         return new Image(getClass().getResource("/imgs/person.png").toExternalForm());
     }
@@ -645,7 +712,7 @@ public class AppViewController implements Initializable {
         chiudiTutto();
         schermataDiLogin.setVisible(true);
     }
-    
+
     private void ritagliaQuadrato(ImageView imageView, double dimensione) {
         imageView.setFitWidth(dimensione);
         imageView.setFitHeight(dimensione);
@@ -668,7 +735,7 @@ public class AppViewController implements Initializable {
             }
         });
     }
-    
+
     private void ritagliaCerchio(ImageView imageView, double dimensione) {
         imageView.setFitWidth(dimensione);
         imageView.setFitHeight(dimensione);
@@ -698,45 +765,74 @@ public class AppViewController implements Initializable {
         setupTable(mediaTable, mediaPosizione, mediaNome, mediaPunteggio, classificaMedia);
         setupTable(difficileTable, difficilePosizione, difficileNome, difficilePunteggio, classificaDifficile);
     }
-    
-    
+
     //Informazioni reperite da: https://stackoverflow.com/questions/33353014/creating-a-row-index-column-in-javafx
-    private void setupTable(TableView<Classifica> table, TableColumn<Classifica, Integer> posizioneCol,TableColumn<Classifica, String> nomeCol, TableColumn<Classifica, Float> punteggioCol, ObservableList<Classifica> data) {
+    private void setupTable(TableView<Classifica> table, TableColumn<Classifica, Integer> posizioneCol, TableColumn<Classifica, String> nomeCol, TableColumn<Classifica, Float> punteggioCol, ObservableList<Classifica> data) {
         // Configura le colonne
         nomeCol.setCellValueFactory(new PropertyValueFactory<>("username"));
         punteggioCol.setCellValueFactory(new PropertyValueFactory<>("punti"));
-    
+
         // Configura colonna posizione con emoji
         posizioneCol.setCellFactory(col -> new TableCell<Classifica, Integer>() {
             @Override
             protected void updateItem(Integer posizione, boolean empty) {
                 super.updateItem(posizione, empty);
-            
+
                 if (empty || posizione == null) {
                     setText(null);
                     setGraphic(null);
                 } else {
                     switch (posizione) {
-                        case 1: setText("🥇"); break;
-                        case 2: setText("🥈"); break;
-                        case 3: setText("🥉"); break;
-                        default: setText(posizione.toString());
+                        case 1:
+                            setText("🥇");
+                            break;
+                        case 2:
+                            setText("🥈");
+                            break;
+                        case 3:
+                            setText("🥉");
+                            break;
+                        default:
+                            setText(posizione.toString());
                     }
                 }
             }
         });
-    
+
         posizioneCol.setCellValueFactory(cellData -> {
             int index = cellData.getTableView().getItems().indexOf(cellData.getValue()) + 1;
             return new ReadOnlyIntegerWrapper(index).asObject();
         });
-    
+
         // Imposta i dati e abilita ordinamento
         table.setItems(data);
         punteggioCol.setSortType(TableColumn.SortType.DESCENDING);
         table.getSortOrder().add(punteggioCol);
         table.sort();
-    
+
+    }
+
+    /**
+     * @brief Configura la visibilità dei pulsanti amministratore
+     *
+     * Mostra i pulsanti newDocument e stopwordList solo se l'utente corrente è
+     * di tipo amministratore.
+     *
+     * @pre L'oggetto utente deve essere inizializzato
+     * @post I pulsanti amministratore sono visibili solo agli admin
+     */
+    private void configuraPulsantiAdmin() {
+        if (utente != null && utente.getTipo() == TipoUtente.amministratore) {
+            newDocument.setVisible(true);
+            newDocument.setManaged(true);
+            stopwordList.setVisible(true);
+            stopwordList.setManaged(true);
+        } else {
+            newDocument.setVisible(false);
+            newDocument.setManaged(false);
+            stopwordList.setVisible(false);
+            stopwordList.setManaged(false);
+        }
     }
 
     @FXML
@@ -795,7 +891,7 @@ public class AppViewController implements Initializable {
         dataCronologiaPartite.setCellValueFactory(new PropertyValueFactory<>("data"));
         difficoltàCronologiaPartite.setCellValueFactory(new PropertyValueFactory<>("difficolta"));
         punteggioCronologiaPartite.setCellValueFactory(new PropertyValueFactory("punti"));
-        cronologiaPartite.setItems(listaCronologiaPartite);
+        initializeCronologiaFiltro();
         usernameInfoUtente.setText("Username: "+utente.getUsername());
         emailInfoUtente.setText("E-mail: "+utente.getEmail());
     }
@@ -805,6 +901,100 @@ public class AppViewController implements Initializable {
         chiudiTutto();
         pulisciTutto();
         schermataHome.setVisible(true);
+    }
+
+    @FXML
+    private void cambiaIMG(MouseEvent event) {
+        byte[] nuovaImmagine = scegliImmagine(immagineInfoUtente);
+        udb.modificaFotoProfilo(utente.getEmail(), nuovaImmagine);
+        utente.setFotoProfilo(nuovaImmagine);
+    }
+
+    private byte[] scegliImmagine(ImageView imgv) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.getExtensionFilters().addAll(
+            new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg", "*.gif")
+        );
+        File file = fileChooser.showOpenDialog(null);
+
+        if (file != null) {
+            try {
+                byte[] imageBytes = Files.readAllBytes(file.toPath());
+                Image image = new Image(file.toURI().toString());
+                imgv.setImage(image);
+                mostraAlert("Successo", "Immagine selezionata correttamente", Alert.AlertType.INFORMATION);
+                return imageBytes;
+            } catch (IOException e) {
+                mostraAlert("Errore", "Errore nella lettura dell'immagine", Alert.AlertType.ERROR);
+            }
+        } else {
+            mostraAlert("Info", "Nessuna immagine selezionata", Alert.AlertType.INFORMATION);
+        }
+        return null;
+    }
+
+    private void initializeInfoUtente() {
+        UnaryOperator<TextFormatter.Change> floatFilter = change -> {
+            String newText = change.getControlNewText();
+            return newText.matches("-?\\d*(\\.\\d*)?") ? change : null;
+        };
+        punteggioMinimo.setTextFormatter(new TextFormatter<>(floatFilter));
+        punteggioMassimo.setTextFormatter(new TextFormatter<>(floatFilter)); 
+    }
+    
+    private void initializeCronologiaFiltro() {
+        FilteredList<Classifica> filteredList = new FilteredList<>(listaCronologiaPartite, p -> true);
+        cronologiaPartite.setItems(filteredList);
+
+        // Listener combinato per filtri
+        Runnable filtro = () -> {
+            filteredList.setPredicate(classifica -> {
+                // Filtro checkbox difficoltà
+                String livelloDb = classifica.getDifficolta() != null ? classifica.getDifficolta().getDbValue() : "";
+
+                boolean matchDifficolta =
+                    (checkFacile.isSelected() && "facile".equalsIgnoreCase(livelloDb)) ||
+                    (checkMedio.isSelected() && "medio".equalsIgnoreCase(livelloDb)) ||
+                    (checkDifficile.isSelected() && "difficile".equalsIgnoreCase(livelloDb));
+
+                if (!checkFacile.isSelected() && !checkMedio.isSelected() && !checkDifficile.isSelected()) {
+                    matchDifficolta = true; // Se nessuna selezionata, mostra tutto
+                }
+
+                // Filtro data
+                LocalDate data = classifica.getData().toLocalDateTime().toLocalDate();
+                LocalDate dataMin = dataInizio.getValue();
+                LocalDate dataMax = dataFine.getValue();
+
+                boolean matchData = (dataMin == null || !data.isBefore(dataMin)) &&
+                                    (dataMax == null || !data.isAfter(dataMax));
+
+                // Filtro punteggio
+                Float punteggio = classifica.getPunti();
+                float min = parseSafeFloat(punteggioMinimo.getText(), Float.MIN_VALUE);
+                float max = parseSafeFloat(punteggioMassimo.getText(), Float.MAX_VALUE);
+                boolean matchPunteggio = punteggio >= min && punteggio <= max;
+
+                return matchDifficolta && matchData && matchPunteggio;
+            });
+        };
+
+        // Registra listener su ogni campo
+        checkFacile.selectedProperty().addListener((obs, oldV, newV) -> filtro.run());
+        checkMedio.selectedProperty().addListener((obs, oldV, newV) -> filtro.run());
+        checkDifficile.selectedProperty().addListener((obs, oldV, newV) -> filtro.run());
+        dataInizio.valueProperty().addListener((obs, oldV, newV) -> filtro.run());
+        dataFine.valueProperty().addListener((obs, oldV, newV) -> filtro.run());
+        punteggioMinimo.textProperty().addListener((obs, oldV, newV) -> filtro.run());
+        punteggioMassimo.textProperty().addListener((obs, oldV, newV) -> filtro.run());
+    }
+    
+    private float parseSafeFloat(String text, float fallback) {
+        try {
+            return Float.parseFloat(text);
+        } catch (NumberFormatException e) {
+            return fallback;
+        }
     }
     
 }

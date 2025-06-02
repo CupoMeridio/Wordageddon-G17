@@ -58,7 +58,7 @@
                </VBox>
    
                <!-- Schermata Home -->
-               <AnchorPane fx:id="schermataHome" prefHeight="400.0" prefWidth="600.0" visible="false">
+               <AnchorPane fx:id="schermataHome" prefHeight="400.0" prefWidth="600.0">
       <children>
       
                       <!-- Contenuto principale -->
@@ -87,10 +87,12 @@
                       </HBox>
       
                       <!-- Dashboard -->
-                      <VBox fx:id="dashboardMenu" alignment="CENTER" spacing="10.0" style="-fx-background-color: white; -fx-padding: 10; -fx-border-color: gray; -fx-border-width: 1;" visible="false" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="55.0">
+                      <VBox fx:id="dashboardMenu" alignment="CENTER" spacing="10.0" style="-fx-background-color: white; -fx-padding: 10; -fx-border-color: gray; -fx-border-width: 1;" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="55.0">
                           <children>
                               <Button fx:id="infoProfiloButton" onAction="#passaAInfoProfilo" text="Info profilo" />
                               <Button text="Impostazioni" />
+                              <Button fx:id="newDocument" text="Nuovo documento" />
+                              <Button fx:id="stopwordList" text="Stopwords" />
                               <Button onAction="#logout" text="Logout" />
                           </children>
                       </VBox>
@@ -217,11 +219,13 @@
 
                   <!-- Immagine profilo -->
             <VBox alignment="CENTER" maxWidth="300" HBox.hgrow="ALWAYS">
-                <ImageView fx:id="imageView" fitHeight="208" fitWidth="208" onMouseClicked="#caricaIMG" pickOnBounds="true" preserveRatio="true">
-                    <image>
-                        <Image url="@../imgs/Profile_avatar_placeholder_large.png" />
-                    </image>
-                </ImageView>
+   <children>
+                   <ImageView fx:id="imageView" fitHeight="208" fitWidth="208" onMouseClicked="#caricaIMG" pickOnBounds="true" preserveRatio="true">
+                       <image>
+                           <Image url="@../imgs/Profile_avatar_placeholder_large.png" />
+                       </image>
+                   </ImageView>
+   </children>
             </VBox>
         </children>
     </HBox>
@@ -243,7 +247,7 @@
                         </VBox>
                         <VBox alignment="CENTER" maxWidth="300" HBox.hgrow="ALWAYS">
                            <children>
-                              <ImageView fx:id="immagineInfoUtente" fitHeight="208" fitWidth="208" onMouseClicked="#caricaIMG" pickOnBounds="true" preserveRatio="true">
+                              <ImageView fx:id="immagineInfoUtente" fitHeight="208" fitWidth="208" onMouseClicked="#cambiaIMG" pickOnBounds="true" preserveRatio="true">
                                  <image>
                                     <Image url="@../imgs/Profile_avatar_placeholder_large.png" />
                                  </image>
@@ -285,9 +289,9 @@
                                     <DatePicker fx:id="dataFine" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                                     <Label text="Data fine" GridPane.rowIndex="1" />
                                     <Label text="Punteggio minimo" GridPane.rowIndex="2" />
-                                    <DatePicker fx:id="punteggioMinimo" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                                     <Label text="Punteggio massimo" GridPane.rowIndex="3" />
-                                    <DatePicker fx:id="punteggioMassimo" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                                    <TextField fx:id="punteggioMinimo" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                    <TextField fx:id="punteggioMassimo" GridPane.columnIndex="1" GridPane.rowIndex="3" />
                                  </children>
                               </GridPane>
                               <VBox alignment="CENTER_LEFT">

@@ -55,7 +55,7 @@ public class Database {
      * @throws IllegalStateException se una delle variabili d'ambiente {@code DBNAME}, {@code USERNAME} o {@code PASSWORD} non è impostata.
      * @throws RuntimeException se si verifica un errore durante la connessione al database.
      */
-   private Database() {
+    private Database() {
         if (dbname == null || username == null || password == null) {
             throw new IllegalStateException("Variabili d'ambiente DBNAME, USERNAME o PASSWORD non sono impostate.");
         }

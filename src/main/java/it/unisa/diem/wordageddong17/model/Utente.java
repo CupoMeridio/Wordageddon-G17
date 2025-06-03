@@ -55,11 +55,13 @@ public class Utente {
         }
     }
 
-    public void setFotoProfilo(byte[] fotoProfilo) {
+    public boolean setFotoProfilo(byte[] fotoProfilo) {
         if(db.modificaFotoProfilo(email, fotoProfilo)){
             this.fotoProfilo = fotoProfilo;
+            return true;
         }else{
             System.out.println("Foto name non cambiato");
+            return false;
         }
     }
     

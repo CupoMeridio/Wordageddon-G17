@@ -361,7 +361,6 @@ public class AppViewController implements Initializable {
     /** @brief Istanza singleton del database per autenticazione */
     private final DatabaseRegistrazioneLogin db = DatabaseRegistrazioneLogin.getInstance();
     private final DatabaseClassifica sbc = DatabaseClassifica.getInstance();
-    private final DatabaseUtente udb = DatabaseUtente.getInstance();
     private Utente utente; 
     
     private ObservableList<Classifica> classificaFacile;
@@ -379,6 +378,7 @@ public class AppViewController implements Initializable {
         chiudiTutto();
         schermataDiLogin.setVisible(true);
         ritagliaQuadrato(imageView, 250);  // per la schermata di registrazione
+        ritagliaQuadrato(immagineInfoUtente,250);
         ritagliaCerchio(fotoProfilo, 40);
         classificaFacile = FXCollections.observableArrayList();
         classificaMedia = FXCollections.observableArrayList();
@@ -424,22 +424,29 @@ public class AppViewController implements Initializable {
             return;
         }
       
-      boolean pwCorretta = db.verificaPassword(email, password);
+        boolean pwCorretta = db.verificaPassword(email, password);
       
-      if(pwCorretta){
-              utente = db.prendiUtente(email);
-              configuraPulsantiAdmin();
-              benvenutoLabel.setText("Benvenuto "+ utente.getUsername());
-              emailTextField.clear();
-              passwordTextField.clear();
-              chiudiTutto();
-              schermataHome.setVisible(true); 
-      } else {
-          mostraAlert("Errore", "Email o password errati", Alert.AlertType.WARNING);
-      }
-      if(utente != null) {
-        initializeCronologiaPartite();
-      }
+        if(pwCorretta){
+            utente = db.prendiUtente(email);
+            aggiornaFotoProfilo(utente.getFotoProfilo());
+            configuraPulsantiAdmin();
+            benvenutoLabel.setText("Benvenuto "+ utente.getUsername());
+            emailTextField.clear();
+            passwordTextField.clear();
+            chiudiTutto();
+            schermataHome.setVisible(true); 
+        } else {
+            mostraAlert("Errore", "Email o password errati", Alert.AlertType.WARNING);
+        }
+        if(utente != null) {
+            initializeCronologiaPartite();
+        }
+        byte[] immagineBytes = utente.getFotoProfilo();
+        if (immagineBytes == null) {
+            fotoProfilo.setImage(getPlaceholderImage());
+        } else {
+            fotoProfilo.setImage(new Image(new ByteArrayInputStream(immagineBytes)));
+        }
     }
 
     /**
@@ -452,7 +459,7 @@ public class AppViewController implements Initializable {
     @FXML
     private void passaARegistratiOnAction(ActionEvent event) {
         chiudiTutto();
-
+        pulisciTutto();
         schermataDiRegistrazione.setVisible(true);
 
     }
@@ -648,6 +655,8 @@ public class AppViewController implements Initializable {
         }
 
         db.inserisciUtente(username.getText(), email.getText(), password.getText(), immagineBytes);
+        utente = new Utente(username.getText(), email.getText(), immagineBytes, TipoUtente.giocatore);
+        aggiornaFotoProfilo(immagineBytes);
         chiudiTutto();
         configuraPulsantiAdmin();
         schermataHome.setVisible(true);
@@ -671,8 +680,10 @@ public class AppViewController implements Initializable {
     }
 
     private Image getImageFromByte(byte[] img) {
-        ByteArrayInputStream bis = new ByteArrayInputStream(img);
-        return (new Image(bis));
+        if (img == null) {
+            return getPlaceholderImage(); // fallback se l'immagine è nulla
+        }
+        return new Image(new ByteArrayInputStream(img));
     }
 
     private void chiudiTutto() {
@@ -701,6 +712,8 @@ public class AppViewController implements Initializable {
         dataFine.getEditor().clear();
         dataFine.setValue(null);
         dataInizio.setValue(null);
+        immagineInfoUtente.setImage(new Image(getClass().getResource("/imgs/Profile_avatar_placeholder_large.png").toExternalForm()));
+        imageView.setImage(new Image(getClass().getResource("/imgs/Profile_avatar_placeholder_large.png").toExternalForm()));
     }
 
     private Image getPlaceholderImage() {
@@ -710,6 +723,7 @@ public class AppViewController implements Initializable {
     @FXML
     private void passaALogin(ActionEvent event) {
         chiudiTutto();
+        pulisciTutto();
         schermataDiLogin.setVisible(true);
     }
 
@@ -870,6 +884,7 @@ public class AppViewController implements Initializable {
                     migliore_facile.setText(String.format("Miglior punteggio in difficoltà facile: %.1f", facilePunteggio));
                     migliore_medio.setText(String.format("Miglior punteggio in difficoltà media: %.1f", medioPunteggio));
                     migliore_difficile.setText(String.format("Miglior punteggio in difficoltà difficile: %.1f", difficilePunteggio));
+                    immagineInfoUtente.setImage(getImageFromByte(utente.getFotoProfilo()));
                 });
             
                 return null;
@@ -906,8 +921,7 @@ public class AppViewController implements Initializable {
     @FXML
     private void cambiaIMG(MouseEvent event) {
         byte[] nuovaImmagine = scegliImmagine(immagineInfoUtente);
-        udb.modificaFotoProfilo(utente.getEmail(), nuovaImmagine);
-        utente.setFotoProfilo(nuovaImmagine);
+        aggiornaFotoProfilo(nuovaImmagine);
     }
 
     private byte[] scegliImmagine(ImageView imgv) {
@@ -915,22 +929,35 @@ public class AppViewController implements Initializable {
         fileChooser.getExtensionFilters().addAll(
             new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg", "*.gif")
         );
-        File file = fileChooser.showOpenDialog(null);
+    
+        try {
+            File file = fileChooser.showOpenDialog(null);
+            if (file == null) return null;
 
-        if (file != null) {
-            try {
-                byte[] imageBytes = Files.readAllBytes(file.toPath());
-                Image image = new Image(file.toURI().toString());
+            if (!validaImmagine(file)) return null;
+
+            byte[] imageBytes = Files.readAllBytes(file.toPath());
+            Image image = new Image(file.toURI().toString());
+        
+            Platform.runLater(() -> {
                 imgv.setImage(image);
-                mostraAlert("Successo", "Immagine selezionata correttamente", Alert.AlertType.INFORMATION);
-                return imageBytes;
-            } catch (IOException e) {
-                mostraAlert("Errore", "Errore nella lettura dell'immagine", Alert.AlertType.ERROR);
-            }
-        } else {
-            mostraAlert("Info", "Nessuna immagine selezionata", Alert.AlertType.INFORMATION);
+                mostraAlert("Successo", "Immagine caricata correttamente", Alert.AlertType.INFORMATION);
+            });
+        
+            return imageBytes;
+        } catch (IOException e) {
+            Platform.runLater(() -> 
+                mostraAlert("Errore", "Errore di lettura: " + e.getMessage(), Alert.AlertType.ERROR));
+            return null;
+        } catch (SecurityException e) {
+            Platform.runLater(() -> 
+                mostraAlert("Errore", "Permessi insufficienti per leggere il file", Alert.AlertType.ERROR));
+            return null;
+        } catch (Exception e) {
+            Platform.runLater(() -> 
+                mostraAlert("Errore", "Errore inaspettato: " + e.getMessage(), Alert.AlertType.ERROR));
+            return null;
         }
-        return null;
     }
 
     private void initializeInfoUtente() {
@@ -939,7 +966,8 @@ public class AppViewController implements Initializable {
             return newText.matches("-?\\d*(\\.\\d*)?") ? change : null;
         };
         punteggioMinimo.setTextFormatter(new TextFormatter<>(floatFilter));
-        punteggioMassimo.setTextFormatter(new TextFormatter<>(floatFilter)); 
+        punteggioMassimo.setTextFormatter(new TextFormatter<>(floatFilter));
+        
     }
     
     private void initializeCronologiaFiltro() {
@@ -994,6 +1022,63 @@ public class AppViewController implements Initializable {
             return Float.parseFloat(text);
         } catch (NumberFormatException e) {
             return fallback;
+        }
+    }
+    
+    private void aggiornaFotoProfilo(byte[] immagineBytes) {
+        try {
+            // Salva prima nel database
+            boolean successo = utente.setFotoProfilo(immagineBytes);
+        
+            if (successo) {
+            // Se il DB è ok, aggiorna lo stato locale
+                utente.setFotoProfilo(immagineBytes);
+                Image image = immagineBytes != null ? new Image(new ByteArrayInputStream(immagineBytes)) : getPlaceholderImage();
+            
+                Platform.runLater(() -> {
+                    fotoProfilo.setImage(image);
+                    immagineInfoUtente.setImage(image);
+                });
+            } else {
+                throw new RuntimeException("Salvataggio nel database fallito");
+            }
+        } catch (Exception e) {
+            Platform.runLater(() -> 
+                mostraAlert("Errore", "Impossibile aggiornare l'immagine: " + e.getMessage(), Alert.AlertType.ERROR));
+        
+            // Ripristina l'immagine precedente
+            byte[] vecchiaImmagine = utente.getFotoProfilo();
+            Image oldImage = vecchiaImmagine != null ? 
+                new Image(new ByteArrayInputStream(vecchiaImmagine)) : 
+                getPlaceholderImage();
+        
+            Platform.runLater(() -> {
+                fotoProfilo.setImage(oldImage);
+                immagineInfoUtente.setImage(oldImage);
+            });
+        }
+    }
+    
+    private boolean validaImmagine(File file) {
+        try {
+            // Verifica dimensione massima (es. 5MB)
+            long maxSize = 5 * 1024 * 1024; 
+            if (file.length() > maxSize) {
+                mostraAlert("Errore", "L'immagine è troppo grande (max 5MB)", Alert.AlertType.ERROR);
+                return false;
+            }
+        
+            // Verifica che sia un'immagine leggibile
+            Image test = new Image(file.toURI().toString(), 10, 10, true, true);
+            if (test.isError()) {
+                mostraAlert("Errore", "File immagine non valido", Alert.AlertType.ERROR);
+                return false;
+            }
+        
+            return true;
+        } catch (Exception e) {
+            mostraAlert("Errore", "Impossibile leggere il file: " + e.getMessage(), Alert.AlertType.ERROR);
+            return false;
         }
     }
     

@@ -549,9 +549,9 @@ public class AppViewController implements Initializable {
     private void logout(ActionEvent event) {
         utente=null;
         chiudiTutto();
-        dashboardMenu.setVisible(false);
         pulisciTutto();
         fotoProfilo.setImage(getPlaceholderImage());
+        schermataDiLogin.setVisible(true);
     }
 
     @FXML

@@ -2,7 +2,6 @@ package it.unisa.diem.wordageddong17.controller;
 
 import it.unisa.diem.wordageddong17.database.DatabaseClassifica;
 import it.unisa.diem.wordageddong17.database.DatabaseRegistrazioneLogin;
-import it.unisa.diem.wordageddong17.database.DatabaseUtente;
 import it.unisa.diem.wordageddong17.model.Classifica;
 import it.unisa.diem.wordageddong17.model.LivelloPartita;
 import it.unisa.diem.wordageddong17.model.TipoUtente;

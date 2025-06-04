@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane fx:id="anchorPane" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unisa.diem.wordageddong17.controller.SessionViewController">
+   <children>
+      <StackPane layoutY="15.0" prefHeight="400.0" prefWidth="600.0">
+         <children>
+            <HBox fx:id="FaseRisposte" alignment="CENTER" prefHeight="219.0" prefWidth="254.0">
+               <children>
+                  <VBox fx:id="vbox" alignment="CENTER" prefHeight="400.0" prefWidth="274.0" spacing="20.0">
+                     <children>
+                        <Label fx:id="question" prefHeight="90.0" prefWidth="231.0" text="Testo della domanda">
+                           <font>
+                              <Font size="24.0" />
+                           </font>
+                        </Label>
+                        <VBox alignment="CENTER" prefHeight="140.0" prefWidth="274.0">
+                           <children>
+                              <RadioButton fx:id="risposta1button" mnemonicParsing="false" onAction="#risposta1" prefHeight="33.0" prefWidth="70.0" text="risposta1">
+                                 <toggleGroup>
+                                    <ToggleGroup fx:id="RispostaAllaDomanda" />
+                                 </toggleGroup>
+                              </RadioButton>
+                              <RadioButton fx:id="risposta2button" mnemonicParsing="false" onAction="#risposta2" prefHeight="33.0" prefWidth="70.0" text="risposta2" toggleGroup="$RispostaAllaDomanda" />
+                              <RadioButton fx:id="risposta3button" mnemonicParsing="false" onAction="#risposta3" prefHeight="33.0" prefWidth="70.0" text="risposta3" toggleGroup="$RispostaAllaDomanda" />
+                              <RadioButton fx:id="risposta4button" mnemonicParsing="false" onAction="#risposta4" prefHeight="33.0" prefWidth="70.0" text="risposta4" toggleGroup="$RispostaAllaDomanda" />
+                           </children>
+                        </VBox>
+                        <Label fx:id="counter" alignment="CENTER" text="1/N" />
+                        <Label fx:id="timer" contentDisplay="CENTER" text="Tempo rimasto" textFill="RED" />
+                     </children>
+                  </VBox>
+               </children>
+            </HBox>
+            <VBox fx:id="FaseLettura" prefHeight="200.0" prefWidth="100.0" visible="false">
+               <children>
+                  <TextArea fx:id="TestoDaLeggere" editable="false" prefHeight="314.0" prefWidth="564.0" promptText="testo" wrapText="true" />
+                  <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
+                     <children>
+                        <Button fx:id="TestoPrecedentebutton" mnemonicParsing="false" onAction="#TestoPrecedente" text="Testo Precedente" />
+                        <VBox alignment="TOP_CENTER" prefHeight="94.0" prefWidth="306.0">
+                           <children>
+                              <Label fx:id="timeLettura" alignment="CENTER" prefHeight="30.0" prefWidth="214.0" text="Time: 00:000:00" />
+                              <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="33.0" prefWidth="122.0" text="1/N" />
+                              <Button fx:id="VaiAlQuizbutton" alignment="CENTER_RIGHT" mnemonicParsing="false" onAction="#VaiAlQuiz" text="Vai al Quiz" />
+                           </children>
+                        </VBox>
+                        <Button fx:id="ProssimoTestobutton" alignment="CENTER_RIGHT" mnemonicParsing="false" onAction="#ProssimoTesto" text="Prossimo Testo" />
+                     </children></HBox>
+               </children>
+            </VBox>
+         </children>
+      </StackPane>
+   </children>
+   <opaqueInsets>
+      <Insets />
+   </opaqueInsets>
+</AnchorPane>

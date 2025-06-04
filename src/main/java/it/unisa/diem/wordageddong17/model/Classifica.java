@@ -1,5 +1,6 @@
 package it.unisa.diem.wordageddong17.model;
 
+import it.unisa.diem.wordageddong17.database.DatabaseClassifica;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
@@ -11,6 +12,7 @@ public class Classifica {
     private final Timestamp data;
     private final float punti;
     private final LivelloPartita difficolta;
+    private final DatabaseClassifica sbc = DatabaseClassifica.getInstance();
 
     public Classifica(String email_utente, Timestamp data, float punti, LivelloPartita difficolta) {
         this.username = email_utente;
@@ -18,7 +20,7 @@ public class Classifica {
         this.punti = punti;
         this.difficolta = difficolta;
     }
-
+    
     public String getUsername() {
         return username;
     }

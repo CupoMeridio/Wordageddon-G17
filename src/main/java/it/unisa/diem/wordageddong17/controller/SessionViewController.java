@@ -26,6 +26,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
+import it.unisa.diem.wordageddong17.model.SessioneDiGioco;
 
 /**
  * FXML Controller class
@@ -69,7 +70,7 @@ public class SessionViewController implements Initializable {
     @FXML
     private Button ProssimoTestobutton;
     
-    private SessioneDiGiocoOnline sessione;
+    private SessioneDiGioco sessione;
 
     private int contatoreDomanda = 1;
     private Timeline tm;
@@ -85,7 +86,7 @@ public class SessionViewController implements Initializable {
         this.TestoDaLeggere.setFocusTraversable(false);
         this.FaseRisposte.setVisible(false);
         this.FaseLettura.setVisible(true);
-        sessione= new SessioneDiGiocoOnline();
+        sessione= new SessioneDiGiocoOnline(4);
     }    
     
     private void DaRisposte(){

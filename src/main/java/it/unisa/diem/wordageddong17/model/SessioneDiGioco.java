@@ -19,7 +19,7 @@ import java.util.logging.Logger;
  *
  * @author Mattia Sanzari
  */
-abstract class SessioneDiGioco {
+abstract public class SessioneDiGioco {
     private String [] Domande;
     private AnalisiDocumenti analisi;
     private Map<String, byte[]> Documenti;

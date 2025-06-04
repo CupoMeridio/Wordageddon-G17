@@ -10,4 +10,8 @@ package it.unisa.diem.wordageddong17.model;
  */
 public class SessioneDiGiocoOnline extends SessioneDiGioco {
     
+    public SessioneDiGiocoOnline(int numeroDomande) {
+        super(numeroDomande);
+    }
+    
 }

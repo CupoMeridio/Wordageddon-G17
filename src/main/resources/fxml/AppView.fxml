@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.text.*?>
+<?import javafx.geometry.*?>
+<?import java.lang.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.DatePicker?>
@@ -20,11 +26,82 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane prefHeight="645.0" prefWidth="870.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unisa.diem.wordageddong17.controller.AppViewController">
+<BorderPane prefHeight="645.0" prefWidth="870.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unisa.diem.wordageddong17.controller.AppViewController">
 
     <center>
         <StackPane fx:id="root" alignment="CENTER">
            <children>
+            <VBox fx:id="schermataDocumentiAdmin" alignment="TOP_CENTER" prefHeight="200.0" prefWidth="100.0">
+               <children>
+                  <Label alignment="CENTER" prefHeight="21.0" prefWidth="307.0" text="Gestione documenti">
+                     <font>
+                        <Font size="32.0" />
+                     </font>
+                     <VBox.margin>
+                        <Insets top="50.0" />
+                     </VBox.margin>
+                  </Label>
+                  <HBox alignment="CENTER" prefHeight="63.0" prefWidth="870.0">
+                     <children>
+                        <Label alignment="CENTER" text="Nome documento:">
+                           <HBox.margin>
+                              <Insets />
+                           </HBox.margin>
+                        </Label>
+                        <TextField fx:id="pathTextField" alignment="CENTER" prefHeight="31.0" prefWidth="276.0" promptText="NomeFile.txt">
+                           <HBox.margin>
+                              <Insets left="20.0" right="20.0" />
+                           </HBox.margin>
+                        </TextField>
+                     </children>
+                     <VBox.margin>
+                        <Insets top="50.0" />
+                     </VBox.margin>
+                  </HBox>
+                  <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
+                     <children>
+                        <Label text="Scegli la diffficoltà: " />
+                        <RadioButton fx:id="adminRadioFacile" mnemonicParsing="false" text="Facile">
+                           <HBox.margin>
+                              <Insets left="10.0" />
+                           </HBox.margin>
+                        </RadioButton>
+                        <RadioButton fx:id="adminRadioMedio" mnemonicParsing="false" text="Medio">
+                           <HBox.margin>
+                              <Insets left="10.0" />
+                           </HBox.margin>
+                        </RadioButton>
+                        <RadioButton fx:id="adminRadioDifficile" mnemonicParsing="false" text="Difficile">
+                           <HBox.margin>
+                              <Insets left="10.0" />
+                           </HBox.margin>
+                        </RadioButton>
+                     </children>
+                  </HBox>
+                  <HBox alignment="CENTER" prefHeight="94.0" prefWidth="870.0">
+                     <children>
+                        <Button fx:id="browseButton" alignment="CENTER" mnemonicParsing="false" onAction="#scegliFileTesto" text="Scegli file di testo">
+                           <HBox.margin>
+                              <Insets />
+                           </HBox.margin>
+                        </Button>
+                     </children>
+                  </HBox>
+                  <HBox alignment="CENTER" prefHeight="79.0" prefWidth="870.0">
+                     <children>
+                        <Button fx:id="saveButton" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" onAction="#caricaTesto" text="Salva documento" />
+                        <Button fx:id="backHomeButton" mnemonicParsing="false" onAction="#tornaAllaHome" text="Torna alla Home">
+                           <HBox.margin>
+                              <Insets left="20.0" />
+                           </HBox.margin>
+                        </Button>
+                     </children>
+                  </HBox>
+               </children>
+               <StackPane.margin>
+                  <Insets />
+               </StackPane.margin>
+            </VBox>
    
                <!-- Schermata di login -->
                <VBox fx:id="schermataDiLogin" alignment="CENTER" spacing="20.0" visible="false">
@@ -91,8 +168,8 @@
                           <children>
                               <Button fx:id="infoProfiloButton" onAction="#passaAInfoProfilo" text="Info profilo" />
                               <Button text="Impostazioni" />
-                              <Button fx:id="newDocument" text="Nuovo documento" />
-                              <Button fx:id="stopwordList" text="Stopwords" />
+                              <Button fx:id="newDocument" onAction="#mostraGestioneDocumenti" text="Nuovo documento" />
+                              <Button fx:id="stopwordList" onAction="#mostraGestioneStopwords" text="Stopwords" />
                               <Button onAction="#logout" text="Logout" />
                           </children>
                       </VBox>
@@ -197,24 +274,26 @@
                        </HBox>
                    </children>
                </VBox>
-            <HBox fx:id="schermataDiRegistrazione" alignment="CENTER" spacing="50" style="-fx-padding: 40;">
+            <HBox fx:id="schermataDiRegistrazione" alignment="CENTER" spacing="50" style="-fx-padding: 40;" visible="false">
         <children>
             <!-- Form di registrazione -->
             <VBox alignment="CENTER" spacing="15" HBox.hgrow="ALWAYS">
-                <Label fx:id="usernameLabel" text="Username" />
-                <TextField fx:id="username" promptText="Username..." />
-
-                      <Label fx:id="emailLabel" text="E-mail" />
-                <TextField fx:id="email" promptText="mariorossi@gmail.com" />
-
-                      <Label fx:id="passwordLabel" text="Password" />
-                <PasswordField fx:id="password" promptText="Password" />
-
-                      <Label fx:id="repeatLabel" text="Repeat password" />
-                <PasswordField fx:id="repeatPassword" promptText="Repeat password" />
-
-                      <Button fx:id="registerButton" onAction="#registerButtonOnAction" text="Registrati" />
-                <Button fx:id="registerPageLogin" onAction="#passaALogin" text="Hai già un account? Effettua il login" />
+               <children>
+                   <Label fx:id="usernameLabel" text="Username" />
+                   <TextField fx:id="username" promptText="Username..." />
+   
+                         <Label fx:id="emailLabel" text="E-mail" />
+                   <TextField fx:id="email" promptText="mariorossi@gmail.com" />
+   
+                         <Label fx:id="passwordLabel" text="Password" />
+                   <PasswordField fx:id="password" promptText="Password" />
+   
+                         <Label fx:id="repeatLabel" text="Repeat password" />
+                   <PasswordField fx:id="repeatPassword" promptText="Repeat password" />
+   
+                         <Button fx:id="registerButton" onAction="#registerButtonOnAction" text="Registrati" />
+                   <Button fx:id="registerPageLogin" onAction="#passaALogin" text="Hai già un account? Effettua il login" />
+               </children>
             </VBox>
 
                   <!-- Immagine profilo -->
@@ -306,6 +385,54 @@
                      </children>
                   </HBox>
                   <Button fx:id="tornaAllaHomepage" mnemonicParsing="false" onAction="#chiudiInfoUtente" text="Torna alla homepage" />
+               </children>
+            </VBox>
+            <VBox fx:id="schermataStopwords" alignment="TOP_CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="200.0" prefWidth="100.0" visible="false">
+               <children>
+                  <Label text="Gestione Stopwords">
+                     <font>
+                        <Font size="32.0" />
+                     </font>
+                     <VBox.margin>
+                        <Insets top="50.0" />
+                     </VBox.margin>
+                  </Label>
+                  <HBox alignment="CENTER" prefHeight="88.0" prefWidth="870.0">
+                     <children>
+                        <Label alignment="CENTER" text="Nome documento:">
+                           <HBox.margin>
+                              <Insets />
+                           </HBox.margin>
+                        </Label>
+                        <TextField fx:id="stopwordTextField" alignment="CENTER" prefHeight="31.0" prefWidth="276.0" promptText="NomeFile.txt">
+                           <HBox.margin>
+                              <Insets left="20.0" />
+                           </HBox.margin>
+                        </TextField>
+                     </children>
+                     <VBox.margin>
+                        <Insets top="50.0" />
+                     </VBox.margin>
+                  </HBox>
+                  <HBox alignment="CENTER" prefHeight="94.0" prefWidth="870.0">
+                     <children>
+                        <Button fx:id="stopwordBrowse" alignment="CENTER" mnemonicParsing="false" onAction="#scegliFileStopwords" text="Scegli file di stopwords">
+                           <HBox.margin>
+                              <Insets />
+                           </HBox.margin>
+                        </Button>
+                     </children>
+                  </HBox>
+                  <HBox alignment="CENTER" prefHeight="79.0" prefWidth="870.0">
+                     <children>
+                        <Button fx:id="stopwordSave" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" onAction="#caricaTesto" text="Salva file" />
+                        <Button fx:id="backHomeButton1" mnemonicParsing="false" onAction="#tornaAllaHome" text="Torna alla Home">
+                           <HBox.margin>
+                              <Insets left="20.0" />
+                           </HBox.margin>
+                        </Button>
+                     </children>
+                  </HBox>
                </children>
             </VBox>
            </children>

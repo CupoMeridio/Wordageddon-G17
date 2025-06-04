@@ -3,6 +3,7 @@ package it.unisa.diem.wordageddong17.controller;
 import it.unisa.diem.wordageddong17.database.DatabaseClassifica;
 import it.unisa.diem.wordageddong17.database.DatabaseRegistrazioneLogin;
 import it.unisa.diem.wordageddong17.database.DatabaseUtente;
+import it.unisa.diem.wordageddong17.model.Amministratore;
 import it.unisa.diem.wordageddong17.model.Classifica;
 import it.unisa.diem.wordageddong17.model.LivelloPartita;
 import it.unisa.diem.wordageddong17.model.TipoUtente;
@@ -31,8 +32,11 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
+import javafx.scene.control.RadioButton;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -369,6 +373,37 @@ public class AppViewController implements Initializable {
     private ObservableList<Classifica> listaCronologiaPartite;
     private Task<Void> currentLoadingTask;
     
+    private Amministratore admin;
+    private File fileSelezionato;
+    @FXML
+    private TextField pathTextField;
+   
+    @FXML
+    private Button browseButton;
+    @FXML
+    private Button saveButton;
+    @FXML
+    private VBox schermataDocumentiAdmin;
+    @FXML
+    private RadioButton adminRadioFacile;
+    @FXML
+    private RadioButton adminRadioMedio;
+    @FXML
+    private RadioButton adminRadioDifficile;
+    @FXML
+    private Button backHomeButton;
+    @FXML
+    private VBox schermataStopwords;
+    @FXML
+    private TextField stopwordTextField;
+    @FXML
+    private Button stopwordBrowse;
+    @FXML
+    private Button stopwordSave;
+    @FXML
+    private Button backHomeButton1;
+   
+    
     
     /**
      * Initializes the controller class.
@@ -386,6 +421,7 @@ public class AppViewController implements Initializable {
         listaCronologiaPartite = FXCollections.observableArrayList();
         initializeClassifiche();
         initializeInfoUtente();
+     
 
     }
 
@@ -694,6 +730,8 @@ public class AppViewController implements Initializable {
         schermataSelezioneDifficoltà.setVisible(false);
         dashboardMenu.setVisible(false);
         schermataInfoUtente.setVisible(false);
+        schermataDocumentiAdmin.setVisible(false);
+        schermataStopwords.setVisible(false);
     }
 
     private void pulisciTutto() {
@@ -848,7 +886,97 @@ public class AppViewController implements Initializable {
             stopwordList.setManaged(false);
         }
     }
+    @FXML
+    private void mostraGestioneDocumenti() {
+        chiudiTutto();
+        schermataDocumentiAdmin.setVisible(true);
+    }
+    private void mostraGestioneStopwords() {
+        chiudiTutto();
+        schermataStopwords.setVisible(true);
+    }
+     @FXML
+    private void tornaAllaHome() {
+        chiudiTutto();
+        schermataHome.setVisible(true);
+    }
 
+    public String getDifficoltaSelezionataAdmin() {
+        if (adminRadioFacile.isSelected()) return "Facile";
+        if (adminRadioMedio.isSelected()) return "Medio";
+        if (adminRadioDifficile.isSelected()) return "Difficile";
+        
+        return null;
+    }
+    
+    @FXML
+    private void scegliFileTesto(ActionEvent event) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Seleziona un file di testo");
+        fileChooser.getExtensionFilters().addAll(
+            new FileChooser.ExtensionFilter("File di testo", "*.txt")
+        );
+
+        File file = fileChooser.showOpenDialog(null);
+        if (file != null) {
+            fileSelezionato = file;
+            pathTextField.setText(file.getName()); 
+        }
+    }
+    
+    @FXML
+    private void scegliFileStopwords(ActionEvent event) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Seleziona un file");
+        fileChooser.getExtensionFilters().addAll(
+            new FileChooser.ExtensionFilter("File di testo", "*.txt")
+        );
+
+        File file = fileChooser.showOpenDialog(null);
+        if (file != null) {
+            fileSelezionato = file;
+            stopwordTextField.setText(file.getName()); 
+        }
+    }
+    
+    @FXML
+    private void caricaTesto(ActionEvent event) {
+        if (fileSelezionato == null || getDifficoltaSelezionataAdmin() == null) {
+            mostraAlert("Errore", "Completa tutti i campi prima di salvare.", Alert.AlertType.WARNING);
+            return;
+        }
+
+        String nomeFile = fileSelezionato.getName();
+        String path = fileSelezionato.getAbsolutePath();
+        String difficolta = getDifficoltaSelezionataAdmin();
+
+        admin.caricaTesto(nomeFile, difficolta, path);
+
+        mostraAlert("Successo", "Documento caricato correttamente.", Alert.AlertType.INFORMATION);
+        pathTextField.clear();
+        fileSelezionato = null;
+        
+    }
+    
+    @FXML
+    private void caricaStopword(ActionEvent event) {
+        if (fileSelezionato == null || getDifficoltaSelezionataAdmin() == null) {
+            mostraAlert("Errore", "Completa tutti i campi prima di salvare.", Alert.AlertType.WARNING);
+            return;
+        }
+
+        String nomeFile = fileSelezionato.getName();
+        String path = fileSelezionato.getAbsolutePath();
+        
+
+        admin.CaricareStopwords(nomeFile, path);
+
+        mostraAlert("Successo", "Documento caricato correttamente.", Alert.AlertType.INFORMATION);
+        pathTextField.clear();
+        fileSelezionato = null;
+        
+    }
+    
     @FXML
     private void passaAInfoProfilo(ActionEvent event) {
         if (currentLoadingTask != null && currentLoadingTask.isRunning()) {
@@ -1080,6 +1208,10 @@ public class AppViewController implements Initializable {
             mostraAlert("Errore", "Impossibile leggere il file: " + e.getMessage(), Alert.AlertType.ERROR);
             return false;
         }
+    }
+
+    @FXML
+    private void mostraGestioneStopwords(ActionEvent event) {
     }
     
 }

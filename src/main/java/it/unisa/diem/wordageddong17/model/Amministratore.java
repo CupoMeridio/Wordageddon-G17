@@ -1,18 +1,12 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package it.unisa.diem.wordageddong17.model;
 
 import it.unisa.diem.wordageddong17.database.DatabaseAmministratore;
 import it.unisa.diem.wordageddong17.database.DosAmministratore;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.stage.FileChooser;
 
 /**
  *
@@ -27,11 +21,11 @@ public class Amministratore extends Utente {
         db= DatabaseAmministratore.getInstance();
     }
     
-    public void caricaTesto(String Nomefile, String Difficolta, String path){
+    public void caricaTesto(String Nomefile, String Difficolta, String path, Lingua lingua){
     
         byte[] documentoDaCaricare=trasformaDocumento(path);
        
-       if(db.CaricareTesto(this.getEmail(), Nomefile, Difficolta, documentoDaCaricare)){
+       if(db.CaricareTesto(this.getEmail(), Nomefile, Difficolta, documentoDaCaricare, lingua)){
            System.out.println("Documento caricato");
        }else{
            System.out.println("Documento non caricato");

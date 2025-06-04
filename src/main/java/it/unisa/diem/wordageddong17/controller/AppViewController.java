@@ -1,9 +1,13 @@
 package it.unisa.diem.wordageddong17.controller;
 
+import it.unisa.diem.wordageddong17.database.DatabaseAmministratore;
 import it.unisa.diem.wordageddong17.database.DatabaseClassifica;
 import it.unisa.diem.wordageddong17.database.DatabaseRegistrazioneLogin;
 import it.unisa.diem.wordageddong17.model.Amministratore;
+import it.unisa.diem.wordageddong17.model.AppState;
 import it.unisa.diem.wordageddong17.model.Classifica;
+import it.unisa.diem.wordageddong17.model.DocumentoDiTesto;
+import it.unisa.diem.wordageddong17.model.Lingua;
 import it.unisa.diem.wordageddong17.model.LivelloPartita;
 import it.unisa.diem.wordageddong17.model.TipoUtente;
 import it.unisa.diem.wordageddong17.model.Utente;
@@ -31,8 +35,6 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
@@ -41,6 +43,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -72,226 +75,78 @@ import javafx.stage.FileChooser;
  *
  */
 public class AppViewController implements Initializable {
-
-    // ========== COMPONENTI FXML ==========
-    /**
-     * @brief Container principale per tutte le schermate
-     */
     @FXML
     private StackPane root;
-
-    // Schermata Login
-    /**
-     * @brief Container per la schermata di login
-     */
     @FXML
     private VBox schermataDiLogin;
-
-    /**
-     * @brief Campo di input per l'email nel login
-     */
     @FXML
     private TextField emailTextField;
-
-    /**
-     * @brief Campo di input per la password nel login
-     */
     @FXML
     private TextField passwordTextField;
-
-    /**
-     * @brief Pulsante per confermare il login
-     */
     @FXML
     private Button accediButton;
-
-    /**
-     * @brief Pulsante per passare alla registrazione
-     */
     @FXML
     private Button passaARegistratiButton;
-
-    // Schermata Home
-    /**
-     * @brief Container per la schermata home
-     */
     @FXML
     private AnchorPane schermataHome;
-
-    /**
-     * @brief Container per il contenuto principale della home
-     */
     @FXML
     private VBox contenutoHome;
-
-    /**
-     * @brief Pulsante per avviare il gioco
-     */
     @FXML
     private Button startButton;
-
-    /**
-     * @brief Pulsante per visualizzare le classifiche
-     */
     @FXML
     private Button classificheButton;
-
-    /**
-     * @brief Container per le informazioni utente in alto a destra
-     */
     @FXML
     private HBox quickInfoUtente;
-
-    /**
-     * @brief Label di benvenuto con nome utente
-     */
     @FXML
     private Label benvenutoLabel;
-
-    /**
-     * @brief Immagine del profilo utente (cliccabile)
-     */
     @FXML
     private ImageView fotoProfilo;
-
-    /**
-     * @brief Menu dropdown del dashboard utente
-     */
     @FXML
     private VBox dashboardMenu;
-
     @FXML
     private Button newDocument;
-
     @FXML
     private Button stopwordList;
-
-    // Schermata Classifiche
-    /**
-     * @brief Container per la schermata delle classifiche
-     */
     @FXML
     private VBox schermataClassifiche;
-
-    /**
-     * @brief Tabella classifiche livello facile
-     */
     @FXML
     private TableView<Classifica> facileTable;
-
-    /**
-     * @brief Tabella classifiche livello medio
-     */
     @FXML
     private TableView<Classifica> mediaTable;
-
-    /**
-     * @brief Tabella classifiche livello difficile
-     */
     @FXML
     private TableView<Classifica> difficileTable;
-
-    /**
-     * @brief Pulsante per chiudere la schermata classifiche
-     */
     @FXML
     private Button chiudiClassificheButton;
-
-    // Schermata Selezione Difficoltà
-    /**
-     * @brief Container per la selezione della difficoltà
-     */
     @FXML
     private VBox schermataSelezioneDifficoltà;
-
-    /**
-     * @brief Pulsante per selezionare difficoltà facile
-     */
     @FXML
     private Button selezionaFacileButton;
-
-    /**
-     * @brief Pulsante per selezionare difficoltà media
-     */
     @FXML
     private Button selezionaMedioButton;
-
-    /**
-     * @brief Pulsante per selezionare difficoltà difficile
-     */
     @FXML
     private Button selezionaDifficileButton;
-
-    // Schermata Registrazione
-    /**
-     * @brief Label per il campo username
-     */
     @FXML
     private Label usernameLabel;
-
-    /**
-     * @brief Campo di input per l'username nella registrazione
-     */
     @FXML
     private TextField username;
-
-    /**
-     * @brief Label per il campo email
-     */
     @FXML
     private Label emailLabel;
-
-    /**
-     * @brief Campo di input per l'email nella registrazione
-     */
     @FXML
     private TextField email;
-
-    /**
-     * @brief Label per il campo password
-     */
     @FXML
     private Label passwordLabel;
-
-    /**
-     * @brief Campo di input per la password nella registrazione
-     */
     @FXML
     private TextField password;
-
-    /**
-     * @brief Label per il campo conferma password
-     */
     @FXML
     private Label repeatLabel;
-
-    /**
-     * @brief Campo di input per confermare la password
-     */
     @FXML
     private TextField repeatPassword;
-
-    /**
-     * @brief Pulsante per confermare la registrazione
-     */
     @FXML
     private Button registerButton;
-
-    /**
-     * @brief Pulsante per tornare al login dalla registrazione
-     */
     @FXML
     private Button registerPageLogin;
-
-    /**
-     * @brief Immagine del profilo nella registrazione
-     */
     @FXML
     private ImageView imageView;
-
-    /**
-     * @brief Container per la schermata di registrazione
-     */
     @FXML
     private HBox schermataDiRegistrazione;    
     @FXML
@@ -358,25 +213,8 @@ public class AppViewController implements Initializable {
     private Button tornaAllaHomepage;
     @FXML
     private Button infoProfiloButton;
-    
-    // ========== ATTRIBUTI PRIVATI ==========
-    
-    /** @brief Istanza singleton del database per autenticazione */
-    private final DatabaseRegistrazioneLogin db = DatabaseRegistrazioneLogin.getInstance();
-    private final DatabaseClassifica sbc = DatabaseClassifica.getInstance();
-    private Utente utente; 
-    
-    private ObservableList<Classifica> classificaFacile;
-    private ObservableList<Classifica> classificaMedia;
-    private ObservableList<Classifica> classificaDifficile;
-    private ObservableList<Classifica> listaCronologiaPartite;
-    private Task<Void> currentLoadingTask;
-    
-    private Amministratore admin;
-    private File fileSelezionato;
     @FXML
     private TextField pathTextField;
-   
     @FXML
     private Button browseButton;
     @FXML
@@ -401,6 +239,67 @@ public class AppViewController implements Initializable {
     private Button stopwordSave;
     @FXML
     private Button backHomeButton1;
+    @FXML
+    private VBox gestioneDocumentiView;
+    @FXML
+    private TableView<DocumentoDiTesto> gestDocTabella;
+    @FXML
+    private TextField gestDocBarraDiRicerca;
+    @FXML
+    private CheckBox gestDocCheckFacile;
+    @FXML
+    private CheckBox gestDocCheckMedia;
+    @FXML
+    private CheckBox gestDocCheckDifficile;
+    @FXML
+    private CheckBox gestDocIT;
+    @FXML
+    private CheckBox gestDocCheckEN;
+    @FXML
+    private CheckBox gestDocCheckES;
+    @FXML
+    private CheckBox gestDocCheckFR;
+    @FXML
+    private CheckBox gestDocCheckDE;
+    @FXML
+    private Button gestDocNuovoButton;
+    @FXML
+    private TableColumn<DocumentoDiTesto, LivelloPartita> gestDocColDifficoltà;
+    @FXML
+    private TableColumn<DocumentoDiTesto, String> gestDocColInserito;
+    @FXML
+    private TableColumn<DocumentoDiTesto, Lingua> gestDocColLingua;
+    @FXML
+    private TableColumn<DocumentoDiTesto, String> gestDocColDocumento;
+    @FXML
+    private TableColumn<DocumentoDiTesto, String> gestDocColNomeFile;
+    @FXML
+    private ToggleGroup lingua;
+    @FXML
+    private RadioButton adminRadioIT;
+    @FXML
+    private RadioButton adminRadioEN;
+    @FXML
+    private RadioButton adminRadioES;
+    @FXML
+    private RadioButton adminRadioDE;
+    @FXML
+    private RadioButton adminRadioFR;
+    
+    // ========== ATTRIBUTI PRIVATI ==========
+    
+    /** @brief Istanza singleton del database per autenticazione */
+    private final DatabaseRegistrazioneLogin db = DatabaseRegistrazioneLogin.getInstance();
+    private final DatabaseClassifica sbc = DatabaseClassifica.getInstance();
+    private AppState appstate = AppState.getInstance();
+    private ObservableList<Classifica> classificaFacile;
+    private ObservableList<Classifica> classificaMedia;
+    private ObservableList<Classifica> classificaDifficile;
+    private ObservableList<Classifica> listaCronologiaPartite;
+    private ObservableList<DocumentoDiTesto> listaDocumenti;
+    private Task<Void> currentLoadingTask;
+    private File fileSelezionato;
+    
    
     
     
@@ -414,12 +313,9 @@ public class AppViewController implements Initializable {
         ritagliaQuadrato(imageView, 250);  // per la schermata di registrazione
         ritagliaQuadrato(immagineInfoUtente,250);
         ritagliaCerchio(fotoProfilo, 40);
-        classificaFacile = FXCollections.observableArrayList();
-        classificaMedia = FXCollections.observableArrayList();
-        classificaDifficile = FXCollections.observableArrayList();
-        listaCronologiaPartite = FXCollections.observableArrayList();
         initializeClassifiche();
         initializeInfoUtente();
+        initializeGestioneDocumenti();
      
 
     }
@@ -462,7 +358,8 @@ public class AppViewController implements Initializable {
             boolean pwCorretta = db.verificaPassword(email, password);
       
             if(pwCorretta){
-                utente = db.prendiUtente(email);
+                appstate.setUtente(db.prendiUtente(email));
+                Utente utente = appstate.getUtente();
                 if (utente != null) {
                     aggiornaFotoProfilo(utente.getFotoProfilo());
                     configuraPulsantiAdmin();
@@ -589,7 +486,7 @@ public class AppViewController implements Initializable {
 
     @FXML
     private void logout(ActionEvent event) {
-        utente=null;
+        appstate.setUtente(null);
         chiudiTutto();
         pulisciTutto();
         fotoProfilo.setImage(getPlaceholderImage());
@@ -690,7 +587,7 @@ public class AppViewController implements Initializable {
         }
 
         db.inserisciUtente(username.getText(), email.getText(), password.getText(), immagineBytes);
-        utente = new Utente(username.getText(), email.getText(), immagineBytes, TipoUtente.giocatore);
+        appstate.setUtente(new Utente(username.getText(), email.getText(), immagineBytes, TipoUtente.giocatore));
         aggiornaFotoProfilo(immagineBytes);
         chiudiTutto();
         configuraPulsantiAdmin();
@@ -698,10 +595,10 @@ public class AppViewController implements Initializable {
         benvenutoLabel.setText("Benvenuto " + username.getText());
 
         if (immagineBytes == null) {
-            utente = new Utente(username.getText(), email.getText(), TipoUtente.giocatore);
+            appstate.setUtente(new Utente(username.getText(), email.getText(), TipoUtente.giocatore));
             fotoProfilo.setImage(getPlaceholderImage());
         } else {
-            utente = new Utente(username.getText(), email.getText(), immagineBytes, TipoUtente.giocatore);
+            appstate.setUtente(new Utente(username.getText(), email.getText(), immagineBytes, TipoUtente.giocatore));
             fotoProfilo.setImage(new Image(new ByteArrayInputStream(immagineBytes)));
         }
 
@@ -731,6 +628,8 @@ public class AppViewController implements Initializable {
         schermataInfoUtente.setVisible(false);
         schermataDocumentiAdmin.setVisible(false);
         schermataStopwords.setVisible(false);
+        schermataDocumentiAdmin.setVisible(false);
+        gestioneDocumentiView.setVisible(false);
     }
 
     private void pulisciTutto() {
@@ -751,6 +650,7 @@ public class AppViewController implements Initializable {
         dataInizio.setValue(null);
         immagineInfoUtente.setImage(new Image(getClass().getResource("/imgs/Profile_avatar_placeholder_large.png").toExternalForm()));
         imageView.setImage(new Image(getClass().getResource("/imgs/Profile_avatar_placeholder_large.png").toExternalForm()));
+        gestDocBarraDiRicerca.setText("");
     }
 
     private Image getPlaceholderImage() {
@@ -812,6 +712,10 @@ public class AppViewController implements Initializable {
 
     private void initializeClassifiche() {
         // Inizializza le tabelle
+        classificaFacile = FXCollections.observableArrayList();
+        classificaMedia = FXCollections.observableArrayList();
+        classificaDifficile = FXCollections.observableArrayList();
+        listaCronologiaPartite = FXCollections.observableArrayList();
         setupTable(facileTable, facilePosizione, facileNome, facilePunteggio, classificaFacile);
         setupTable(mediaTable, mediaPosizione, mediaNome, mediaPunteggio, classificaMedia);
         setupTable(difficileTable, difficilePosizione, difficileNome, difficilePunteggio, classificaDifficile);
@@ -873,7 +777,8 @@ public class AppViewController implements Initializable {
      * @post I pulsanti amministratore sono visibili solo agli admin
      */
     private void configuraPulsantiAdmin() {
-        if (utente != null && utente.getTipo() == TipoUtente.amministratore) {
+        Utente utente = appstate.getUtente();
+        if (utente!= null && utente.getTipo() == TipoUtente.amministratore) {
             newDocument.setVisible(true);
             newDocument.setManaged(true);
             stopwordList.setVisible(true);
@@ -888,8 +793,11 @@ public class AppViewController implements Initializable {
     @FXML
     private void mostraGestioneDocumenti() {
         chiudiTutto();
-        schermataDocumentiAdmin.setVisible(true);
+        gestioneDocumentiView.setVisible(true);
+        listaDocumenti.addAll(new DatabaseAmministratore().prendiTuttiIDocumenti());
+        
     }
+    @FXML
     private void mostraGestioneStopwords() {
         chiudiTutto();
         schermataStopwords.setVisible(true);
@@ -900,11 +808,20 @@ public class AppViewController implements Initializable {
         schermataHome.setVisible(true);
     }
 
-    public String getDifficoltaSelezionataAdmin() {
+    private String getDifficoltaSelezionataAdmin() {
         if (adminRadioFacile.isSelected()) return "Facile";
         if (adminRadioMedio.isSelected()) return "Medio";
         if (adminRadioDifficile.isSelected()) return "Difficile";
         
+        return null;
+    }
+    
+    private Lingua getLinguaSelezionataAdmin(){
+        if(adminRadioIT.isSelected()) return Lingua.ITALIANO;
+        if(adminRadioDE.isSelected()) return Lingua.TEDESCO;
+        if(adminRadioES.isSelected()) return Lingua.SPAGNOLO;
+        if(adminRadioEN.isSelected()) return Lingua.INGLESE;
+        if(adminRadioFR.isSelected()) return Lingua.FRANCESE;
         return null;
     }
     
@@ -948,8 +865,12 @@ public class AppViewController implements Initializable {
         String nomeFile = fileSelezionato.getName();
         String path = fileSelezionato.getAbsolutePath();
         String difficolta = getDifficoltaSelezionataAdmin();
-
-        admin.caricaTesto(nomeFile, difficolta, path);
+        Lingua lingua = getLinguaSelezionataAdmin();
+        Utente u = appstate.getUtente();
+        Amministratore a = new Amministratore(u.getUsername(),u.getEmail(),u.getFotoProfilo(),TipoUtente.amministratore);
+        a.caricaTesto(nomeFile, difficolta, path, lingua);
+        //LA CLASSE AMMINISTRATORE COMPLICA SOLO LE COSE
+        //NON VIENE MAI INSTANZIATO NESSUN AMMINISTRATORE E DAVA SEMPRE NULLPOINTEXCEPTION!!!!
 
         mostraAlert("Successo", "Documento caricato correttamente.", Alert.AlertType.INFORMATION);
         pathTextField.clear();
@@ -957,7 +878,6 @@ public class AppViewController implements Initializable {
         
     }
     
-    @FXML
     private void caricaStopword(ActionEvent event) {
         if (fileSelezionato == null || getDifficoltaSelezionataAdmin() == null) {
             mostraAlert("Errore", "Completa tutti i campi prima di salvare.", Alert.AlertType.WARNING);
@@ -967,9 +887,14 @@ public class AppViewController implements Initializable {
         String nomeFile = fileSelezionato.getName();
         String path = fileSelezionato.getAbsolutePath();
         
-
+        Utente u = appstate.getUtente();
+        Amministratore admin = new Amministratore(u.getUsername(),u.getEmail(),u.getFotoProfilo(),TipoUtente.amministratore);
         admin.CaricareStopwords(nomeFile, path);
-
+        //ANCHE QUI!!! DAVA NULL POINT EXCEPTION
+        //DEVE ESSERE CREATA APPOSTA UNA VARIABILE DI TIPO AMMINISTRATORE SOLO PER FAR PARTIRE UN COMANDO
+        //NON VA BENE QUESTA COSA. LA CLASSE VA RIVISTA!
+        
+        
         mostraAlert("Successo", "Documento caricato correttamente.", Alert.AlertType.INFORMATION);
         pathTextField.clear();
         fileSelezionato = null;
@@ -978,6 +903,7 @@ public class AppViewController implements Initializable {
     
     @FXML
     private void passaAInfoProfilo(ActionEvent event) {
+        Utente utente = appstate.getUtente();
         if (currentLoadingTask != null && currentLoadingTask.isRunning()) {
             currentLoadingTask.cancel();
         }
@@ -1029,7 +955,9 @@ public class AppViewController implements Initializable {
 }
     
 
+    @SuppressWarnings("unchecked")
     private void initializeCronologiaPartite() {
+        Utente utente = appstate.getUtente();
         dataCronologiaPartite.setCellValueFactory(new PropertyValueFactory<>("data"));
         difficoltàCronologiaPartite.setCellValueFactory(new PropertyValueFactory<>("difficolta"));
         punteggioCronologiaPartite.setCellValueFactory(new PropertyValueFactory("punti"));
@@ -1153,6 +1081,7 @@ public class AppViewController implements Initializable {
     }
     
     private void aggiornaFotoProfilo(byte[] immagineBytes) {
+        Utente utente = appstate.getUtente();
         try {
             // Salva prima nel database
             boolean successo = utente.setFotoProfilo(immagineBytes);
@@ -1210,7 +1139,82 @@ public class AppViewController implements Initializable {
     }
 
     @FXML
-    private void mostraGestioneStopwords(ActionEvent event) {
+    private void gestDocNuovoButtonOnAction(ActionEvent event) {
+        chiudiTutto();
+        schermataDocumentiAdmin.setVisible(true);
+    }
+
+    private void inizializzaTabellaDocumenti() {
+        listaDocumenti = FXCollections.observableArrayList();
+        gestDocColDifficoltà.setCellValueFactory(new PropertyValueFactory<>("difficolta"));
+        gestDocColInserito.setCellValueFactory(new PropertyValueFactory<>("emailAmministratore"));
+        gestDocColNomeFile.setCellValueFactory(new PropertyValueFactory<>("nomeFile"));
+        gestDocColLingua.setCellValueFactory(new PropertyValueFactory<>("lingua"));
+    
+        gestDocColDocumento.setCellFactory(col -> new TableCell<DocumentoDiTesto, String>() {
+            @Override
+            protected void updateItem(String posizione, boolean empty) {
+                super.updateItem(posizione, empty);
+                setText(empty ? null : "🗎");
+                setGraphic(null);
+            }
+        });
     }
     
+    private FilteredList<DocumentoDiTesto> creaListaFiltrata() {
+        FilteredList<DocumentoDiTesto> filteredList = new FilteredList<>(listaDocumenti, p -> true);
+        gestDocTabella.setItems(filteredList);
+        return filteredList;
+    }
+    
+    private Runnable creaFiltro(FilteredList<DocumentoDiTesto> filteredList) {
+        return () -> filteredList.setPredicate(doc -> {
+            String livelloDb = doc.difficolta() != null ? doc.difficolta().getDbValue() : "";
+
+            boolean matchDifficolta =
+                (checkFacile.isSelected() && "facile".equalsIgnoreCase(livelloDb)) ||
+                (checkMedio.isSelected() && "medio".equalsIgnoreCase(livelloDb)) ||
+                (checkDifficile.isSelected() && "difficile".equalsIgnoreCase(livelloDb)) ||
+                (!checkFacile.isSelected() && !checkMedio.isSelected() && !checkDifficile.isSelected());
+
+            Lingua lingua = doc.lingua();
+
+            boolean matchLingua =
+                (gestDocIT.isSelected() && lingua == Lingua.ITALIANO) ||
+                (gestDocCheckEN.isSelected() && lingua == Lingua.INGLESE) ||
+                (gestDocCheckES.isSelected() && lingua == Lingua.SPAGNOLO) ||
+                (gestDocCheckFR.isSelected() && lingua == Lingua.FRANCESE) ||
+                (gestDocCheckDE.isSelected() && lingua == Lingua.TEDESCO) ||
+                (!gestDocIT.isSelected() && !gestDocCheckEN.isSelected() && !gestDocCheckES.isSelected() &&
+                !gestDocCheckFR.isSelected() && !gestDocCheckDE.isSelected());
+
+            String query = gestDocBarraDiRicerca.getText() != null ? gestDocBarraDiRicerca.getText().toLowerCase() : "";
+            boolean matchRicerca = query.isBlank()
+                || doc.nomeFile().toLowerCase().contains(query)
+                || doc.emailAmministratore().toLowerCase().contains(query);
+
+            return matchDifficolta && matchLingua && matchRicerca;
+        });
+    }
+
+    
+    private void aggiungiListenerFiltri(Runnable filtro) {
+        gestDocIT.selectedProperty().addListener((obs, o, n) -> filtro.run());
+        gestDocCheckEN.selectedProperty().addListener((obs, o, n) -> filtro.run());
+        gestDocCheckES.selectedProperty().addListener((obs, o, n) -> filtro.run());
+        gestDocCheckFR.selectedProperty().addListener((obs, o, n) -> filtro.run());
+        gestDocCheckDE.selectedProperty().addListener((obs, o, n) -> filtro.run());
+        gestDocBarraDiRicerca.textProperty().addListener((obs, oldVal, newVal) -> filtro.run());
+    }
+
+    private void initializeGestioneDocumenti() {
+        inizializzaTabellaDocumenti();
+        FilteredList<DocumentoDiTesto> filteredList = creaListaFiltrata();
+        Runnable filtro = creaFiltro(filteredList);
+        aggiungiListenerFiltri(filtro);
+    }
+
+
+    
+
 }

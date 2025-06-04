@@ -6,7 +6,7 @@
 package it.unisa.diem.wordageddong17.controller;
 
 import it.unisa.diem.wordageddong17.App;
-import it.unisa.diem.wordageddong17.model.SessioneDiGioco;
+import it.unisa.diem.wordageddong17.model.SessioneDiGiocoOnline;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -69,7 +69,7 @@ public class SessionViewController implements Initializable {
     @FXML
     private Button ProssimoTestobutton;
     
-    private SessioneDiGioco sessione;
+    private SessioneDiGiocoOnline sessione;
 
     private int contatoreDomanda = 1;
     private Timeline tm;
@@ -85,7 +85,7 @@ public class SessionViewController implements Initializable {
         this.TestoDaLeggere.setFocusTraversable(false);
         this.FaseRisposte.setVisible(false);
         this.FaseLettura.setVisible(true);
-        sessione= new SessioneDiGioco();
+        sessione= new SessioneDiGiocoOnline();
     }    
     
     private void DaRisposte(){

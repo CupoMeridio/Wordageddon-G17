@@ -130,7 +130,7 @@ public class Amministratore extends Utente {
      * @return array di byte contenente il documento richiesto
      *         
      */
-    public byte[] PrendiTesto(String nomeDocumento){
+    public byte[] prendiTesto(String nomeDocumento){
         byte[] risultato = db.PrendiTesto(nomeDocumento);
         return risultato; 
     }
@@ -141,7 +141,7 @@ public class Amministratore extends Utente {
      * 
      * @param nomeDocumento il nome del documento da cancellare
      */
-    public void CancellaTesto(String nomeDocumento){
+    public void cancellaTesto(String nomeDocumento){
         
         boolean risultato = db.CancellaTesto(nomeDocumento);
         

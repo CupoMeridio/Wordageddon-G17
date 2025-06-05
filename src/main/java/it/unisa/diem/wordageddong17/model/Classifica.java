@@ -2,7 +2,6 @@ package it.unisa.diem.wordageddong17.model;
 
 import it.unisa.diem.wordageddong17.database.DatabaseClassifica;
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
 
 /**
  * @author cupom

@@ -62,7 +62,7 @@
                </VBox>
    
                <!-- Schermata Home -->
-               <AnchorPane fx:id="schermataHome" prefHeight="400.0" prefWidth="600.0">
+               <AnchorPane fx:id="schermataHome" prefHeight="400.0" prefWidth="600.0" visible="false">
       <children>
       
                       <!-- Contenuto principale -->
@@ -302,9 +302,9 @@
                               </GridPane>
                               <VBox alignment="CENTER_LEFT">
                                  <children>
-                                    <CheckBox fx:id="checkFacile" mnemonicParsing="false" selected="true" text="Facile" />
-                                    <CheckBox fx:id="checkMedio" mnemonicParsing="false" selected="true" text="Medio" />
-                                    <CheckBox fx:id="checkDifficile" mnemonicParsing="false" selected="true" text="Difficile" />
+                                    <CheckBox fx:id="checkFacile" mnemonicParsing="false" text="Facile" />
+                                    <CheckBox fx:id="checkMedio" mnemonicParsing="false" text="Medio" />
+                                    <CheckBox fx:id="checkDifficile" mnemonicParsing="false" text="Difficile" />
                                  </children>
                               </VBox>
                            </children>
@@ -457,7 +457,7 @@
                   <Insets />
                </StackPane.margin>
             </VBox>
-            <VBox fx:id="gestioneDocumentiView" alignment="CENTER" prefHeight="200.0" prefWidth="100.0" visible="false">
+            <VBox fx:id="gestioneDocumentiView" alignment="CENTER" prefHeight="200.0" prefWidth="100.0">
                <children>
                   <TableView fx:id="gestDocTabella" prefWidth="870.0">
                     <columns>
@@ -484,9 +484,9 @@
                   <Label text="Seleziona difficoltà" />
                   <HBox alignment="CENTER" spacing="20.0">
                      <children>
-                        <CheckBox fx:id="gestDocCheckFacile" mnemonicParsing="false" selected="true" text="Facile" />
-                        <CheckBox fx:id="gestDocCheckMedia" mnemonicParsing="false" selected="true" text="Media" />
-                        <CheckBox fx:id="gestDocCheckDifficile" mnemonicParsing="false" selected="true" text="Difficile" />
+                        <CheckBox fx:id="gestDocCheckFacile" mnemonicParsing="false" text="Facile" />
+                        <CheckBox fx:id="gestDocCheckMedia" mnemonicParsing="false" text="Media" />
+                        <CheckBox fx:id="gestDocCheckDifficile" mnemonicParsing="false" text="Difficile" />
                      </children>
                      <VBox.margin>
                         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
@@ -495,11 +495,11 @@
                   <Label text="Seleziona lingua" />
                   <HBox alignment="CENTER" spacing="20.0">
                      <children>
-                        <CheckBox fx:id="gestDocIT" mnemonicParsing="false" selected="true" text="Italiano" />
-                        <CheckBox fx:id="gestDocCheckEN" mnemonicParsing="false" selected="true" text="Inglese" />
-                        <CheckBox fx:id="gestDocCheckES" mnemonicParsing="false" selected="true" text="Spagnolo" />
-                        <CheckBox fx:id="gestDocCheckFR" mnemonicParsing="false" selected="true" text="Francese" />
-                        <CheckBox fx:id="gestDocCheckDE" mnemonicParsing="false" selected="true" text="Tedesco" />
+                        <CheckBox fx:id="gestDocIT" mnemonicParsing="false" text="Italiano" />
+                        <CheckBox fx:id="gestDocCheckEN" mnemonicParsing="false" text="Inglese" />
+                        <CheckBox fx:id="gestDocCheckES" mnemonicParsing="false" text="Spagnolo" />
+                        <CheckBox fx:id="gestDocCheckFR" mnemonicParsing="false" text="Francese" />
+                        <CheckBox fx:id="gestDocCheckDE" mnemonicParsing="false" text="Tedesco" />
                      </children>
                      <VBox.margin>
                         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />

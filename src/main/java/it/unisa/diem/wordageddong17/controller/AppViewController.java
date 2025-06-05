@@ -813,6 +813,7 @@ public class AppViewController implements Initializable {
         if (adminRadioMedio.isSelected()) return "Medio";
         if (adminRadioDifficile.isSelected()) return "Difficile";
         
+        
         return null;
     }
     
@@ -1150,15 +1151,56 @@ public class AppViewController implements Initializable {
         gestDocColInserito.setCellValueFactory(new PropertyValueFactory<>("emailAmministratore"));
         gestDocColNomeFile.setCellValueFactory(new PropertyValueFactory<>("nomeFile"));
         gestDocColLingua.setCellValueFactory(new PropertyValueFactory<>("lingua"));
-    
+        
         gestDocColDocumento.setCellFactory(col -> new TableCell<DocumentoDiTesto, String>() {
-            @Override
-            protected void updateItem(String posizione, boolean empty) {
-                super.updateItem(posizione, empty);
-                setText(empty ? null : "🗎");
-                setGraphic(null);
+    
+            private final Button btnDownload = new Button("🗎");
+            {
+                btnDownload.setStyle("-fx-background-color: transparent; -fx-cursor: hand; -fx-font-size: 16;");
+                btnDownload.setOnAction(event -> {
+                    DocumentoDiTesto doc = getTableView().getItems().get(getIndex());
+                    if (doc != null) {
+                    Utente u = appstate.getUtente();
+                    Amministratore a = new Amministratore(u.getUsername(), u.getEmail(), u.getFotoProfilo(), u.getTipo());
+                    try {
+                        byte[] contenuto = a.PrendiTesto(doc.getNomeFile());
+                        if (contenuto == null || contenuto.length == 0) {
+                            // avviso file vuoto o non trovato
+                            Alert alert = new Alert(Alert.AlertType.WARNING, "File vuoto o non trovato");
+                            alert.show();
+                            return;
+                        }
+            
+                        FileChooser fileChooser = new FileChooser();
+                        fileChooser.setTitle("Salva documento");
+                        fileChooser.setInitialFileName(doc.getNomeFile());
+                        File fileDest = fileChooser.showSaveDialog(getTableView().getScene().getWindow());
+            
+                        if (fileDest != null) {
+                            Files.write(fileDest.toPath(), contenuto);
+                            Alert alert = new Alert(Alert.AlertType.INFORMATION, "File salvato in:\n" + fileDest.getAbsolutePath());
+                            alert.show();
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        Alert alert = new Alert(Alert.AlertType.ERROR, "Errore durante il salvataggio: " + e.getMessage());
+                        alert.show();
+                    }
+                    }
+                });
             }
-        });
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                    setGraphic(null);
+                    setText(null);
+                } else {
+                    setText(null);
+                    setGraphic(btnDownload);
+                }
+            }
+        });  
     }
     
     private FilteredList<DocumentoDiTesto> creaListaFiltrata() {
@@ -1169,13 +1211,17 @@ public class AppViewController implements Initializable {
     
     private Runnable creaFiltro(FilteredList<DocumentoDiTesto> filteredList) {
         return () -> filteredList.setPredicate(doc -> {
-            String livelloDb = doc.difficolta() != null ? doc.difficolta().getDbValue() : "";
-
+            String livelloDb = doc.getDifficolta() != null ? doc.getDifficolta().getDbValue() : "";
+            
             boolean matchDifficolta =
-                (checkFacile.isSelected() && "facile".equalsIgnoreCase(livelloDb)) ||
-                (checkMedio.isSelected() && "medio".equalsIgnoreCase(livelloDb)) ||
-                (checkDifficile.isSelected() && "difficile".equalsIgnoreCase(livelloDb)) ||
-                (!checkFacile.isSelected() && !checkMedio.isSelected() && !checkDifficile.isSelected());
+                    (gestDocCheckFacile.isSelected() && "facile".equalsIgnoreCase(livelloDb)) ||
+                    (gestDocCheckMedia.isSelected() && "medio".equalsIgnoreCase(livelloDb)) ||
+                    (gestDocCheckDifficile.isSelected() && "difficile".equalsIgnoreCase(livelloDb));
+
+                if (!gestDocCheckFacile.isSelected() && !gestDocCheckMedia.isSelected() && !gestDocCheckDifficile.isSelected()) {
+                    matchDifficolta = true; // Se nessuna selezionata, mostra tutto
+                }
+  
 
             Lingua lingua = doc.lingua();
 
@@ -1205,6 +1251,9 @@ public class AppViewController implements Initializable {
         gestDocCheckFR.selectedProperty().addListener((obs, o, n) -> filtro.run());
         gestDocCheckDE.selectedProperty().addListener((obs, o, n) -> filtro.run());
         gestDocBarraDiRicerca.textProperty().addListener((obs, oldVal, newVal) -> filtro.run());
+        gestDocCheckFacile.selectedProperty().addListener((obs, oldVal, newVal) -> filtro.run());
+        gestDocCheckMedia.selectedProperty().addListener((obs, oldVal, newVal) -> filtro.run());
+        gestDocCheckDifficile.selectedProperty().addListener((obs, oldVal, newVal) -> filtro.run());
     }
 
     private void initializeGestioneDocumenti() {

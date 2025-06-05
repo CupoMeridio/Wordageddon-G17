@@ -57,7 +57,7 @@ public class GeneratoreDomande {
      * @param nomeDocumento Nome del documento su cui basare la domanda
      * @return Oggetto Domanda, oppure null se non ci sono parole disponibili
      */
-    public Domanda domandaFrequenzaAssoluta(String nomeDocumento) {
+    private Domanda domandaFrequenzaAssoluta(String nomeDocumento) {
         Map<String, Integer> parole = analisi.restituisciDocumento(nomeDocumento);
         if (parole == null || parole.isEmpty()) return null;
         List<String> paroleDoc = new ArrayList<>(parole.keySet());
@@ -87,7 +87,7 @@ public class GeneratoreDomande {
      * @param nomeDocumento Nome del documento su cui basare la domanda
      * @return Oggetto Domanda, oppure null se non ci sono parole disponibili
      */
-    public Domanda domandaParolaPiuFrequente(String nomeDocumento) {
+    private Domanda domandaParolaPiuFrequente(String nomeDocumento) {
         Map<String, Integer> parole = analisi.restituisciDocumento(nomeDocumento);
         if (parole == null || parole.isEmpty()) return null;
         String parolaMax = Collections.max(parole.entrySet(), Map.Entry.comparingByValue()).getKey();
@@ -118,7 +118,7 @@ public class GeneratoreDomande {
      * @param nomeDocumento Nome del documento su cui basare la domanda
      * @return Oggetto Domanda, oppure null se non ci sono abbastanza parole disponibili
      */
-    public Domanda domandaConfrontoFrequenze(String nomeDocumento) {
+    private Domanda domandaConfrontoFrequenze(String nomeDocumento) {
         Map<String, Integer> parole = analisi.restituisciDocumento(nomeDocumento); 
         if (parole == null || parole.size() < 4) return null; 
         List<String> paroleDoc = new ArrayList<>(parole.keySet());
@@ -129,5 +129,29 @@ public class GeneratoreDomande {
 
         String testo = "Quale tra queste parole è la più frequente nel documento?";
         return new Domanda(testo, scelte, idx); 
+    }
+    
+    
+    /**
+     * restituisce una collezione di N domande con tipo casuale 
+     * "Quale tra queste parole è la più frequente nel documento?"
+     * 
+     * @param nomeDocumento Nome del documento su cui basare la domanda
+     * @return Oggetto lista di tipo Domanda
+     */
+    public List<Domanda> getRaccoltaDiDomande(int num, String nomeDocumento){
+    
+        List<Domanda> lista= new ArrayList<>();
+        for (int i=0; i<num; i++){
+            switch (this.rnd.nextInt(3)){
+
+                case 0: lista.add(this.domandaConfrontoFrequenze(nomeDocumento));
+                    break;
+                case 1: lista.add(this.domandaFrequenzaAssoluta(nomeDocumento));
+                    break;
+                default : lista.add(this.domandaParolaPiuFrequente(nomeDocumento));
+            } 
+        }
+         return lista;
     }
 }

@@ -9,7 +9,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -44,17 +46,19 @@ public class DatabaseSessioneDiGioco implements DosSessioneDiGioco{
     }
 
     @Override
-    public List<byte[]> prendiDocumenti(LivelloPartita livello) {
-        List<byte[]> documenti = new ArrayList<>();
-        String query="SELECT documento FROM testo where difficolta= ?;";
+    public Map<String,byte[]> prendiDocumenti(LivelloPartita livello) {
+        Map<String,byte[]> documenti = new HashMap<>();
+        String query="SELECT nome_file, documento FROM testo where difficolta= ?;";
         
         try(PreparedStatement pstmt = db.getConnection().prepareStatement(query)){
             pstmt.setString(1, livello.name());
             ResultSet r=pstmt.executeQuery();
             byte[] documentoInBytes;
+            String nome_file;
             while(r.next()){
                documentoInBytes=r.getBytes("documento");
-               documenti.add(documentoInBytes);
+               nome_file= r.getString("nome_file");
+               documenti.put(nome_file, documentoInBytes);
             }
         } catch (SQLException ex) {
             Logger.getLogger(DatabaseSessioneDiGioco.class.getName()).log(Level.SEVERE, null, ex);

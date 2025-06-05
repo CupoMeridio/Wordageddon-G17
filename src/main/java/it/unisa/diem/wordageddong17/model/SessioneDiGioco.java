@@ -18,12 +18,14 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.concurrent.Service;
+import javafx.concurrent.Task;
 
 /**
  *
  * @author Mattia Sanzari
  */
-abstract public class SessioneDiGioco {
+abstract public class SessioneDiGioco extends Service<List<Domanda>> {
     private List<Domanda> Domande;
     private AnalisiDocumenti analisi;
     private Map<String, byte[]> Documenti;// dove la chiave è il nome del Documento e byte[] è il documento in bytes
@@ -34,16 +36,19 @@ abstract public class SessioneDiGioco {
         this.Domande = new ArrayList<>();
         this.Documenti= new HashMap<>();
         this.analisi= new AnalisiDocumenti();
-        generaDocumenti();
-        generaDomande();
     }
 
     public List<Domanda> getDomande() {
         return Domande;
     }
+
+    public void setDocumenti(Map<String, byte[]> Documenti) {
+        this.Documenti = Documenti;
+    }
     
-     
-    public abstract void setDocumenti(Map<String, byte[]> Documenti);
+    public void addDocumenti(String chiave,byte[] Documento){
+        this.Documenti.put(chiave, Documento);
+    }
 
     public AnalisiDocumenti getAnalisi() {
         return this.analisi;
@@ -70,6 +75,7 @@ abstract public class SessioneDiGioco {
         }
     
     }
+    
     public void caricaSessioneDiGioco(String NomeFile){
         try(ObjectInputStream ois= new ObjectInputStream( new FileInputStream(NomeFile))){
             System.out.println("Inizio caricamento");
@@ -85,7 +91,7 @@ abstract public class SessioneDiGioco {
         }
     }
 
-    private void generaDomande() {
+    public void generaDomande() {
         GeneratoreDomande gen= new GeneratoreDomande(this.analisi);
         String[] nomiDocumenti = (String[]) this.Documenti.keySet().toArray();
         int domandePerDocumento = this.numeroDomande / nomiDocumenti.length;
@@ -96,6 +102,6 @@ abstract public class SessioneDiGioco {
         }  
     }
 
-    public abstract void generaDocumenti();
+    public abstract void generaDocumenti(LivelloPartita l);
     
 }

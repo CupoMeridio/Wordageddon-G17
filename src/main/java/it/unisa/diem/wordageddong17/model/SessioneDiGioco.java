@@ -80,9 +80,7 @@ abstract public class SessioneDiGioco {
             System.out.println("Fine salvataggio");
         } catch (FileNotFoundException ex) {
             Logger.getLogger(SessioneDiGioco.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(SessioneDiGioco.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (ClassNotFoundException ex) {
+        } catch (IOException | ClassNotFoundException ex) {
             Logger.getLogger(SessioneDiGioco.class.getName()).log(Level.SEVERE, null, ex);
         }
     }

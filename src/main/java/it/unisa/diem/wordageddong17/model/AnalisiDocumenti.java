@@ -1,10 +1,5 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package it.unisa.diem.wordageddong17.model;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -78,15 +73,14 @@ public class AnalisiDocumenti {
         }
     }
     
+    @SuppressWarnings("unchecked")
     public void sovrascriviMatriceDaSalvataggio(){
         
         try( ObjectInputStream o = new ObjectInputStream(new FileInputStream("salvaMatrice.ser"))){
            this.Matrice= (HashMap<String, Map<String, Integer>>) o.readObject();
         } catch (FileNotFoundException ex) {
             Logger.getLogger(AnalisiDocumenti.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(AnalisiDocumenti.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (ClassNotFoundException ex) {
+        } catch (IOException | ClassNotFoundException ex) {
             Logger.getLogger(AnalisiDocumenti.class.getName()).log(Level.SEVERE, null, ex);
         }
     
@@ -95,15 +89,14 @@ public class AnalisiDocumenti {
     public void mergeTraMatriceeSalvataggio(){
     
          try( ObjectInputStream o = new ObjectInputStream(new FileInputStream("salvaMatrice.ser"))){
+           @SuppressWarnings("unchecked")
            HashMap<String, Map<String, Integer>> MatriceDiAppoggio= (HashMap<String, Map<String, Integer>>) o.readObject();
            
            MatriceDiAppoggio.entrySet().stream().forEach(e-> this.aggiungiDocumento(e.getKey(), e.getValue()));
            
         } catch (FileNotFoundException ex) {
             Logger.getLogger(AnalisiDocumenti.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(AnalisiDocumenti.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (ClassNotFoundException ex) {
+        } catch (IOException | ClassNotFoundException ex) {
             Logger.getLogger(AnalisiDocumenti.class.getName()).log(Level.SEVERE, null, ex);
         }
     

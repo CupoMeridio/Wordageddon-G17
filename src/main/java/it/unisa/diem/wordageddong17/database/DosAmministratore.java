@@ -4,6 +4,8 @@
  */
 package it.unisa.diem.wordageddong17.database;
 
+import it.unisa.diem.wordageddong17.model.Lingua;
+
 /**
  *
  * @author Mattia Sanzari
@@ -11,7 +13,7 @@ package it.unisa.diem.wordageddong17.database;
 public interface DosAmministratore {
     
     public boolean CaricareStopwords(String email, byte[] documentoStopwords, String nomefile);
-    public boolean CaricareTesto(String email,String nomeFile, String difficolta, byte[] file);
+    public boolean CaricareTesto(String email,String nomeFile, String difficolta, byte[] file, Lingua lingua);
     public byte[] PrendiStopwords(String nomeFile);
     public byte[] PrendiTesto(String nomeDocumento);
     public boolean CancellaTesto(String nomeDocumento);

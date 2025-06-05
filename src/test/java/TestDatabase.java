@@ -1,13 +1,8 @@
-
-import it.unisa.diem.wordageddong17.database.Database;
 import it.unisa.diem.wordageddong17.database.DatabaseAmministratore;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import static java.lang.Thread.sleep;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.sql.Connection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -56,6 +51,7 @@ public class TestDatabase {
         }
         // metodi per le Stopwords Funzionano
         db.CancellaTesto("prova");
+        /*
         try {
             
             documentoDaCaricare = documentoDaCaricare = Files.readAllBytes(Paths.get("prova.txt"));
@@ -73,6 +69,9 @@ public class TestDatabase {
         }
         
         db.CancellaTesto("prova");
+         */
     }
+    
+    
     // metodi per il testo funzionano
 }

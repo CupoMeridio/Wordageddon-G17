@@ -8,22 +8,35 @@
     
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
+        <javafx.version>17.0.2</javafx.version>
+        <maven.compiler.release>17</maven.compiler.release>
+        <!-- Aggiunto per evitare warning Jansi -->
+        <jansi.version>2.4.1</jansi.version>
+        <!-- Aggiunto per evitare warning Guava -->
+        <guava.version>33.2.1-jre</guava.version>
     </properties>
     
     <dependencies>
-        <!-- JavaFX -->
+        <!-- JavaFX completo con classifier -->
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
-            <version>13</version>
+            <version>${javafx.version}</version>
+            <classifier>win</classifier>
         </dependency>
         
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-fxml</artifactId>
-            <version>13</version>
+            <version>${javafx.version}</version>
+            <classifier>win</classifier>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-graphics</artifactId>
+            <version>${javafx.version}</version>
+            <classifier>win</classifier>
         </dependency>
                 
         <!-- Sicurezza: bcrypt per hash delle password -->
@@ -45,15 +58,19 @@
             <groupId>io.github.cdimascio</groupId>
             <artifactId>dotenv-java</artifactId>
             <version>3.2.0</version>
-            <type>jar</type>
         </dependency>
         
+        <!-- Jansi esplicito per evitare warning -->
+        <dependency>
+            <groupId>org.fusesource.jansi</groupId>
+            <artifactId>jansi</artifactId>
+            <version>${jansi.version}</version>
+        </dependency>
     </dependencies>
-    
     
     <build>
         <plugins>
-            <!--Plugin per generare l'eseguibile con tutte le dipendenze-->
+            <!-- Plugin per generare l'eseguibile con tutte le dipendenze -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
@@ -76,11 +93,15 @@
                             </transformers>
                             <filters>
                                 <filter>
+                                    <artifact>org.openjfx:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/substrate/config/**</exclude>
+                                        <exclude>module-info.class</exclude>
+                                    </excludes>
+                                </filter>
+                                <filter>
                                     <artifact>*:*</artifact>
                                     <excludes>
-                                        <!-- Esclusione dei files module-info.class-->
-                                        <exclude>module-info.class</exclude>
-                                        <!-- Esclusione dei files META-INF/MANIFEST.MF -->
                                         <exclude>META-INF/MANIFEST.MF</exclude>
                                     </excludes>
                                 </filter>
@@ -91,6 +112,14 @@
                         </configuration>
                     </execution>
                 </executions>
+                <dependencies>
+                    <!-- Aggiorna Guava per evitare warning Unsafe -->
+                    <dependency>
+                        <groupId>com.google.guava</groupId>
+                        <artifactId>guava</artifactId>
+                        <version>${guava.version}</version>
+                    </dependency>
+                </dependencies>
             </plugin>
             
             <!-- Configurazione del compilatore Maven -->
@@ -99,7 +128,12 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.14.0</version>
                 <configuration>
-                    <release>11</release>
+                    <release>${maven.compiler.release}</release>
+                    <compilerArgs>
+                        <arg>-Xlint:unchecked</arg>
+                        <arg>-Xlint:deprecation</arg>
+                    </compilerArgs>
+                    <parameters>true</parameters>
                 </configuration>
             </plugin>
             
@@ -107,67 +141,38 @@
             <plugin>
                 <groupId>org.openjfx</groupId>
                 <artifactId>javafx-maven-plugin</artifactId>
-                <version>0.0.8</version>
+                <version>0.1.0</version>
                 <configuration>
                     <mainClass>it.unisa.diem.wordageddong17.App</mainClass>
+                    <options>
+                        <option>--enable-native-access=ALL-UNNAMED</option>
+                        <option>--add-opens=java.base/java.lang=ALL-UNNAMED</option>
+                    </options>
                 </configuration>
-                <executions>
-                    <execution>
-                        <!-- Default configuration for running -->
-                        <!-- Usage: mvn clean javafx:run -->
-                        <id>default-cli</id>
-                    </execution>
-                    <execution>
-                        <!-- Configuration for manual attach debugging -->
-                        <!-- Usage: mvn clean javafx:run@debug -->
-                        <id>debug</id>
-                        <configuration>
-                            <options>
-                                <option>-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=localhost:8000</option>
-                            </options>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <!-- Configuration for automatic IDE debugging -->
-                        <id>ide-debug</id>
-                        <configuration>
-                            <options>
-                                <option>-agentlib:jdwp=transport=dt_socket,server=n,address=${jpda.address}</option>
-                            </options>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <!-- Configuration for automatic IDE profiling -->
-                        <id>ide-profile</id>
-                        <configuration>
-                            <options>
-				<option>${profiler.jvmargs.arg1}</option>
-				<option>${profiler.jvmargs.arg2}</option>
-				<option>${profiler.jvmargs.arg3}</option>
-				<option>${profiler.jvmargs.arg4}</option>
-				<option>${profiler.jvmargs.arg5}</option>
-                            </options>
-                        </configuration>
-                    </execution>
-                </executions>
+            </plugin>
+            
+            <!-- Plugin per i test -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.2.5</version>
+                <configuration>
+                    <argLine>--enable-native-access=ALL-UNNAMED</argLine>
+                </configuration>
             </plugin>
         </plugins>
 
-    <resources>
-        <!-- Includi le risorse standard -->
-        <resource>
-            <directory>src/main/resources</directory>
-        </resource>
-        
-        <!-- Includi anche il .env dalla root -->
-        <resource>
-            <directory>${project.basedir}</directory>
-            <includes>
-                <include>.env</include>
-            </includes>
-            <targetPath>${project.build.outputDirectory}</targetPath>
-        </resource>
-    </resources>
-
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+            <resource>
+                <directory>${project.basedir}</directory>
+                <includes>
+                    <include>.env</include>
+                </includes>
+                <targetPath>${project.build.outputDirectory}</targetPath>
+            </resource>
+        </resources>
     </build>
 </project>

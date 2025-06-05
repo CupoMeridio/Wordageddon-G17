@@ -4,9 +4,16 @@
  */
 package it.unisa.diem.wordageddong17.database;
 
+import it.unisa.diem.wordageddong17.model.Classifica;
+import it.unisa.diem.wordageddong17.model.DocumentoDiTesto;
+import it.unisa.diem.wordageddong17.model.Lingua;
+import it.unisa.diem.wordageddong17.model.LivelloPartita;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -137,10 +144,10 @@ public class DatabaseAmministratore implements DosAmministratore {
      * 
      */
     @Override
-    public boolean CaricareTesto(String email, String nomeFile, String difficolta, byte[] file) {
+    public boolean CaricareTesto(String email, String nomeFile, String difficolta, byte[] file, Lingua lingua) {
         String query= "INSERT INTO testo(\n" +
-        "nome_file, id_amministratore, difficolta, documento)\n" +
-        "VALUES (?, ?, ?, ?)";
+        "nome_file, id_amministratore, difficolta, documento, lingua)\n" +
+        "VALUES (?, ?, ?, ?, ?::lingua_type)";
         
         boolean risultato= false;
         try (PreparedStatement pstmt = db.getConnection().prepareStatement(query)) {
@@ -148,12 +155,12 @@ public class DatabaseAmministratore implements DosAmministratore {
             pstmt.setString(2, email);
             pstmt.setString(3, difficolta);
             pstmt.setBytes(4, file);
-            risultato= pstmt.execute();// esegue il prepare statment
-            
+            pstmt.setString(5,lingua.getCodice());
+            return pstmt.executeUpdate() > 0; // True se almeno una riga è stata inserita
             }   catch (SQLException ex) {
             Logger.getLogger(DatabaseRegistrazioneLogin.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return risultato;
+        return false;
     }
 
     /**
@@ -211,5 +218,25 @@ public class DatabaseAmministratore implements DosAmministratore {
         return DatabaseAmministratore.Holder.INSTANCE;
     }
 
+    public ArrayList<DocumentoDiTesto> prendiTuttiIDocumenti(){
+        ArrayList<DocumentoDiTesto> L = new ArrayList<>();
+        String query="SELECT nome_file, id_amministratore, difficolta, lingua FROM testo";
+        Statement s = null;
+        try (PreparedStatement pstmt = db.getConnection().prepareStatement(query)) {
+            ResultSet result = pstmt.executeQuery();
+            while(result.next()) {
+                L.add(new DocumentoDiTesto(
+                    result.getString("nome_file"),
+                    LivelloPartita.fromDbValue(result.getString("difficolta")),
+                    result.getString("id_Amministratore"),
+                    Lingua.fromCodice(result.getString("lingua"))
+                    ));
+                    
+            }
+        } catch (SQLException ex) {
+            System.getLogger(DatabaseAmministratore.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+        }
+        return L;
+    }
     
 }

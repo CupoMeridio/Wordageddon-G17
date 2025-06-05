@@ -51,7 +51,7 @@ public class DatabaseSessioneDiGioco implements DosSessioneDiGioco{
         String query="SELECT nome_file, documento FROM testo where difficolta= ?;";
         
         try(PreparedStatement pstmt = db.getConnection().prepareStatement(query)){
-            pstmt.setString(1, livello.name());
+            pstmt.setString(1, livello.getDbValue());
             ResultSet r=pstmt.executeQuery();
             byte[] documentoInBytes;
             String nome_file;

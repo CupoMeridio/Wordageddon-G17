@@ -59,6 +59,7 @@ public class GeneratoreDomande {
      */
     private Domanda domandaFrequenzaAssoluta(String nomeDocumento) {
         Map<String, Integer> parole = analisi.restituisciDocumento(nomeDocumento);
+       // System.out.println("domandaFrequenzaAssoluta "+ parole );
         if (parole == null || parole.isEmpty()) return null;
         List<String> paroleDoc = new ArrayList<>(parole.keySet());
         String parola = paroleDoc.get(rnd.nextInt(paroleDoc.size()));
@@ -89,6 +90,7 @@ public class GeneratoreDomande {
      */
     private Domanda domandaParolaPiuFrequente(String nomeDocumento) {
         Map<String, Integer> parole = analisi.restituisciDocumento(nomeDocumento);
+        //System.out.println("domandaParolaPiuFrequente :" + parole);
         if (parole == null || parole.isEmpty()) return null;
         String parolaMax = Collections.max(parole.entrySet(), Map.Entry.comparingByValue()).getKey();
 
@@ -120,6 +122,7 @@ public class GeneratoreDomande {
      */
     private Domanda domandaConfrontoFrequenze(String nomeDocumento) {
         Map<String, Integer> parole = analisi.restituisciDocumento(nomeDocumento); 
+        //System.out.println("domandaConfrontoFrequenze :" + parole);
         if (parole == null || parole.size() < 4) return null; 
         List<String> paroleDoc = new ArrayList<>(parole.keySet());
         Collections.shuffle(paroleDoc); 
@@ -140,17 +143,19 @@ public class GeneratoreDomande {
      * @return Oggetto lista di tipo Domanda
      */
     public List<Domanda> getRaccoltaDiDomande(int num, String nomeDocumento){
-    
         List<Domanda> lista= new ArrayList<>();
         for (int i=0; i<num; i++){
             switch (this.rnd.nextInt(3)){
 
                 case 0: lista.add(this.domandaConfrontoFrequenze(nomeDocumento));
                     break;
-                case 1: lista.add(this.domandaFrequenzaAssoluta(nomeDocumento));
+                case 1: lista.add(this.domandaConfrontoFrequenze(nomeDocumento));
                     break;
-                default : lista.add(this.domandaParolaPiuFrequente(nomeDocumento));
+                default : lista.add(this.domandaConfrontoFrequenze(nomeDocumento));
             } 
+            
+            System.out.println("getRaccoltaDiDomande: " + lista.get(i).testo);
+            //System.out.println("getRaccoltaDiDomande: "+ lista);
         }
          return lista;
     }

@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.concurrent.Task;
 
 /**
@@ -19,35 +21,41 @@ public class SessioneDiGiocoOnline extends SessioneDiGioco {
     
     private DosSessioneDiGioco db;
     private int numeroDocumenti;
-    private LivelloPartita livello;
     
-    public SessioneDiGiocoOnline(int numeroDomande,int numeroDocumenti, LivelloPartita livello) {
-        super(numeroDomande);
+    public SessioneDiGiocoOnline(int numeroDomande,int numeroDocumenti, int durata) {
+        super(numeroDomande, durata);
         db= DatabaseSessioneDiGioco.getInstance();
         this.numeroDocumenti=numeroDocumenti;
-        this.livello=livello;
     }
 
 
     @Override
     public void generaDocumenti(LivelloPartita l) {
         Map<String, byte[]> documentiDifficolta = db.prendiDocumenti(l);
-        List<String> chiavi= new ArrayList(documentiDifficolta.keySet());
+        List<String> chiavi= new ArrayList<>(documentiDifficolta.keySet());
         
         Random rnd = new Random();
+        System.out.println("generaDocumenti: " +documentiDifficolta);
         
-        
-        if(documentiDifficolta != null || !documentiDifficolta.isEmpty()){
+        if(documentiDifficolta != null && !documentiDifficolta.isEmpty()){
             for(int i=0; i<this.numeroDocumenti; i++){
                 int numerocasuale=rnd.nextInt(this.numeroDocumenti);
-                this.addDocumenti(chiavi.get(numerocasuale), documentiDifficolta.get(chiavi.get(numerocasuale)));
+                this.addDocumenti(chiavi.get(numerocasuale), documentiDifficolta.get(chiavi.get(numerocasuale))); 
+                this.generaAnalisi( chiavi.get(numerocasuale),documentiDifficolta.get(chiavi.get(numerocasuale)));
             }
         }else{
             System.out.println("Non ci sono documenti con quella difficoltà");
         }   
     }
     
-    
+    private void generaAnalisi(String NomeDocumento,byte[] doc){
+        try {
+            this.getAnalisi().analisiUnDocumento(doc, NomeDocumento);
+        } catch (IOException ex) {
+            Logger.getLogger(SessioneDiGiocoOnline.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    //per ora non è utile-> nel caso si elimina
     private void SalvaDocumentiInLocale(String nomedoc, byte[] documento){
     
          try (FileOutputStream fos = new FileOutputStream(nomedoc)) {
@@ -57,22 +65,4 @@ public class SessioneDiGiocoOnline extends SessioneDiGioco {
             System.err.println("Errore durante la scrittura del file: " + e.getMessage());
         }
     }
-   
-    @Override
-    protected Task<List<Domanda>> createTask() {
-       
-        return new Task<List<Domanda>>(){
-            @Override
-            protected List<Domanda> call() throws Exception {
-               
-                updateProgress(0, 100);
-                SessioneDiGiocoOnline.this.generaDocumenti(SessioneDiGiocoOnline.this.livello);
-                updateProgress(60, 100);
-                SessioneDiGiocoOnline.this.generaDomande();
-                return  SessioneDiGiocoOnline.this.getDomande();
-            }  
-        };
-    }
-
-    
 }

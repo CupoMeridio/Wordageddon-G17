@@ -6,6 +6,9 @@
 package it.unisa.diem.wordageddong17.controller;
 
 import it.unisa.diem.wordageddong17.App;
+import it.unisa.diem.wordageddong17.model.CaricaSessioneDiGioco;
+import it.unisa.diem.wordageddong17.model.GeneratoreDomande.Domanda;
+import it.unisa.diem.wordageddong17.model.LivelloPartita;
 import it.unisa.diem.wordageddong17.model.SessioneDiGiocoOnline;
 import java.io.IOException;
 import java.net.URL;
@@ -27,6 +30,15 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 import it.unisa.diem.wordageddong17.model.SessioneDiGioco;
+import java.io.DataInputStream;
+import java.io.FileInputStream;
+import java.nio.file.Files;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedDeque;
 
 /**
  * FXML Controller class
@@ -70,24 +82,74 @@ public class SessionViewController implements Initializable {
     @FXML
     private Button ProssimoTestobutton;
     
+    private CaricaSessioneDiGioco caricaSessione;
     private SessioneDiGioco sessione;
-
     private int contatoreDomanda = 1;
     private Timeline tm;
     private int durata;
+    private String[] NomiDocumenti;
+    private final Queue<Domanda> domande = new ConcurrentLinkedDeque<>();
+    
+    private int NumeroDiDomanda;
     /**
      * Initializes the controller class.
      */
     @Override
-    public void initialize(URL url, ResourceBundle rb) {
-        // TODO
-        this.TestoDaLeggere.setEditable(false);
-        this.TestoDaLeggere.setMouseTransparent(true);
-        this.TestoDaLeggere.setFocusTraversable(false);
-        this.FaseRisposte.setVisible(false);
-        this.FaseLettura.setVisible(true);
-        sessione= new SessioneDiGiocoOnline(4);
-    }    
+   public void initialize(URL url, ResourceBundle rb) {
+    this.TestoDaLeggere.setEditable(false);
+    this.TestoDaLeggere.setMouseTransparent(true);
+    this.TestoDaLeggere.setFocusTraversable(false);
+    this.FaseRisposte.setVisible(false);
+    this.FaseLettura.setVisible(true);
+    this.NumeroDiDomanda=0;
+    this.counter.setText("1/"+4);
+    
+    this.durata = 30; // o qualsiasi valore appropriato
+    
+    sessione = new SessioneDiGiocoOnline(4, 1, durata);
+    this.caricaSessione = new CaricaSessioneDiGioco(this.sessione, LivelloPartita.FACILE);
+    this.serviceInitialize();
+    this.caricaSessione.start();
+}    
+
+private void serviceInitialize() {
+    this.caricaSessione.setOnRunning(e -> {
+        System.out.println("Service in esecuzione...");
+    });
+    
+    this.caricaSessione.setOnSucceeded(e -> {
+        System.out.println("Service completato con successo!");
+        List<Domanda> domandeCaricate = caricaSessione.getValue();
+        
+        if(domandeCaricate != null && !domandeCaricate.isEmpty()) {
+            this.domande.addAll(domandeCaricate);
+            System.out.println("Caricate " + domandeCaricate.size() + " domande");      
+            cambioTesto();
+        } else {
+            System.out.println("Nessuna domanda caricata o lista vuota");
+            // Gestisci il caso in cui non ci sono domande
+        }
+    });
+    
+    this.caricaSessione.setOnFailed(e -> {
+        System.out.println("Service fallito!");
+        Throwable exception = caricaSessione.getException();
+        if(exception != null) {
+            exception.printStackTrace();
+        } else {
+            System.out.println("Nessuna eccezione specificata");
+        }
+    });
+}
+    private void cambioTesto(){
+           
+       //System.out.println("grandezzaPop: "+ this.domande.toString());
+        Map<String, byte[]> s = this.sessione.getDocumenti();
+        
+        this.NomiDocumenti=this.sessione.getDocumenti().keySet().toArray(new String[0]);
+        //System.out.println("139: " + s);
+        this.TestoDaLeggere.textProperty().setValue(new String(s.get(NomiDocumenti[0])));
+    }
     
     private void DaRisposte(){
         this.FaseLettura.setVisible(false);
@@ -111,7 +173,7 @@ public class SessionViewController implements Initializable {
     }
 
     @FXML
-    private void TestoPrecedente(ActionEvent event) {
+    private void TestoPrecedente(ActionEvent event){
     }
 
     @FXML
@@ -127,7 +189,7 @@ public class SessionViewController implements Initializable {
         this.question.textProperty().setValue("Qui andrà la domanda");
     
     }
-    
+   /* 
     private void startTimer() {
         durata = 30;
         setTimerLabel();
@@ -170,7 +232,7 @@ public class SessionViewController implements Initializable {
                 Logger.getLogger(SessionViewController.class.getName()).log(Level.SEVERE, null, ex);
             } 
         }
-    }
+    }*/
 
     
 }

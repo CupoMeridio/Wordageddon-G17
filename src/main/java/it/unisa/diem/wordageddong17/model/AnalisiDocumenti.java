@@ -1,5 +1,6 @@
 package it.unisa.diem.wordageddong17.model;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -7,7 +8,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -32,6 +33,7 @@ public class AnalisiDocumenti {
     }
     
     public Map<String, Integer> restituisciDocumento(String NomeDocumento){
+        //System.out.println("restituisciDocumento: "+ this.Matrice.get(NomeDocumento));
        return Matrice.get(NomeDocumento);
     }
     
@@ -50,16 +52,25 @@ public class AnalisiDocumenti {
         return false;
     }
     
-    public void analisiUnDocumento(String Path) throws IOException{
+    public void analisiUnDocumento(byte[] doc, String NomeDocumento) throws IOException{
         Map<String,Integer>  documento;
-        Stream<String> stringStream = Files.lines(Paths.get(Path));
+        Path p=null;
+        File f=null;
+        try {
+            f=File.createTempFile("FileAnalisiUnDocumento", ".txt");
+            p = Files.write(f.toPath(), doc);
+         }catch(IOException e){
+            System.out.println("Eccezione: "+e);
+         }
+        Stream<String> stringStream = Files.lines(p);
     
         documento= stringStream.flatMap(riga -> Arrays.stream(riga.toUpperCase().split("\\W+")))
                 .filter(parola-> !parola.isEmpty())
                 .filter(parola ->!appartenenzaStopWords(parola))
                 .collect(Collectors.toMap(parola -> parola, parola -> 1, Integer::sum));
         System.out.println(documento.toString());
-        this.aggiungiDocumento(Path, documento);
+        this.aggiungiDocumento(NomeDocumento, documento);
+        f.deleteOnExit();
     }
     
     

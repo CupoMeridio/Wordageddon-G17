@@ -7,6 +7,7 @@ import it.unisa.diem.wordageddong17.model.Amministratore;
 import it.unisa.diem.wordageddong17.model.AppState;
 import it.unisa.diem.wordageddong17.model.Classifica;
 import it.unisa.diem.wordageddong17.model.DocumentoDiTesto;
+import it.unisa.diem.wordageddong17.model.Giocatore;
 import it.unisa.diem.wordageddong17.model.Lingua;
 import it.unisa.diem.wordageddong17.model.LivelloPartita;
 import it.unisa.diem.wordageddong17.model.TipoUtente;
@@ -228,8 +229,6 @@ public class AppViewController implements Initializable {
     @FXML
     private RadioButton adminRadioDifficile;
     @FXML
-    private Button backHomeButton;
-    @FXML
     private VBox schermataStopwords;
     @FXML
     private TextField stopwordTextField;
@@ -291,7 +290,7 @@ public class AppViewController implements Initializable {
     /** @brief Istanza singleton del database per autenticazione */
     private final DatabaseRegistrazioneLogin db = DatabaseRegistrazioneLogin.getInstance();
     private final DatabaseClassifica sbc = DatabaseClassifica.getInstance();
-    private AppState appstate = AppState.getInstance();
+    private final AppState appstate = AppState.getInstance();
     private ObservableList<Classifica> classificaFacile;
     private ObservableList<Classifica> classificaMedia;
     private ObservableList<Classifica> classificaDifficile;
@@ -299,6 +298,10 @@ public class AppViewController implements Initializable {
     private ObservableList<DocumentoDiTesto> listaDocumenti;
     private Task<Void> currentLoadingTask;
     private File fileSelezionato;
+    @FXML
+    private Button gestDocButtonTornaAllaHome;
+    @FXML
+    private Button backToGestDoc;
     
    
     
@@ -310,7 +313,7 @@ public class AppViewController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         chiudiTutto();
         schermataDiLogin.setVisible(true);
-        ritagliaQuadrato(imageView, 250);  // per la schermata di registrazione
+        ritagliaQuadrato(imageView, 250);
         ritagliaQuadrato(immagineInfoUtente,250);
         ritagliaCerchio(fotoProfilo, 40);
         initializeClassifiche();
@@ -345,18 +348,18 @@ public class AppViewController implements Initializable {
         String password = passwordTextField.getText();
 
         if  (email.isEmpty() || password.isEmpty()) {
-            mostraAlert("Errore\n", "I campi non possono essere vuoti\n", Alert.AlertType.WARNING);
+            mostraAlert("Errore", "I campi non possono essere vuoti", Alert.AlertType.WARNING); 
             return;
         }
 
         if (!isValidEmail(email)) {
-            mostraAlert("Errore", "Inserisci un indirizzo email valido.", Alert.AlertType.WARNING);
+            mostraAlert("Errore", "Inserisci un indirizzo email valido.", Alert.AlertType.WARNING); 
             return;
         }
   
         try {
             boolean pwCorretta = db.verificaPassword(email, password);
-      
+
             if(pwCorretta){
                 appstate.setUtente(db.prendiUtente(email));
                 Utente utente = appstate.getUtente();
@@ -370,7 +373,7 @@ public class AppViewController implements Initializable {
                     schermataHome.setVisible(true);
                     initializeCronologiaPartite();
                 } else {
-                    mostraAlert("Errore", "Si è verificato un problema durante il recupero dei dati utente", Alert.AlertType.ERROR);
+                    mostraAlert("Errore", "Si è verificato un problema durante il recupero dei dati utente", Alert.AlertType.ERROR); 
                 }
             } else {
                 mostraAlert("Errore", "Email o password errati", Alert.AlertType.WARNING);
@@ -564,11 +567,18 @@ public class AppViewController implements Initializable {
 
     @FXML
     private void registerButtonOnAction(ActionEvent event) {
+        if  (username.getText().isEmpty() || email.getText().isEmpty() || password.getText().isEmpty() || repeatPassword.getText().isEmpty()) {
+            mostraAlert("Errore", "Tutti i campi sono obbligatori.", Alert.AlertType.WARNING);
+            return;
+        }
         if (!isValidEmail(email.getText())) {
             mostraAlert("Email non valida", "L'email inserita non è valida.", Alert.AlertType.ERROR);
             return;
         }
-
+        if (db.prendiUtente(email.getText()) != null) {
+            mostraAlert("Email già utilizzata", "Questa email è già associata a un altro account.", Alert.AlertType.ERROR);
+            return;
+        }
         if (!password.getText().equals(repeatPassword.getText())) {
             mostraAlert("Password non corrispondenti", "Le due password inserite non corrispondono", Alert.AlertType.ERROR);
             return;
@@ -578,32 +588,41 @@ public class AppViewController implements Initializable {
         Image immagine = imageView.getImage();
         if (immagine != null && immagine.getUrl() != null && !immagine.getUrl().contains("person.png")) {
             try {
-                // Prendiamo il file selezionato
                 String url = immagine.getUrl().replace("file:", "");
                 immagineBytes = Files.readAllBytes(new File(url).toPath());
             } catch (IOException e) {
                 mostraAlert("Errore", "Errore nella lettura dell'immagine", Alert.AlertType.ERROR);
+                return;
             }
         }
 
-        db.inserisciUtente(username.getText(), email.getText(), password.getText(), immagineBytes);
-        appstate.setUtente(new Utente(username.getText(), email.getText(), immagineBytes, TipoUtente.giocatore));
-        aggiornaFotoProfilo(immagineBytes);
-        chiudiTutto();
-        configuraPulsantiAdmin();
-        schermataHome.setVisible(true);
-        benvenutoLabel.setText("Benvenuto " + username.getText());
-
-        if (immagineBytes == null) {
-            appstate.setUtente(new Utente(username.getText(), email.getText(), TipoUtente.giocatore));
-            fotoProfilo.setImage(getPlaceholderImage());
-        } else {
-            appstate.setUtente(new Utente(username.getText(), email.getText(), immagineBytes, TipoUtente.giocatore));
-            fotoProfilo.setImage(new Image(new ByteArrayInputStream(immagineBytes)));
+        try {
+            db.inserisciUtente(username.getText(), email.getText(), password.getText(), immagineBytes);
+        } catch (Exception e) {
+            mostraAlert("Errore", "Errore durante la registrazione: " + e.getMessage(), Alert.AlertType.ERROR);
+            return;
         }
 
+        // Crea l'utente una sola volta, a seconda che ci sia immagine o meno
+        Giocatore nuovoUtente;
+        if (immagineBytes == null) {
+            nuovoUtente = new Giocatore(username.getText(), email.getText(), TipoUtente.giocatore);
+            fotoProfilo.setImage(getPlaceholderImage());
+        } else {
+            nuovoUtente = new Giocatore(username.getText(), email.getText(), immagineBytes, TipoUtente.giocatore);
+            fotoProfilo.setImage(new Image(new ByteArrayInputStream(immagineBytes)));
+        }
+        appstate.setUtente(nuovoUtente);
+
+        aggiornaFotoProfilo(immagineBytes);
+        configuraPulsantiAdmin();
         pulisciTutto();
+        chiudiTutto();
+        schermataHome.setVisible(true);
+        benvenutoLabel.setText("Benvenuto " + username.getText());
+        mostraAlert("Registrazione completata", "Registrazione avvenuta con successo!", Alert.AlertType.INFORMATION);
     }
+
 
 
     @FXML
@@ -790,18 +809,37 @@ public class AppViewController implements Initializable {
             stopwordList.setManaged(false);
         }
     }
+    
     @FXML
     private void mostraGestioneDocumenti() {
         chiudiTutto();
         gestioneDocumentiView.setVisible(true);
-        listaDocumenti.addAll(new DatabaseAmministratore().prendiTuttiIDocumenti());
-        
+
+        Object utente = appstate.getUtente();
+
+        try {
+            if (utente instanceof Amministratore amministratore) {
+                listaDocumenti.clear(); // Buona pratica: evita duplicati
+                listaDocumenti.addAll(amministratore.prendiTuttiIDocumenti());
+
+                if (listaDocumenti.isEmpty()) {
+                    mostraAlert("Attenzione", "Nessun documento trovato.", Alert.AlertType.INFORMATION);
+                }
+            } else {
+                mostraAlert("Errore", "Accesso negato: solo un amministratore può visualizzare i documenti.", Alert.AlertType.ERROR);
+            }
+        } catch (Exception e) {
+            mostraAlert("Errore", "Impossibile caricare la lista documenti: " + e.getMessage(), Alert.AlertType.ERROR);
+        }
     }
+
+    
     @FXML
     private void mostraGestioneStopwords() {
         chiudiTutto();
         schermataStopwords.setVisible(true);
     }
+    
      @FXML
     private void tornaAllaHome() {
         chiudiTutto();
@@ -809,9 +847,10 @@ public class AppViewController implements Initializable {
     }
 
     private String getDifficoltaSelezionataAdmin() {
-        if (adminRadioFacile.isSelected()) return "Facile";
-        if (adminRadioMedio.isSelected()) return "Medio";
-        if (adminRadioDifficile.isSelected()) return "Difficile";
+        if (adminRadioFacile.isSelected()) return LivelloPartita.FACILE.getDbValue();
+        if (adminRadioMedio.isSelected()) return LivelloPartita.MEDIO.getDbValue();
+        if (adminRadioDifficile.isSelected()) return LivelloPartita.DIFFICILE.getDbValue();
+        
         
         return null;
     }
@@ -836,7 +875,9 @@ public class AppViewController implements Initializable {
         File file = fileChooser.showOpenDialog(null);
         if (file != null) {
             fileSelezionato = file;
-            pathTextField.setText(file.getName()); 
+            pathTextField.setText(file.getName());
+        } else {
+            mostraAlert("Attenzione", "Nessun file selezionato.", Alert.AlertType.WARNING);
         }
     }
     
@@ -851,31 +892,36 @@ public class AppViewController implements Initializable {
         File file = fileChooser.showOpenDialog(null);
         if (file != null) {
             fileSelezionato = file;
-            stopwordTextField.setText(file.getName()); 
+            stopwordTextField.setText(file.getName());
+        } else {
+            mostraAlert("Attenzione", "Nessun file selezionato.", Alert.AlertType.WARNING);
         }
     }
     
     @FXML
     private void caricaTesto(ActionEvent event) {
-        if (fileSelezionato == null || getDifficoltaSelezionataAdmin() == null) {
+        if (fileSelezionato == null || getDifficoltaSelezionataAdmin() == null || getLinguaSelezionataAdmin() == null) {
             mostraAlert("Errore", "Completa tutti i campi prima di salvare.", Alert.AlertType.WARNING);
             return;
         }
-
-        String nomeFile = fileSelezionato.getName();
-        String path = fileSelezionato.getAbsolutePath();
-        String difficolta = getDifficoltaSelezionataAdmin();
-        Lingua lingua = getLinguaSelezionataAdmin();
-        Utente u = appstate.getUtente();
-        Amministratore a = new Amministratore(u.getUsername(),u.getEmail(),u.getFotoProfilo(),TipoUtente.amministratore);
-        a.caricaTesto(nomeFile, difficolta, path, lingua);
-        //LA CLASSE AMMINISTRATORE COMPLICA SOLO LE COSE
-        //NON VIENE MAI INSTANZIATO NESSUN AMMINISTRATORE E DAVA SEMPRE NULLPOINTEXCEPTION!!!!
-
-        mostraAlert("Successo", "Documento caricato correttamente.", Alert.AlertType.INFORMATION);
-        pathTextField.clear();
-        fileSelezionato = null;
-        
+        Utente utente = appstate.getUtente();
+        if (!(utente instanceof Amministratore amministratore)) {
+            mostraAlert("Errore", "Solo un amministratore può caricare testi.", Alert.AlertType.ERROR);
+            return;
+        }
+        try {
+            amministratore.caricaTesto(
+                fileSelezionato.getName(),
+                getDifficoltaSelezionataAdmin(),
+                fileSelezionato.getAbsolutePath(),
+                getLinguaSelezionataAdmin()
+            );
+            mostraAlert("Successo", "Documento caricato correttamente.", Alert.AlertType.INFORMATION);
+            pathTextField.clear();
+            fileSelezionato = null;
+        } catch (Exception e) {
+            mostraAlert("Errore", "Errore durante il caricamento del documento: " + e.getMessage(), Alert.AlertType.ERROR);
+        }
     }
     
     private void caricaStopword(ActionEvent event) {
@@ -883,27 +929,31 @@ public class AppViewController implements Initializable {
             mostraAlert("Errore", "Completa tutti i campi prima di salvare.", Alert.AlertType.WARNING);
             return;
         }
-
         String nomeFile = fileSelezionato.getName();
         String path = fileSelezionato.getAbsolutePath();
-        
-        Utente u = appstate.getUtente();
-        Amministratore admin = new Amministratore(u.getUsername(),u.getEmail(),u.getFotoProfilo(),TipoUtente.amministratore);
-        admin.CaricareStopwords(nomeFile, path);
-        //ANCHE QUI!!! DAVA NULL POINT EXCEPTION
-        //DEVE ESSERE CREATA APPOSTA UNA VARIABILE DI TIPO AMMINISTRATORE SOLO PER FAR PARTIRE UN COMANDO
-        //NON VA BENE QUESTA COSA. LA CLASSE VA RIVISTA!
-        
-        
-        mostraAlert("Successo", "Documento caricato correttamente.", Alert.AlertType.INFORMATION);
-        pathTextField.clear();
-        fileSelezionato = null;
-        
+        Object utente = appstate.getUtente();
+        if (!(utente instanceof Amministratore amministratore)) {
+            mostraAlert("Errore", "Solo un amministratore può caricare stopwords.", Alert.AlertType.ERROR);
+            return;
+        }
+        try {
+            amministratore.CaricareStopwords(nomeFile, path);
+            mostraAlert("Successo", "Documento caricato correttamente.", Alert.AlertType.INFORMATION);
+            pathTextField.clear();
+            fileSelezionato = null;
+        } catch (Exception e) {
+            mostraAlert("Errore", "Errore durante il caricamento delle stopwords: " + e.getMessage(), Alert.AlertType.ERROR);
+        }
     }
+
     
     @FXML
     private void passaAInfoProfilo(ActionEvent event) {
         Utente utente = appstate.getUtente();
+        if (utente == null) {
+            mostraAlert("Errore", "Utente non autenticato.", Alert.AlertType.ERROR); 
+            return;
+        }
         if (currentLoadingTask != null && currentLoadingTask.isRunning()) {
             currentLoadingTask.cancel();
         }
@@ -911,7 +961,6 @@ public class AppViewController implements Initializable {
         chiudiTutto();
         schermataInfoUtente.setVisible(true);
     
-        // Aggiorna subito le info utente (non dipendono dal DB)
         usernameInfoUtente.setText("Username: "+utente.getUsername());
         emailInfoUtente.setText("E-mail: "+utente.getEmail());
     
@@ -919,27 +968,28 @@ public class AppViewController implements Initializable {
             @Override
             protected Void call() throws Exception {
                 if (isCancelled()) return null;
-            
-                // Carica dati in background
-                List<Classifica> cronologiaPartiteList = sbc.recuperaCronologiaPartite(utente.getEmail());
-                int facileCount = sbc.recuperaNumeroPartite(utente.getEmail(), LivelloPartita.FACILE.getDbValue());
-                int medioCount = sbc.recuperaNumeroPartite(utente.getEmail(), LivelloPartita.MEDIO.getDbValue());
-                int difficileCount = sbc.recuperaNumeroPartite(utente.getEmail(), LivelloPartita.DIFFICILE.getDbValue());
-                float facilePunteggio = sbc.recuperaMigliorPunteggio(utente.getEmail(), LivelloPartita.FACILE.getDbValue());
-                float medioPunteggio = sbc.recuperaMigliorPunteggio(utente.getEmail(), LivelloPartita.MEDIO.getDbValue());
-                float difficilePunteggio = sbc.recuperaMigliorPunteggio(utente.getEmail(), LivelloPartita.DIFFICILE.getDbValue());
+                try {
+                    List<Classifica> cronologiaPartiteList = sbc.recuperaCronologiaPartite(utente.getEmail());
+                    int facileCount = sbc.recuperaNumeroPartite(utente.getEmail(), LivelloPartita.FACILE.getDbValue());
+                    int medioCount = sbc.recuperaNumeroPartite(utente.getEmail(), LivelloPartita.MEDIO.getDbValue());
+                    int difficileCount = sbc.recuperaNumeroPartite(utente.getEmail(), LivelloPartita.DIFFICILE.getDbValue());
+                    float facilePunteggio = sbc.recuperaMigliorPunteggio(utente.getEmail(), LivelloPartita.FACILE.getDbValue());
+                    float medioPunteggio = sbc.recuperaMigliorPunteggio(utente.getEmail(), LivelloPartita.MEDIO.getDbValue());
+                    float difficilePunteggio = sbc.recuperaMigliorPunteggio(utente.getEmail(), LivelloPartita.DIFFICILE.getDbValue());
 
-                Platform.runLater(() -> {
-                    listaCronologiaPartite.setAll(cronologiaPartiteList);
-                    n_facile.setText("N° partite difficoltà facile:"+String.valueOf(facileCount));
-                    n_medio.setText("N° partite difficoltà media: "+String.valueOf(medioCount));
-                    n_difficile.setText("N° partite difficoltà difficile: "+String.valueOf(difficileCount));
-                    migliore_facile.setText(String.format("Miglior punteggio in difficoltà facile: %.1f", facilePunteggio));
-                    migliore_medio.setText(String.format("Miglior punteggio in difficoltà media: %.1f", medioPunteggio));
-                    migliore_difficile.setText(String.format("Miglior punteggio in difficoltà difficile: %.1f", difficilePunteggio));
-                    immagineInfoUtente.setImage(getImageFromByte(utente.getFotoProfilo()));
-                });
-            
+                    Platform.runLater(() -> {
+                        listaCronologiaPartite.setAll(cronologiaPartiteList);
+                        n_facile.setText("N° partite difficoltà facile:"+facileCount);
+                        n_medio.setText("N° partite difficoltà media: "+medioCount);
+                        n_difficile.setText("N° partite difficoltà difficile: "+difficileCount);
+                        migliore_facile.setText(String.format("Miglior punteggio in difficoltà facile: %.1f", facilePunteggio));
+                        migliore_medio.setText(String.format("Miglior punteggio in difficoltà media: %.1f", medioPunteggio));
+                        migliore_difficile.setText(String.format("Miglior punteggio in difficoltà difficile: %.1f", difficilePunteggio));
+                        immagineInfoUtente.setImage(getImageFromByte(utente.getFotoProfilo()));
+                    });
+                } catch (Exception e) {
+                    Platform.runLater(() -> mostraAlert("Errore", "Impossibile caricare i dati del profilo: " + e.getMessage(), Alert.AlertType.ERROR)); 
+                }
                 return null;
             }
         };
@@ -947,11 +997,11 @@ public class AppViewController implements Initializable {
         currentLoadingTask.setOnFailed(e -> {
             Throwable ex = currentLoadingTask.getException();
             Logger.getLogger(AppViewController.class.getName()).log(Level.SEVERE, "Errore nel caricamento info profilo", ex);
-            Platform.runLater(() -> 
-                mostraAlert("Errore", "Impossibile caricare i dati del profilo", Alert.AlertType.ERROR));
+            Platform.runLater(() ->
+                mostraAlert("Errore", "Impossibile caricare i dati del profilo", Alert.AlertType.ERROR)); 
         });
     
-    new Thread(currentLoadingTask).start(); 
+    new Thread(currentLoadingTask).start();
 }
     
 
@@ -976,6 +1026,7 @@ public class AppViewController implements Initializable {
     @FXML
     private void cambiaIMG(MouseEvent event) {
         byte[] nuovaImmagine = scegliImmagine(immagineInfoUtente);
+        if(nuovaImmagine!=null)
         aggiornaFotoProfilo(nuovaImmagine);
     }
 
@@ -987,30 +1038,36 @@ public class AppViewController implements Initializable {
     
         try {
             File file = fileChooser.showOpenDialog(null);
-            if (file == null) return null;
+            if (file == null) {
+                mostraAlert("Attenzione", "Nessun file selezionato.", Alert.AlertType.WARNING); 
+                return null;
+            }
 
-            if (!validaImmagine(file)) return null;
+            if (!validaImmagine(file)) {
+                // validaImmagine mostra già alert
+                return null;
+            }
 
             byte[] imageBytes = Files.readAllBytes(file.toPath());
             Image image = new Image(file.toURI().toString());
         
             Platform.runLater(() -> {
                 imgv.setImage(image);
-                mostraAlert("Successo", "Immagine caricata correttamente", Alert.AlertType.INFORMATION);
+                mostraAlert("Successo", "Immagine caricata correttamente", Alert.AlertType.INFORMATION); 
             });
         
             return imageBytes;
         } catch (IOException e) {
-            Platform.runLater(() -> 
-                mostraAlert("Errore", "Errore di lettura: " + e.getMessage(), Alert.AlertType.ERROR));
+            Platform.runLater(() ->
+                mostraAlert("Errore", "Errore di lettura: " + e.getMessage(), Alert.AlertType.ERROR)); 
             return null;
         } catch (SecurityException e) {
-            Platform.runLater(() -> 
-                mostraAlert("Errore", "Permessi insufficienti per leggere il file", Alert.AlertType.ERROR));
+            Platform.runLater(() ->
+                mostraAlert("Errore", "Permessi insufficienti per leggere il file", Alert.AlertType.ERROR)); 
             return null;
         } catch (Exception e) {
-            Platform.runLater(() -> 
-                mostraAlert("Errore", "Errore inaspettato: " + e.getMessage(), Alert.AlertType.ERROR));
+            Platform.runLater(() ->
+                mostraAlert("Errore", "Errore inaspettato: " + e.getMessage(), Alert.AlertType.ERROR)); 
             return null;
         }
     }
@@ -1022,17 +1079,14 @@ public class AppViewController implements Initializable {
         };
         punteggioMinimo.setTextFormatter(new TextFormatter<>(floatFilter));
         punteggioMassimo.setTextFormatter(new TextFormatter<>(floatFilter));
-        
     }
-    
+
     private void initializeCronologiaFiltro() {
         FilteredList<Classifica> filteredList = new FilteredList<>(listaCronologiaPartite, p -> true);
         cronologiaPartite.setItems(filteredList);
 
-        // Listener combinato per filtri
         Runnable filtro = () -> {
             filteredList.setPredicate(classifica -> {
-                // Filtro checkbox difficoltà
                 String livelloDb = classifica.getDifficolta() != null ? classifica.getDifficolta().getDbValue() : "";
 
                 boolean matchDifficolta =
@@ -1041,10 +1095,9 @@ public class AppViewController implements Initializable {
                     (checkDifficile.isSelected() && "difficile".equalsIgnoreCase(livelloDb));
 
                 if (!checkFacile.isSelected() && !checkMedio.isSelected() && !checkDifficile.isSelected()) {
-                    matchDifficolta = true; // Se nessuna selezionata, mostra tutto
+                    matchDifficolta = true;
                 }
 
-                // Filtro data
                 LocalDate data = classifica.getData().toLocalDateTime().toLocalDate();
                 LocalDate dataMin = dataInizio.getValue();
                 LocalDate dataMax = dataFine.getValue();
@@ -1052,7 +1105,6 @@ public class AppViewController implements Initializable {
                 boolean matchData = (dataMin == null || !data.isBefore(dataMin)) &&
                                     (dataMax == null || !data.isAfter(dataMax));
 
-                // Filtro punteggio
                 Float punteggio = classifica.getPunti();
                 float min = parseSafeFloat(punteggioMinimo.getText(), Float.MIN_VALUE);
                 float max = parseSafeFloat(punteggioMassimo.getText(), Float.MAX_VALUE);
@@ -1062,7 +1114,6 @@ public class AppViewController implements Initializable {
             });
         };
 
-        // Registra listener su ogni campo
         checkFacile.selectedProperty().addListener((obs, oldV, newV) -> filtro.run());
         checkMedio.selectedProperty().addListener((obs, oldV, newV) -> filtro.run());
         checkDifficile.selectedProperty().addListener((obs, oldV, newV) -> filtro.run());
@@ -1071,7 +1122,7 @@ public class AppViewController implements Initializable {
         punteggioMinimo.textProperty().addListener((obs, oldV, newV) -> filtro.run());
         punteggioMassimo.textProperty().addListener((obs, oldV, newV) -> filtro.run());
     }
-    
+
     private float parseSafeFloat(String text, float fallback) {
         try {
             return Float.parseFloat(text);
@@ -1079,61 +1130,57 @@ public class AppViewController implements Initializable {
             return fallback;
         }
     }
-    
+
     private void aggiornaFotoProfilo(byte[] immagineBytes) {
         Utente utente = appstate.getUtente();
         try {
-            // Salva prima nel database
             boolean successo = utente.setFotoProfilo(immagineBytes);
-        
-            if (successo) {
-            // Se il DB è ok, aggiorna lo stato locale
-                utente.setFotoProfilo(immagineBytes);
-                Image image = immagineBytes != null ? new Image(new ByteArrayInputStream(immagineBytes)) : getPlaceholderImage();
-            
-                Platform.runLater(() -> {
-                    fotoProfilo.setImage(image);
-                    immagineInfoUtente.setImage(image);
-                });
-            } else {
+
+            if (!successo) {
                 throw new RuntimeException("Salvataggio nel database fallito");
             }
+
+            Image image = immagineBytes != null ? new Image(new ByteArrayInputStream(immagineBytes)) : getPlaceholderImage();
+
+            Platform.runLater(() -> {
+                fotoProfilo.setImage(image);
+                immagineInfoUtente.setImage(image);
+            });
+
         } catch (Exception e) {
-            Platform.runLater(() -> 
-                mostraAlert("Errore", "Impossibile aggiornare l'immagine: " + e.getMessage(), Alert.AlertType.ERROR));
-        
-            // Ripristina l'immagine precedente
+            Platform.runLater(() -> mostraAlert("Errore", "Impossibile aggiornare l'immagine: " + e.getMessage(), Alert.AlertType.ERROR));
+
+            // Ripristino immagine vecchia solo se c'è un errore
             byte[] vecchiaImmagine = utente.getFotoProfilo();
-            Image oldImage = vecchiaImmagine != null ? 
-                new Image(new ByteArrayInputStream(vecchiaImmagine)) : 
+            Image oldImage = vecchiaImmagine != null ?
+                new Image(new ByteArrayInputStream(vecchiaImmagine)) :
                 getPlaceholderImage();
-        
+
             Platform.runLater(() -> {
                 fotoProfilo.setImage(oldImage);
                 immagineInfoUtente.setImage(oldImage);
             });
         }
     }
-    
+
+
     private boolean validaImmagine(File file) {
         try {
-            // Verifica dimensione massima (es. 5MB)
-            long maxSize = 5 * 1024 * 1024; 
+            long maxSize = 5 * 1024 * 1024;
             if (file.length() > maxSize) {
-                mostraAlert("Errore", "L'immagine è troppo grande (max 5MB)", Alert.AlertType.ERROR);
+                mostraAlert("Errore", "L'immagine è troppo grande (max 5MB)", Alert.AlertType.ERROR); 
                 return false;
             }
-        
-            // Verifica che sia un'immagine leggibile
+
             Image test = new Image(file.toURI().toString(), 10, 10, true, true);
             if (test.isError()) {
-                mostraAlert("Errore", "File immagine non valido", Alert.AlertType.ERROR);
+                mostraAlert("Errore", "File immagine non valido", Alert.AlertType.ERROR); 
                 return false;
             }
-        
+
             return true;
         } catch (Exception e) {
-            mostraAlert("Errore", "Impossibile leggere il file: " + e.getMessage(), Alert.AlertType.ERROR);
+            mostraAlert("Errore", "Impossibile leggere il file: " + e.getMessage(), Alert.AlertType.ERROR); 
             return false;
         }
     }
@@ -1146,36 +1193,82 @@ public class AppViewController implements Initializable {
 
     private void inizializzaTabellaDocumenti() {
         listaDocumenti = FXCollections.observableArrayList();
+
         gestDocColDifficoltà.setCellValueFactory(new PropertyValueFactory<>("difficolta"));
         gestDocColInserito.setCellValueFactory(new PropertyValueFactory<>("emailAmministratore"));
         gestDocColNomeFile.setCellValueFactory(new PropertyValueFactory<>("nomeFile"));
         gestDocColLingua.setCellValueFactory(new PropertyValueFactory<>("lingua"));
-    
+
         gestDocColDocumento.setCellFactory(col -> new TableCell<DocumentoDiTesto, String>() {
+            private final Button btnDownload = new Button("🗎");
+
+            {
+                btnDownload.setStyle("-fx-background-color: transparent; -fx-cursor: hand; -fx-font-size: 16;");
+                btnDownload.setOnAction(event -> {
+                    DocumentoDiTesto doc = getTableView().getItems().get(getIndex());
+                    if (doc == null) return;
+
+                    Object utente = appstate.getUtente();
+                    if (!(utente instanceof Amministratore amministratore)) {
+                        mostraAlert("Errore", "Operazione non permessa!", Alert.AlertType.ERROR);
+                        return;
+                    }
+
+                    try {
+                        byte[] contenuto = amministratore.prendiTesto(doc.getNomeFile());
+                        if (contenuto == null || contenuto.length == 0) {
+                            mostraAlert("Attenzione", "File vuoto o non trovato", Alert.AlertType.WARNING);
+                            return;
+                        }
+
+                        FileChooser fileChooser = new FileChooser();
+                        fileChooser.setTitle("Salva documento");
+                        fileChooser.setInitialFileName(doc.getNomeFile());
+                        File fileDest = fileChooser.showSaveDialog(getTableView().getScene().getWindow());
+
+                        if (fileDest != null) {
+                            Files.write(fileDest.toPath(), contenuto);
+                            mostraAlert("Successo", "File salvato in:\n" + fileDest.getAbsolutePath(), Alert.AlertType.INFORMATION);
+                        }
+                    } catch (Exception e) {
+                        mostraAlert("Errore", "Errore durante il salvataggio: " + e.getMessage(), Alert.AlertType.ERROR);
+                    }
+                });
+            }
+
             @Override
-            protected void updateItem(String posizione, boolean empty) {
-                super.updateItem(posizione, empty);
-                setText(empty ? null : "🗎");
-                setGraphic(null);
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                    setGraphic(null);
+                    setText(null);
+                } else {
+                    setText(null);
+                    setGraphic(btnDownload);
+                }
             }
         });
     }
-    
+
+
     private FilteredList<DocumentoDiTesto> creaListaFiltrata() {
         FilteredList<DocumentoDiTesto> filteredList = new FilteredList<>(listaDocumenti, p -> true);
         gestDocTabella.setItems(filteredList);
         return filteredList;
     }
-    
+
     private Runnable creaFiltro(FilteredList<DocumentoDiTesto> filteredList) {
         return () -> filteredList.setPredicate(doc -> {
-            String livelloDb = doc.difficolta() != null ? doc.difficolta().getDbValue() : "";
+            String livelloDb = doc.getDifficolta() != null ? doc.getDifficolta().getDbValue() : "";
 
             boolean matchDifficolta =
-                (checkFacile.isSelected() && "facile".equalsIgnoreCase(livelloDb)) ||
-                (checkMedio.isSelected() && "medio".equalsIgnoreCase(livelloDb)) ||
-                (checkDifficile.isSelected() && "difficile".equalsIgnoreCase(livelloDb)) ||
-                (!checkFacile.isSelected() && !checkMedio.isSelected() && !checkDifficile.isSelected());
+                    (gestDocCheckFacile.isSelected() && "facile".equalsIgnoreCase(livelloDb)) ||
+                    (gestDocCheckMedia.isSelected() && "medio".equalsIgnoreCase(livelloDb)) ||
+                    (gestDocCheckDifficile.isSelected() && "difficile".equalsIgnoreCase(livelloDb));
+
+            if (!gestDocCheckFacile.isSelected() && !gestDocCheckMedia.isSelected() && !gestDocCheckDifficile.isSelected()) {
+                matchDifficolta = true;
+            }
 
             Lingua lingua = doc.lingua();
 
@@ -1197,7 +1290,6 @@ public class AppViewController implements Initializable {
         });
     }
 
-    
     private void aggiungiListenerFiltri(Runnable filtro) {
         gestDocIT.selectedProperty().addListener((obs, o, n) -> filtro.run());
         gestDocCheckEN.selectedProperty().addListener((obs, o, n) -> filtro.run());
@@ -1205,6 +1297,9 @@ public class AppViewController implements Initializable {
         gestDocCheckFR.selectedProperty().addListener((obs, o, n) -> filtro.run());
         gestDocCheckDE.selectedProperty().addListener((obs, o, n) -> filtro.run());
         gestDocBarraDiRicerca.textProperty().addListener((obs, oldVal, newVal) -> filtro.run());
+        gestDocCheckFacile.selectedProperty().addListener((obs, oldVal, newVal) -> filtro.run());
+        gestDocCheckMedia.selectedProperty().addListener((obs, oldVal, newVal) -> filtro.run());
+        gestDocCheckDifficile.selectedProperty().addListener((obs, oldVal, newVal) -> filtro.run());
     }
 
     private void initializeGestioneDocumenti() {
@@ -1214,7 +1309,20 @@ public class AppViewController implements Initializable {
         aggiungiListenerFiltri(filtro);
     }
 
+    @FXML
+    private void tornaAllaHomeFromGestDoc(ActionEvent event) {
+        chiudiTutto();
+        pulisciTutto();
+        listaDocumenti.clear();
+        schermataHome.setVisible(true);
+    }
 
-    
-
+    @FXML
+    private void backToGestDoc(ActionEvent event) {
+        chiudiTutto();
+        pulisciTutto();
+        listaDocumenti.clear();
+        
+        gestioneDocumentiView.setVisible(true);
+    }
 }

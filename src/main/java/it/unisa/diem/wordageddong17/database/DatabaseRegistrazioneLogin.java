@@ -1,6 +1,8 @@
 
 package it.unisa.diem.wordageddong17.database;
 
+import it.unisa.diem.wordageddong17.model.Amministratore;
+import it.unisa.diem.wordageddong17.model.Giocatore;
 import it.unisa.diem.wordageddong17.model.TipoUtente;
 import it.unisa.diem.wordageddong17.model.Utente;
 import java.sql.PreparedStatement;
@@ -180,17 +182,39 @@ public class DatabaseRegistrazioneLogin implements DosRegistrazione, DosLogin{
             if(result.next()){
                 byte[] fotoProfilo = result.getBytes("foto_profilo");
                 if(fotoProfilo == null){
-                u=new Utente(result.getString("username"),
+                    
+                    if(result.getString("tipo").trim().equals(TipoUtente.giocatore)){ 
+                        u=new Giocatore(result.getString("username"),
                         result.getString("email"),
                         TipoUtente.valueOf(result.getString("tipo").trim())
                         );
-                }else{
-                    u=new Utente(
+                    }
+                    else{
+                        u=new Amministratore(result.getString("username"),
+                        result.getString("email"),
+                        TipoUtente.valueOf(result.getString("tipo").trim())
+                        );
+                    }
+                }
+                
+                
+                else{
+                    if(result.getString("tipo").trim().equals(TipoUtente.giocatore)){
+                        u=new Giocatore(
                         result.getString("username"),
                         result.getString("email"),
                         fotoProfilo,
                         TipoUtente.valueOf(result.getString("tipo").trim())
-                    );
+                        );
+                    }
+                    else{
+                        u=new Amministratore(
+                        result.getString("username"),
+                        result.getString("email"),
+                        fotoProfilo,
+                        TipoUtente.valueOf(result.getString("tipo").trim())
+                        );
+                    }
                 } 
             }
          }catch(SQLException ex) {

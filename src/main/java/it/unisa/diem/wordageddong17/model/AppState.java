@@ -46,4 +46,6 @@ public class AppState {
     public static AppState getInstance() {
         return AppState.Holder.INSTANCE;
     }
+    
+
 }

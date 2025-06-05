@@ -797,8 +797,10 @@ public class AppViewController implements Initializable {
     private void mostraGestioneDocumenti() {
         chiudiTutto();
         gestioneDocumentiView.setVisible(true);
-        listaDocumenti.addAll(new DatabaseAmministratore().prendiTuttiIDocumenti());
-        
+        if(appstate.getUtente() instanceof Amministratore){
+            Amministratore a = (Amministratore) appstate.getUtente();
+            listaDocumenti.addAll(a.prendiTuttiIDocumenti());
+        }
     }
     @FXML
     private void mostraGestioneStopwords() {

@@ -4,7 +4,9 @@
  */
 package it.unisa.diem.wordageddong17.database;
 
+import it.unisa.diem.wordageddong17.model.DocumentoDiTesto;
 import it.unisa.diem.wordageddong17.model.Lingua;
+import java.util.ArrayList;
 
 /**
  *
@@ -17,4 +19,5 @@ public interface DosAmministratore {
     public byte[] PrendiStopwords(String nomeFile);
     public byte[] PrendiTesto(String nomeDocumento);
     public boolean CancellaTesto(String nomeDocumento);
+    public ArrayList<DocumentoDiTesto> prendiTuttiIDocumenti();
 }

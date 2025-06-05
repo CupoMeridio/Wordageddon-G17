@@ -5,6 +5,7 @@ import it.unisa.diem.wordageddong17.database.DosAmministratore;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -149,5 +150,9 @@ public class Amministratore extends Utente {
         }else{
             System.out.println("Cancellazione testo non effettuata");
         }
+    }
+    
+    public ArrayList<DocumentoDiTesto> prendiTuttiIDocumenti(){
+        return db.prendiTuttiIDocumenti();
     }
 }

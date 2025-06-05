@@ -39,9 +39,15 @@
               </transformers>
               <filters>
                 <filter>
+                  <artifact>org.openjfx:*</artifact>
+                  <excludes>
+                    <exclude>META-INF/substrate/config/**</exclude>
+                    <exclude>module-info.class</exclude>
+                  </excludes>
+                </filter>
+                <filter>
                   <artifact>*:*</artifact>
                   <excludes>
-                    <exclude>module-info.class</exclude>
                     <exclude>META-INF/MANIFEST.MF</exclude>
                   </excludes>
                 </filter>
@@ -52,53 +58,43 @@
             </configuration>
           </execution>
         </executions>
+        <dependencies>
+          <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${guava.version}</version>
+          </dependency>
+        </dependencies>
       </plugin>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.14.0</version>
         <configuration>
-          <release>17</release>
+          <release>${maven.compiler.release}</release>
+          <compilerArgs>
+            <arg>-Xlint:unchecked</arg>
+            <arg>-Xlint:deprecation</arg>
+          </compilerArgs>
+          <parameters>true</parameters>
         </configuration>
       </plugin>
       <plugin>
         <groupId>org.openjfx</groupId>
         <artifactId>javafx-maven-plugin</artifactId>
         <version>0.1.0</version>
-        <executions>
-          <execution>
-            <id>default-cli</id>
-          </execution>
-          <execution>
-            <id>debug</id>
-            <configuration>
-              <options>
-                <option>-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=localhost:8000</option>
-              </options>
-            </configuration>
-          </execution>
-          <execution>
-            <id>ide-debug</id>
-            <configuration>
-              <options>
-                <option>-agentlib:jdwp=transport=dt_socket,server=n,address=${jpda.address}</option>
-              </options>
-            </configuration>
-          </execution>
-          <execution>
-            <id>ide-profile</id>
-            <configuration>
-              <options>
-                <option>${profiler.jvmargs.arg1}</option>
-                <option>${profiler.jvmargs.arg2}</option>
-                <option>${profiler.jvmargs.arg3}</option>
-                <option>${profiler.jvmargs.arg4}</option>
-                <option>${profiler.jvmargs.arg5}</option>
-              </options>
-            </configuration>
-          </execution>
-        </executions>
         <configuration>
           <mainClass>it.unisa.diem.wordageddong17.App</mainClass>
+          <options>
+            <option>--enable-native-access=ALL-UNNAMED</option>
+            <option>--add-opens=java.base/java.lang=ALL-UNNAMED</option>
+          </options>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>3.2.5</version>
+        <configuration>
+          <argLine>--enable-native-access=ALL-UNNAMED</argLine>
         </configuration>
       </plugin>
     </plugins>
@@ -106,6 +102,8 @@
   <properties>
     <maven.compiler.release>17</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <jansi.version>2.4.1</jansi.version>
     <javafx.version>17.0.2</javafx.version>
+    <guava.version>33.2.1-jre</guava.version>
   </properties>
 </project>

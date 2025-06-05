@@ -7,7 +7,7 @@ import it.unisa.diem.wordageddong17.database.DosUtente;
  *
  * @author Mattia Sanzari
  */
-public class Utente {
+public abstract class Utente {
     
     DosUtente db;
     private String username;

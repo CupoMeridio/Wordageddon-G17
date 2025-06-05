@@ -46,6 +46,11 @@ public class Amministratore extends Utente {
         db= DatabaseAmministratore.getInstance();
     }
     
+    public Amministratore(String username, String email, TipoUtente tipo) {
+        super(username, email, tipo);
+        db= DatabaseAmministratore.getInstance();
+    }
+    
     /**
      * Carica un nuovo testo nel database con le informazioni specificate.
      * Il metodo legge il file dal percorso fornito, lo converte in array di byte

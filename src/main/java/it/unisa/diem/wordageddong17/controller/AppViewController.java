@@ -7,6 +7,7 @@ import it.unisa.diem.wordageddong17.model.Amministratore;
 import it.unisa.diem.wordageddong17.model.AppState;
 import it.unisa.diem.wordageddong17.model.Classifica;
 import it.unisa.diem.wordageddong17.model.DocumentoDiTesto;
+import it.unisa.diem.wordageddong17.model.Giocatore;
 import it.unisa.diem.wordageddong17.model.Lingua;
 import it.unisa.diem.wordageddong17.model.LivelloPartita;
 import it.unisa.diem.wordageddong17.model.TipoUtente;
@@ -578,7 +579,6 @@ public class AppViewController implements Initializable {
         Image immagine = imageView.getImage();
         if (immagine != null && immagine.getUrl() != null && !immagine.getUrl().contains("person.png")) {
             try {
-                // Prendiamo il file selezionato
                 String url = immagine.getUrl().replace("file:", "");
                 immagineBytes = Files.readAllBytes(new File(url).toPath());
             } catch (IOException e) {
@@ -587,23 +587,26 @@ public class AppViewController implements Initializable {
         }
 
         db.inserisciUtente(username.getText(), email.getText(), password.getText(), immagineBytes);
-        appstate.setUtente(new Utente(username.getText(), email.getText(), immagineBytes, TipoUtente.giocatore));
+
+        Giocatore nuovoUtente = (immagineBytes == null)
+            ? new Giocatore(username.getText(), email.getText(), TipoUtente.giocatore)
+            : new Giocatore(username.getText(), email.getText(), immagineBytes, TipoUtente.giocatore);
+
+        appstate.setUtente(nuovoUtente);
+
+        if (immagineBytes == null) {
+            fotoProfilo.setImage(getPlaceholderImage());
+        } else {
+            fotoProfilo.setImage(new Image(new ByteArrayInputStream(immagineBytes)));
+        }
         aggiornaFotoProfilo(immagineBytes);
-        chiudiTutto();
         configuraPulsantiAdmin();
+        pulisciTutto();
+        chiudiTutto();
         schermataHome.setVisible(true);
         benvenutoLabel.setText("Benvenuto " + username.getText());
 
-        if (immagineBytes == null) {
-            appstate.setUtente(new Utente(username.getText(), email.getText(), TipoUtente.giocatore));
-            fotoProfilo.setImage(getPlaceholderImage());
-        } else {
-            appstate.setUtente(new Utente(username.getText(), email.getText(), immagineBytes, TipoUtente.giocatore));
-            fotoProfilo.setImage(new Image(new ByteArrayInputStream(immagineBytes)));
-        }
-
-        pulisciTutto();
-    }
+}
 
 
     @FXML

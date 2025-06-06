@@ -34,7 +34,7 @@
             <children>
    
                <!-- Schermata di login -->
-               <VBox fx:id="schermataDiLogin" alignment="CENTER" spacing="20.0" visible="false">
+               <VBox fx:id="schermataDiLogin" alignment="CENTER" spacing="20.0">
                    <children>
                        <ImageView fitHeight="150.0" fitWidth="300.0" pickOnBounds="true" preserveRatio="true">
                            <image>
@@ -166,20 +166,27 @@
                        </HBox>
                        <Button fx:id="chiudiClassificheButton" onAction="#chiudiClassificheOnAction" text="Chiudi classifiche" />
                    </children>
+               <StackPane.margin>
+                  <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+               </StackPane.margin>
                </VBox>
    
                <!-- Schermata Selezione Difficoltà -->
-               <VBox fx:id="schermataSelezioneDifficoltà" alignment="CENTER" prefHeight="200.0" prefWidth="100.0" spacing="10.0" visible="false">
+               <VBox fx:id="schermataSelezioneDifficoltà" alignment="CENTER" spacing="20.0" visible="false">
                    <children>
                        <Label text="Seleziona livello di difficoltà" />
-                       <HBox alignment="TOP_CENTER" spacing="10.0">
+                       <HBox alignment="TOP_CENTER" spacing="15.0">
                            <children>
                                <!-- Facile -->
                                <VBox alignment="TOP_CENTER" spacing="10.0">
                                    <children>
                                        <Label text="Facile" />
-                                       <TextArea editable="false" prefHeight="200.0" prefWidth="200.0" text="Descrizione delle caratteristiche in modalità facile" wrapText="true" />
-                                       <Button fx:id="selezionaFacileButton" onAction="#selezionaFacileButtonOnAction" text="Seleziona facile" />
+                                       <TextArea editable="false" text="Numero di documenti: 1&#10;&#10;Lunghezza del testo: 80-100 parole&#10;&#10;Tempo di lettura: ~100-120 secondi&#10;(~1 parola al secondo con margine)" wrapText="true" VBox.vgrow="SOMETIMES" />
+                              <RadioButton fx:id="radioFacile" mnemonicParsing="false" text="Facile">
+                                 <toggleGroup>
+                                    <ToggleGroup fx:id="difficoltà" />
+                                 </toggleGroup>
+                              </RadioButton>
                                    </children>
                                </VBox>
    
@@ -187,8 +194,8 @@
                                <VBox alignment="TOP_CENTER" spacing="10.0">
                                    <children>
                                        <Label text="Medio" />
-                                       <TextArea editable="false" prefHeight="200.0" prefWidth="200.0" text="Descrizione delle caratteristiche in modalità medio" wrapText="true" />
-                                       <Button fx:id="selezionaMedioButton" onAction="#selezionaMedioButtonOnAction" text="Seleziona medio" />
+                                       <TextArea editable="false" text="Numero di documenti: 2&#10;&#10;Lunghezza per testo: 200-250 parole&#10;&#10;Tempo di lettura totale: ~150 secondi &#10;(~1.5 parole/secondo)&#10;&#10;" wrapText="true" />
+                              <RadioButton fx:id="radioMedio" mnemonicParsing="false" text="Medio" toggleGroup="$difficoltà" />
                                    </children>
                                </VBox>
    
@@ -196,13 +203,27 @@
                                <VBox alignment="TOP_CENTER" spacing="10.0">
                                    <children>
                                        <Label text="Difficile" />
-                                       <TextArea editable="false" prefHeight="200.0" prefWidth="200.0" text="Descrizione delle caratteristiche in modalità difficile" wrapText="true" />
-                                       <Button fx:id="selezionaDifficileButton" onAction="#selezionaDifficileButtonOnAction" text="Seleziona difficile" />
+                                       <TextArea editable="false" text="Numero di documenti: 2&#10;&#10;Lunghezza per testo: 200-250 parole&#10;&#10;Tempo di lettura totale: ~125 secondi &#10;(~2 parole/secondo)&#10;&#10;" wrapText="true" />
+                              <RadioButton fx:id="radioDifficile" mnemonicParsing="false" text="Difficile" toggleGroup="$difficoltà" />
                                    </children>
                                </VBox>
                            </children>
                        </HBox>
+                  <Label text="Seleziona le lingue dei documenti con cui vuoi giocare" />
+                  <HBox alignment="CENTER" spacing="20.0">
+                     <children>
+                        <CheckBox fx:id="checkIT" mnemonicParsing="false" text="IT" />
+                        <CheckBox fx:id="checkEN" mnemonicParsing="false" text="EN" />
+                        <CheckBox fx:id="checkFR" mnemonicParsing="false" text="FR" />
+                        <CheckBox fx:id="checkDE" mnemonicParsing="false" text="DE" />
+                        <CheckBox fx:id="checkES" mnemonicParsing="false" text="ES" />
+                     </children>
+                  </HBox>
+                  <Button fx:id="iniziaPartita" mnemonicParsing="false" onAction="#iniziaPartitaOnAction" text="Inizia!" />
                    </children>
+               <StackPane.margin>
+                  <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+               </StackPane.margin>
                </VBox>
             <HBox fx:id="schermataDiRegistrazione" alignment="CENTER" spacing="50" style="-fx-padding: 40;" visible="false">
         <children>
@@ -314,8 +335,14 @@
                         </VBox>
                      </children>
                   </HBox>
-                  <Button fx:id="tornaAllaHomepage" mnemonicParsing="false" onAction="#chiudiInfoUtente" text="Torna alla homepage" />
+                  <Button fx:id="tornaAllaHomepage" mnemonicParsing="false" onAction="#chiudiInfoUtente" text="Torna alla homepage">
+                     <VBox.margin>
+                        <Insets left="10.0" right="10.0" top="10.0" />
+                     </VBox.margin></Button>
                </children>
+               <StackPane.margin>
+                  <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+               </StackPane.margin>
             </VBox>
             <VBox fx:id="schermataStopwords" alignment="TOP_CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="200.0" prefWidth="100.0" visible="false">
                <children>
@@ -365,7 +392,7 @@
                   </HBox>
                </children>
             </VBox>
-            <VBox fx:id="schermataDocumentiAdmin" alignment="TOP_CENTER" prefHeight="200.0" prefWidth="100.0" visible="false">
+            <VBox fx:id="schermataDocumentiAdmin" alignment="CENTER" prefHeight="200.0" prefWidth="100.0" spacing="20.0" visible="false">
                <children>
                   <Label alignment="CENTER" prefHeight="21.0" prefWidth="307.0" text="Inserisci documenti">
                      <font>
@@ -460,7 +487,7 @@
                   <Insets />
                </StackPane.margin>
             </VBox>
-            <VBox fx:id="gestioneDocumentiView" alignment="CENTER" prefHeight="200.0" prefWidth="100.0">
+            <VBox fx:id="gestioneDocumentiView" alignment="CENTER" prefHeight="200.0" prefWidth="100.0" visible="false">
                <children>
                   <TableView fx:id="gestDocTabella" editable="true">
                     <columns>
@@ -522,6 +549,9 @@
                      </children>
                   </HBox>
                </children>
+               <StackPane.margin>
+                  <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+               </StackPane.margin>
             </VBox>
                 <AnchorPane fx:id="loadingOverlay" style="-fx-background-color: rgba(0, 0, 0, 0.7);" visible="false" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0" StackPane.alignment="CENTER">
                     <children>
@@ -536,6 +566,9 @@
                     </children>
                 </AnchorPane>
            </children>
+         <BorderPane.margin>
+            <Insets />
+         </BorderPane.margin>
 
         </StackPane>
     </center>

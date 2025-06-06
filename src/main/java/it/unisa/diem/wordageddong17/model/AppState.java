@@ -1,5 +1,7 @@
 package it.unisa.diem.wordageddong17.model;
 
+import java.util.ArrayList;
+
 /**
  *
  * @author cupom
@@ -10,9 +12,10 @@ public class AppState {
      * Riferimento all'utente correntemente autenticato nell'applicazione.
      */
     private Utente utente;
-    
+    private LivelloPartita difficoltà = null;
     private boolean sessionViewHomeButton = false;
     private boolean sessionViewContinuaButton = false;
+    private ArrayList<Lingua> lingue = null;
 
     public void setSessionViewHomeButton(boolean sessionViewHomeButton) {
         this.sessionViewHomeButton = sessionViewHomeButton;
@@ -28,6 +31,22 @@ public class AppState {
 
     public boolean isSessionViewContinuaButton() {
         return sessionViewContinuaButton;
+    }
+
+    public LivelloPartita getDifficoltà() {
+        return difficoltà;
+    }
+
+    public void setDifficoltà(LivelloPartita difficoltà) {
+        this.difficoltà = difficoltà;
+    }
+
+    public ArrayList<Lingua> getLingue() {
+        return lingue;
+    }
+
+    public void setLingue(ArrayList<Lingua> lingue) {
+        this.lingue = lingue;
     }
     
     

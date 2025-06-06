@@ -90,6 +90,7 @@ public class SessionViewController implements Initializable {
     private Label highScoreLabel;
     @FXML
     private Button continuaGiocoButton;
+    @FXML
     private Label contatoreLettura;
     
     private CaricaSessioneDiGioco caricaSessione;
@@ -296,6 +297,10 @@ private void serviceInitialize() {
         App.setRoot("AppView");
     }
 */
+
+    @FXML
+    private void tornaAllaHome(ActionEvent event) {
+    }
    
 }
 

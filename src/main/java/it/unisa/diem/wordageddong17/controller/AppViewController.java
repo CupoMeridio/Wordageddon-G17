@@ -1,5 +1,6 @@
 package it.unisa.diem.wordageddong17.controller;
 
+import it.unisa.diem.wordageddong17.App;
 import it.unisa.diem.wordageddong17.database.DatabaseClassifica;
 import it.unisa.diem.wordageddong17.database.DatabaseRegistrazioneLogin;
 import it.unisa.diem.wordageddong17.model.Amministratore;
@@ -26,6 +27,8 @@ import java.util.function.UnaryOperator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.ReadOnlyIntegerWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -123,12 +126,6 @@ public class AppViewController implements Initializable {
     private Button chiudiClassificheButton;
     @FXML
     private VBox schermataSelezioneDifficoltà;
-    @FXML
-    private Button selezionaFacileButton;
-    @FXML
-    private Button selezionaMedioButton;
-    @FXML
-    private Button selezionaDifficileButton;
     @FXML
     private Label usernameLabel;
     @FXML
@@ -309,6 +306,26 @@ public class AppViewController implements Initializable {
     private File fileSelezionato;
     @FXML
     private MenuItem eliminaDocItem;
+    @FXML
+    private RadioButton radioFacile;
+    @FXML
+    private ToggleGroup difficoltà;
+    @FXML
+    private RadioButton radioMedio;
+    @FXML
+    private RadioButton radioDifficile;
+    @FXML
+    private CheckBox checkIT;
+    @FXML
+    private CheckBox checkEN;
+    @FXML
+    private CheckBox checkFR;
+    @FXML
+    private CheckBox checkDE;
+    @FXML
+    private CheckBox checkES;
+    @FXML
+    private Button iniziaPartita;
  
     
     /**
@@ -332,6 +349,7 @@ public class AppViewController implements Initializable {
         initializeClassifiche();
         initializeInfoUtente();
         initializeGestioneDocumenti();
+        initializeSchermataDifficoltà();
      
 
     }
@@ -548,21 +566,18 @@ public class AppViewController implements Initializable {
         schermataHome.setVisible(true);
     }
 
-    @FXML
     private void selezionaFacileButtonOnAction(ActionEvent event) {
         // Imposta la difficoltà su facile e inizia il gioco
         schermataSelezioneDifficoltà.setVisible(false);
         // TODO: Implementare l'avvio del gioco con difficoltà facile
     }
 
-    @FXML
     private void selezionaMedioButtonOnAction(ActionEvent event) {
         // Imposta la difficoltà su medio e inizia il gioco
         schermataSelezioneDifficoltà.setVisible(false);
         // TODO: Implementare l'avvio del gioco con difficoltà media
     }
 
-    @FXML
     private void selezionaDifficileButtonOnAction(ActionEvent event) {
         // Imposta la difficoltà su difficile e inizia il gioco
         schermataSelezioneDifficoltà.setVisible(false);
@@ -1448,4 +1463,64 @@ public class AppViewController implements Initializable {
         new Thread(eliminaTask).start();
     }
 
+    @FXML
+    private void iniziaPartitaOnAction(ActionEvent event) {
+        AppState stato = AppState.getInstance();
+
+        // Controllo selezione difficoltà
+        LivelloPartita difficoltà = null;
+        if(radioFacile.isSelected()) difficoltà = LivelloPartita.FACILE;
+        if(radioMedio.isSelected()) difficoltà = LivelloPartita.MEDIO;
+        if(radioDifficile.isSelected()) difficoltà = LivelloPartita.DIFFICILE;
+
+        if(difficoltà == null) {
+           mostraAlert("Selezione obbligatoria", "Devi selezionare un livello di difficoltà!",Alert.AlertType.WARNING);
+            return;
+        }
+        stato.setDifficoltà(difficoltà);
+
+        // Controllo selezione lingue
+        ArrayList<Lingua> lingue = new ArrayList<>();
+        if(checkIT.isSelected()) lingue.add(Lingua.ITALIANO);
+        if(checkEN.isSelected()) lingue.add(Lingua.INGLESE);
+        if(checkFR.isSelected()) lingue.add(Lingua.FRANCESE);
+        if(checkDE.isSelected()) lingue.add(Lingua.TEDESCO);
+        if(checkES.isSelected()) lingue.add(Lingua.SPAGNOLO);
+
+        if(lingue.isEmpty()) {
+            mostraAlert("Selezione obbligatoria", "Devi selezionare almeno una lingua!",Alert.AlertType.WARNING);
+            return;
+        }
+        stato.setLingue(lingue);
+
+        try {
+            // Prosegui solo se tutti i controlli sono superati
+            App.setRoot("SessionView");
+        } catch (IOException ex) {
+            System.getLogger(AppViewController.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+        }
+    }
+
+    private void initializeSchermataDifficoltà() {
+        BooleanBinding nessunaLinguaSelezionata = Bindings.createBooleanBinding(() -> 
+            !checkIT.isSelected() && 
+            !checkEN.isSelected() && 
+            !checkFR.isSelected() && 
+            !checkDE.isSelected() && 
+            !checkES.isSelected(),
+            checkIT.selectedProperty(), 
+            checkEN.selectedProperty(),
+            checkFR.selectedProperty(), 
+            checkDE.selectedProperty(), 
+            checkES.selectedProperty()
+        );
+
+        iniziaPartita.disableProperty().bind(
+            Bindings.not(
+                radioFacile.selectedProperty()
+                    .or(radioMedio.selectedProperty())
+                    .or(radioDifficile.selectedProperty())
+            ).or(nessunaLinguaSelezionata)
+        );
+    }
 }

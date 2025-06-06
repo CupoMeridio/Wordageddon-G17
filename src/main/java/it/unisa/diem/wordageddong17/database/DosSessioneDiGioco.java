@@ -6,6 +6,7 @@ package it.unisa.diem.wordageddong17.database;
 
 import it.unisa.diem.wordageddong17.model.LivelloPartita;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -14,5 +15,5 @@ import java.util.List;
 public interface DosSessioneDiGioco {
     
     public byte[] prendiStopwords(String nomeFile);
-    public List<byte[]> prendiDocumenti(LivelloPartita livello);
+    public Map<String,byte[]> prendiDocumenti(LivelloPartita livello);
 }

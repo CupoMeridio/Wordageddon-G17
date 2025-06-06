@@ -6,6 +6,9 @@
 package it.unisa.diem.wordageddong17.controller;
 
 import it.unisa.diem.wordageddong17.App;
+import it.unisa.diem.wordageddong17.model.CaricaSessioneDiGioco;
+import it.unisa.diem.wordageddong17.model.GeneratoreDomande.Domanda;
+import it.unisa.diem.wordageddong17.model.LivelloPartita;
 import it.unisa.diem.wordageddong17.model.AppState;
 import it.unisa.diem.wordageddong17.model.SessioneDiGiocoOnline;
 import java.io.IOException;
@@ -28,6 +31,15 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 import it.unisa.diem.wordageddong17.model.SessioneDiGioco;
+import java.io.DataInputStream;
+import java.io.FileInputStream;
+import java.nio.file.Files;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedDeque;
 
 /**
  * FXML Controller class
@@ -78,9 +90,10 @@ public class SessionViewController implements Initializable {
     private Label highScoreLabel;
     @FXML
     private Button continuaGiocoButton;
+    private Label contatoreLettura;
     
+    private CaricaSessioneDiGioco caricaSessione;
     private SessioneDiGioco sessione;
-
     private int contatoreDomanda = 1;
     private Timeline tm;
     private int durata;
@@ -88,52 +101,137 @@ public class SessionViewController implements Initializable {
     
     
    
+    private String[] NomiDocumenti;
+    private final Queue<Domanda> domande = new ConcurrentLinkedDeque<>();
+    
+    private int NumeroDiDomande;
+    private int NumeroDiTesto;
     /**
      * Initializes the controller class.
      */
     @Override
-    public void initialize(URL url, ResourceBundle rb) {
-        // TODO
-        this.TestoDaLeggere.setEditable(false);
-        this.TestoDaLeggere.setMouseTransparent(true);
-        this.TestoDaLeggere.setFocusTraversable(false);
-        this.FaseRisposte.setVisible(false);
-        this.FaseLettura.setVisible(true);
-        sessione= new SessioneDiGiocoOnline(4);
-        stato = AppState.getInstance();
-    }    
+   public void initialize(URL url, ResourceBundle rb) {
+    this.TestoDaLeggere.setEditable(false);
+    this.TestoDaLeggere.setMouseTransparent(true);
+    this.TestoDaLeggere.setFocusTraversable(false);
+    this.FaseRisposte.setVisible(false);
+    this.FaseLettura.setVisible(true);
+    this.NumeroDiDomande=0;
+   
+    this.durata = 30; // o qualsiasi valore appropriato
     
-    private void DaRisposte(){
+    sessione = new SessioneDiGiocoOnline(4, 1, durata);
+    this.caricaSessione = new CaricaSessioneDiGioco(this.sessione, LivelloPartita.FACILE);
+    this.serviceInitialize();
+    this.caricaSessione.start();
+}    
+
+private void serviceInitialize() {
+    this.caricaSessione.setOnRunning(e -> {
+        System.out.println("Service in esecuzione...");
+    });
+    
+    this.caricaSessione.setOnSucceeded(e -> {
+        System.out.println("Service completato con successo!");
+        List<Domanda> domandeCaricate = caricaSessione.getValue();
+        
+        if(domandeCaricate != null && !domandeCaricate.isEmpty()) {
+            this.domande.addAll(domandeCaricate);
+            System.out.println("Caricate " + domandeCaricate.size() + " domande");      
+            cambioTesto();
+        } else {
+            System.out.println("Nessuna domanda caricata o lista vuota");
+            // Gestisci il caso in cui non ci sono domande
+        }
+    });
+    
+    this.caricaSessione.setOnFailed(e -> {
+        System.out.println("Service fallito!");
+        Throwable exception = caricaSessione.getException();
+        if(exception != null) {
+            exception.printStackTrace();
+        } else {
+            System.out.println("Nessuna eccezione specificata");
+        }
+    });
+}
+    private void cambioTesto(){
+        Map<String, byte[]> s = this.sessione.getDocumenti();
+        this.NomiDocumenti=this.sessione.getDocumenti().keySet().toArray(new String[0]);
+        this.TestoDaLeggere.textProperty().setValue(new String(s.get(NomiDocumenti[this.NumeroDiTesto])));
+        this.NumeroDiTesto++;
+        this.contatoreLettura.setText(this.NumeroDiTesto+"/"+ this.NomiDocumenti.length); 
+    }
+    
+    private void cambioDomanda(){
+        
+        this.question.setText(this.domande.element().testo);
+        this.counter.setText(1+this.NumeroDiDomande-this.domande.size()+"/"+this.NumeroDiDomande);
+        
+        this.risposta1button.setText(this.domande.element().opzioni.get(0));
+        this.risposta2button.setText(this.domande.element().opzioni.get(1));
+        this.risposta3button.setText(this.domande.element().opzioni.get(2));
+        this.risposta4button.setText(this.domande.element().opzioni.get(3));
+    }
+    
+    private void DaLetturaARisposte(){
         this.FaseLettura.setVisible(false);
         this.FaseRisposte.setVisible(true);
+        this.NumeroDiDomande=this.domande.size();
     }
 
     @FXML
     private void risposta1(ActionEvent event) {
+        this.sessione.aggiornaRisposte(this.NumeroDiDomande-this.domande.size(), 0);
+        this.domande.remove();
+        this.risposta1button.setSelected(false);
+        this.cambioDomanda();
     }
 
     @FXML
     private void risposta2(ActionEvent event) {
+        this.sessione.aggiornaRisposte(this.NumeroDiDomande-this.domande.size(), 1);
+        this.domande.remove();
+        this.risposta2button.setSelected(false);
+        this.cambioDomanda();
     }
 
     @FXML
     private void risposta3(ActionEvent event) {
+        this.sessione.aggiornaRisposte(this.NumeroDiDomande-this.domande.size(), 2);
+        this.domande.remove();
+        this.risposta3button.setSelected(false);
+        this.cambioDomanda();
     }
 
     @FXML
     private void risposta4(ActionEvent event) {
+        this.sessione.aggiornaRisposte(this.NumeroDiDomande-this.domande.size(), 3);
+        this.domande.remove();
+        this.risposta4button.setSelected(false);
+        this.cambioDomanda();
     }
 
     @FXML
-    private void TestoPrecedente(ActionEvent event) {
+    private void TestoPrecedente(ActionEvent event){  
+        this.NumeroDiTesto--;
+        if(this.NumeroDiTesto <0)
+            this.NumeroDiTesto=this.NomiDocumenti.length;
+        this.cambioTesto();
     }
 
     @FXML
     private void VaiAlQuiz(ActionEvent event) {
+        this.DaLetturaARisposte();
+        this.cambioDomanda();
     }
 
     @FXML
     private void ProssimoTesto(ActionEvent event) {
+         this.NumeroDiTesto++;
+        if(this.NumeroDiTesto > this.NomiDocumenti.length)
+            this.NumeroDiTesto=this.NomiDocumenti.length;
+        this.cambioTesto();
     }
     
     public void displayQuestion(){
@@ -141,7 +239,7 @@ public class SessionViewController implements Initializable {
         this.question.textProperty().setValue("Qui andrà la domanda");
     
     }
-    
+   /* 
     private void startTimer() {
         durata = 30;
         setTimerLabel();
@@ -197,6 +295,7 @@ public class SessionViewController implements Initializable {
         stato.setSessionViewContinuaButton(true);
         App.setRoot("AppView");
     }
-
-    
+*/
+   
 }
+

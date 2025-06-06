@@ -18,32 +18,51 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.concurrent.Service;
+import javafx.concurrent.Task;
 
 /**
  *
  * @author Mattia Sanzari
  */
-abstract public class SessioneDiGioco {
+abstract public class SessioneDiGioco{
     private List<Domanda> Domande;
+    private Map<Domanda, Integer> risposte;
     private AnalisiDocumenti analisi;
     private Map<String, byte[]> Documenti;// dove la chiave è il nome del Documento e byte[] è il documento in bytes
     private int numeroDomande;// numero di domande per documento 
+    private float punteggioFatto;
+    private int durata;
 
-    public SessioneDiGioco(int numeroDomande) {
+    public SessioneDiGioco(int numeroDomande, int durata) {
         this.numeroDomande = numeroDomande;
         this.Domande = new ArrayList<>();
         this.Documenti= new HashMap<>();
         this.analisi= new AnalisiDocumenti();
-        generaDocumenti();
-        generaDomande();
+        this.punteggioFatto=0;
+        this.durata=durata;
+        this.risposte= new HashMap<>();
+    }
+
+    public Map<Domanda, Integer> getRisposte() {
+        return risposte;
+    }
+
+    public float getPunteggioFatto() {
+        return punteggioFatto;
     }
 
     public List<Domanda> getDomande() {
         return Domande;
     }
+
+    public void setDocumenti(Map<String, byte[]> Documenti) {
+        this.Documenti = Documenti;
+    }
     
-     
-    public abstract void setDocumenti(Map<String, byte[]> Documenti);
+    public void addDocumenti(String chiave,byte[] Documento){
+        this.Documenti.put(chiave, Documento);
+    }
 
     public AnalisiDocumenti getAnalisi() {
         return this.analisi;
@@ -70,6 +89,23 @@ abstract public class SessioneDiGioco {
         }
     
     }
+    
+    public void aggiornaRisposte(int numeroDomanda, int indiceRisposta){
+        this.risposte.put(this.Domande.get(numeroDomanda), indiceRisposta);
+    }
+    
+    public void aggiornaPuntiFatti(){
+       Domanda[] dom=(Domanda[]) this.Domande.toArray();
+       for(Domanda d :  dom){
+           
+           if(d.rispostaCorretta== this.risposte.get(d)){
+               this.punteggioFatto= this.punteggioFatto +10;
+           }else{
+               this.punteggioFatto= this.punteggioFatto -5;
+           }
+       }
+    }
+    
     public void caricaSessioneDiGioco(String NomeFile){
         try(ObjectInputStream ois= new ObjectInputStream( new FileInputStream(NomeFile))){
             System.out.println("Inizio caricamento");
@@ -85,17 +121,21 @@ abstract public class SessioneDiGioco {
         }
     }
 
-    private void generaDomande() {
+    public void generaDomande() {
         GeneratoreDomande gen= new GeneratoreDomande(this.analisi);
-        String[] nomiDocumenti = (String[]) this.Documenti.keySet().toArray();
+        String[] nomiDocumenti =  this.Documenti.keySet().toArray(new String[0]);
         int domandePerDocumento = this.numeroDomande / nomiDocumenti.length;
         int documentiExtra = this.numeroDomande % nomiDocumenti.length;
         
         for(int i=0; i< nomiDocumenti.length;i++){
-           this.Domande.addAll(gen.getRaccoltaDiDomande(domandePerDocumento+(i < documentiExtra ? 1 : 0),nomiDocumenti[i])) ;
+            List<Domanda> prova = gen.getRaccoltaDiDomande(domandePerDocumento+(i < documentiExtra ? 1 : 0),nomiDocumenti[i]);
+            System.out.println("generaDomande:  130 "+ prova);
+           this.Domande.addAll(prova) ;
         }  
+        
+        System.out.println("generaDomande:  136 "+ Domande);
     }
 
-    public abstract void generaDocumenti();
+    public abstract void generaDocumenti(LivelloPartita l);
     
 }

@@ -1,5 +1,6 @@
 package it.unisa.diem.wordageddong17.model;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -7,7 +8,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -71,6 +72,7 @@ public class AnalisiDocumenti {
      * @return Map contenente le parole come chiavi e le loro frequenze come valori
      */
     public Map<String, Integer> restituisciDocumento(String NomeDocumento){
+        //System.out.println("restituisciDocumento: "+ this.Matrice.get(NomeDocumento));
        return Matrice.get(NomeDocumento);
     }
     
@@ -104,33 +106,25 @@ public class AnalisiDocumenti {
         return false;
     }
     
-    
-    /**
-     * Analizza un singolo documento testuale.
-     * Legge il file specificato dal percorso, divide il testo in parole,
-     * filtra le stopwords e conta le occorrenze di ogni parola.
-     * Il risultato viene aggiunto alla matrice principale.
-     * 
-     * Le operazioni effettuate includono:
-     * - Lettura del file riga per riga
-     * - Divisione in parole usando espressioni regolari
-     * - Filtraggio di parole vuote e stopwords
-     * - Conteggio delle frequenze
-     * 
-     * @param Path il percorso del file da analizzare
-     * @throws IOException se si verificano errori durante la lettura del file
-     */
-
-    public void analisiUnDocumento(String Path) throws IOException{
+    public void analisiUnDocumento(byte[] doc, String NomeDocumento) throws IOException{
         Map<String,Integer>  documento;
-        Stream<String> stringStream = Files.lines(Paths.get(Path));
+        Path p=null;
+        File f=null;
+        try {
+            f=File.createTempFile("FileAnalisiUnDocumento", ".txt");
+            p = Files.write(f.toPath(), doc);
+         }catch(IOException e){
+            System.out.println("Eccezione: "+e);
+         }
+        Stream<String> stringStream = Files.lines(p);
     
         documento= stringStream.flatMap(riga -> Arrays.stream(riga.toUpperCase().split("\\W+")))
                 .filter(parola-> !parola.isEmpty())
                 .filter(parola ->!appartenenzaStopWords(parola))
                 .collect(Collectors.toMap(parola -> parola, parola -> 1, Integer::sum));
         System.out.println(documento.toString());
-        this.aggiungiDocumento(Path, documento);
+        this.aggiungiDocumento(NomeDocumento, documento);
+        f.deleteOnExit();
     }
     
     /**

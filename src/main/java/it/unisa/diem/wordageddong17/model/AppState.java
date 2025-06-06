@@ -11,6 +11,27 @@ public class AppState {
      */
     private Utente utente;
     
+    private boolean sessionViewHomeButton = false;
+    private boolean sessionViewContinuaButton = false;
+
+    public void setSessionViewHomeButton(boolean sessionViewHomeButton) {
+        this.sessionViewHomeButton = sessionViewHomeButton;
+    }
+
+    public void setSessionViewContinuaButton(boolean sessionViewContinuaButton) {
+        this.sessionViewContinuaButton = sessionViewContinuaButton;
+    }
+
+    public boolean isSessionViewHomeButton() {
+        return sessionViewHomeButton;
+    }
+
+    public boolean isSessionViewContinuaButton() {
+        return sessionViewContinuaButton;
+    }
+    
+    
+    
     /**
      * Restituisce l'utente correntemente autenticato nell'applicazione.
      * 

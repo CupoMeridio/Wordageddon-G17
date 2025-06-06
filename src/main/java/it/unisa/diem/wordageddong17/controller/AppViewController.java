@@ -315,6 +315,14 @@ public class AppViewController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        
+        if(appstate.isSessionViewHomeButton()){
+            tornaAllaHome();
+        }
+        
+        if(appstate.isSessionViewContinuaButton()){
+            startOnAction(new ActionEvent());
+        }
         chiudiTutto();
         schermataDiLogin.setVisible(true);
         ritagliaQuadrato(imageView, 250);

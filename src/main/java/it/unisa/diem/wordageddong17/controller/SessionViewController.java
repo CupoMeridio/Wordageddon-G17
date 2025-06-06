@@ -76,6 +76,8 @@ public class SessionViewController implements Initializable {
     private VBox schermataGameOver;
     @FXML
     private Label highScoreLabel;
+    @FXML
+    private Button continuaGiocoButton;
     
     private SessioneDiGioco sessione;
 
@@ -83,8 +85,7 @@ public class SessionViewController implements Initializable {
     private Timeline tm;
     private int durata;
     private AppState stato;
-    @FXML
-    private Button continuaGiocoButton;
+    
     
    
     /**
@@ -191,8 +192,9 @@ public class SessionViewController implements Initializable {
         App.setRoot("AppView");
     }
     
+    @FXML
     private void continuaGioco (ActionEvent event) throws IOException{
-        stato.setSessionViewHomeButton(true);
+        stato.setSessionViewContinuaButton(true);
         App.setRoot("AppView");
     }
 

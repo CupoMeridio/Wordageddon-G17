@@ -1383,8 +1383,11 @@ public class AppViewController implements Initializable {
     private void backToGestDoc(ActionEvent event) {
         chiudiTutto();
         pulisciTutto();
-        listaDocumenti.clear();
-        
+        Utente u = appstate.getUtente();
+        if (u instanceof Amministratore amministratore) {
+                listaDocumenti.clear(); // Buona pratica: evita duplicati
+                listaDocumenti.addAll(amministratore.prendiTuttiIDocumenti());
+        }
         gestioneDocumentiView.setVisible(true);
     }
 

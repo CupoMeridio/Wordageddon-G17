@@ -22,8 +22,8 @@ public class SessioneDiGiocoOnline extends SessioneDiGioco {
     private DosSessioneDiGioco db;
     private int numeroDocumenti;
     
-    public SessioneDiGiocoOnline(int numeroDomande,int numeroDocumenti, int durata) {
-        super(numeroDomande, durata);
+    public SessioneDiGiocoOnline(int numeroDomande,int numeroDocumenti, int durata,Utente utente) {
+        super(numeroDomande, durata, utente);
         db= DatabaseSessioneDiGioco.getInstance();
         this.numeroDocumenti=numeroDocumenti;
     }

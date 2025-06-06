@@ -314,6 +314,11 @@ public class AppViewController implements Initializable {
         
         if(appstate.isSessionViewHomeButton()){
             tornaAllaHome();
+            this.configuraPulsantiAdmin();
+            this.benvenutoLabel.setText("Benvenuto "+ appstate.getUtente().getUsername());
+            this.fotoProfilo.setImage(this.getImageFromByte(this.appstate.getUtente().getFotoProfilo()));
+            this.pulisciTutto();
+            this.chiudiTutto();
         }
         
         if(appstate.isSessionViewContinuaButton()){
@@ -372,7 +377,6 @@ public class AppViewController implements Initializable {
                 appstate.setUtente(db.prendiUtente(email));
                 Utente utente = appstate.getUtente();
                 if (utente != null) {
-                    aggiornaFotoProfilo(utente.getFotoProfilo());
                     configuraPulsantiAdmin();
                     benvenutoLabel.setText("Benvenuto "+ utente.getUsername());
                     emailTextField.clear();

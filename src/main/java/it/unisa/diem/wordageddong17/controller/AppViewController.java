@@ -19,6 +19,7 @@ import java.nio.file.Files;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.function.UnaryOperator;
@@ -1414,7 +1415,7 @@ public class AppViewController implements Initializable {
             @Override
             protected Void call() {
                 for (DocumentoDiTesto doc : selezionati) {
-                    a.cancellaTesto(doc.getNomeFile());
+                    a.cancellaTesto(doc.getNomeFile()); // operazione di eliminazione lato "server"
                 }
                 return null;
             }
@@ -1423,11 +1424,10 @@ public class AppViewController implements Initializable {
             protected void succeeded() {
                 Platform.runLater(() -> {
                     loadingOverlay.setVisible(false);
-                    gestDocTabella.getItems().removeIf(selezionati::contains);
+                    listaDocumenti.removeAll(selezionati);
                     mostraAlert("Successo", "Documenti eliminati con successo.", Alert.AlertType.INFORMATION);
                 });
             }
-
 
             @Override
             protected void failed() {
@@ -1447,4 +1447,5 @@ public class AppViewController implements Initializable {
 
         new Thread(eliminaTask).start();
     }
+
 }

@@ -10,6 +10,7 @@ import it.unisa.diem.wordageddong17.model.CaricaSessioneDiGioco;
 import it.unisa.diem.wordageddong17.model.GeneratoreDomande.Domanda;
 import it.unisa.diem.wordageddong17.model.LivelloPartita;
 import it.unisa.diem.wordageddong17.model.AppState;
+import it.unisa.diem.wordageddong17.model.Giocatore;
 import it.unisa.diem.wordageddong17.model.SessioneDiGiocoOnline;
 import java.io.IOException;
 import java.net.URL;
@@ -31,6 +32,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 import it.unisa.diem.wordageddong17.model.SessioneDiGioco;
+import it.unisa.diem.wordageddong17.model.TipoUtente;
 import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.nio.file.Files;
@@ -68,8 +70,6 @@ public class SessionViewController implements Initializable {
     private RadioButton risposta4button;
     @FXML
     private Label counter;
-    @FXML
-    private Label timer;
     @FXML
     private VBox FaseLettura;
     @FXML
@@ -112,19 +112,23 @@ public class SessionViewController implements Initializable {
      */
     @Override
    public void initialize(URL url, ResourceBundle rb) {
+    
+    this.stato = AppState.getInstance();
+    stato.setUtente(new Giocatore("username", "email", TipoUtente.giocatore));
     this.TestoDaLeggere.setEditable(false);
     this.TestoDaLeggere.setMouseTransparent(true);
     this.TestoDaLeggere.setFocusTraversable(false);
     this.FaseRisposte.setVisible(false);
+    this.schermataGameOver.setVisible(false);
     this.FaseLettura.setVisible(true);
     this.NumeroDiDomande=0;
-   
-    this.durata = 30; // o qualsiasi valore appropriato
-    
-    sessione = new SessioneDiGiocoOnline(4, 1, durata);
+    sessione = new SessioneDiGiocoOnline(4, 1, durata, this.stato.getUtente());
     this.caricaSessione = new CaricaSessioneDiGioco(this.sessione, LivelloPartita.FACILE);
     this.serviceInitialize();
     this.caricaSessione.start();
+    this.inizializzaTimer();
+    startTimer();
+    
 }    
 
 private void serviceInitialize() {
@@ -156,24 +160,38 @@ private void serviceInitialize() {
         }
     });
 }
+
     private void cambioTesto(){
         Map<String, byte[]> s = this.sessione.getDocumenti();
         this.NomiDocumenti=this.sessione.getDocumenti().keySet().toArray(new String[0]);
         this.TestoDaLeggere.textProperty().setValue(new String(s.get(NomiDocumenti[this.NumeroDiTesto])));
         this.NumeroDiTesto++;
-        this.contatoreLettura.setText(this.NumeroDiTesto+"/"+ this.NomiDocumenti.length); 
+        System.out.println("NumeroDiTesto :"+ NumeroDiTesto +" this.NomiDocumenti.length: "+this.NomiDocumenti.length);
+        this.contatoreLettura.setText(this.NumeroDiTesto+"/"+ this.NomiDocumenti.length);
     }
     
     private void cambioDomanda(){
         
-        this.question.setText(this.domande.element().testo);
-        this.counter.setText(1+this.NumeroDiDomande-this.domande.size()+"/"+this.NumeroDiDomande);
         
-        this.risposta1button.setText(this.domande.element().opzioni.get(0));
-        this.risposta2button.setText(this.domande.element().opzioni.get(1));
-        this.risposta3button.setText(this.domande.element().opzioni.get(2));
-        this.risposta4button.setText(this.domande.element().opzioni.get(3));
+        
+        System.out.println("this.domande.size() ;"+ this.domande.size());
+        if(this.domande.isEmpty()){
+            this.FaseLettura.setVisible(false);
+            this.FaseRisposte.setVisible(false);
+            this.schermataGameOver.setVisible(true);
+            this.sessione.aggiornaPuntiFatti();
+            this.highScoreLabel.setText("Punteggio:"+ this.sessione.getPunteggioFatto());
+            System.out.println("\n Verifica "+ this.sessione.getRisposte());
+        }else{
+            this.question.setText(this.domande.element().testo);
+            this.counter.setText(1+this.NumeroDiDomande-this.domande.size()+"/"+this.NumeroDiDomande);
+            this.risposta1button.setText(this.domande.element().opzioni.get(0));
+            this.risposta2button.setText(this.domande.element().opzioni.get(1));
+            this.risposta3button.setText(this.domande.element().opzioni.get(2));
+            this.risposta4button.setText(this.domande.element().opzioni.get(3));
+        }
     }
+    
     
     private void DaLetturaARisposte(){
         this.FaseLettura.setVisible(false);
@@ -234,19 +252,24 @@ private void serviceInitialize() {
             this.NumeroDiTesto=this.NomiDocumenti.length;
         this.cambioTesto();
     }
-    
-    public void displayQuestion(){
-        
-        this.question.textProperty().setValue("Qui andrà la domanda");
-    
+     
+    @FXML
+    private void tornaAllaHome(ActionEvent event) throws IOException{
+        stato.setSessionViewHomeButton(true);
+        App.setRoot("AppView");
     }
-   /* 
+    
+    private void continuaGioco (ActionEvent event) throws IOException{
+        stato.setSessionViewContinuaButton(true);
+        App.setRoot("AppView");
+    } 
+    
     private void startTimer() {
-        durata = 30;
+        durata = 30;               // durata ------------------------> Da settare in base al livello
         setTimerLabel();
         tm.playFromStart();
     }
-
+    
     private void inizializzaTimer() {
         tm = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
             durata--;
@@ -258,49 +281,15 @@ private void serviceInitialize() {
         tm.setCycleCount(Timeline.INDEFINITE);
         startTimer();
     }
-
-    private void setTimerLabel() {
-        timer.setText(String.valueOf(this.durata));
-    }
-    
-     private void handleTimeout() {
-        tm.stop();
-        int numeroDomande=0;
-        // classedomande
-
-        if (this.contatoreDomanda < numeroDomande) {
-           
-            this.contatoreDomanda++;
-            displayQuestion();
-            counter.textProperty().setValue(this.contatoreDomanda + "/" + numeroDomande);
-            this.durata = 30;
-            this.startTimer();
-        } else {
-            
-            try {
-                App.setRoot("AppViewController");// Qui serve la schermata delle classifiche
-            } catch (IOException ex) {
-                Logger.getLogger(SessionViewController.class.getName()).log(Level.SEVERE, null, ex);
-            } 
-        }
-    }
      
-    @FXML
-    private void tornaAllaHome(ActionEvent event) throws IOException{
-        stato.setSessionViewHomeButton(true);
-        App.setRoot("AppView");
+    private void setTimerLabel() {
+        timeLettura.setText(String.valueOf(this.durata));
     }
-    
-    @FXML
-    private void continuaGioco (ActionEvent event) throws IOException{
-        stato.setSessionViewContinuaButton(true);
-        App.setRoot("AppView");
-    }
-*/
 
-    @FXML
-    private void tornaAllaHome(ActionEvent event) {
+    private void handleTimeout() {
+        tm.stop();
+        this.DaLetturaARisposte();
+        this.cambioDomanda();
     }
-   
 }
 

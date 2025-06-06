@@ -26,6 +26,7 @@ import javafx.concurrent.Task;
  * @author Mattia Sanzari
  */
 abstract public class SessioneDiGioco{
+    private Utente utente;
     private List<Domanda> Domande;
     private Map<Domanda, Integer> risposte;
     private AnalisiDocumenti analisi;
@@ -33,8 +34,9 @@ abstract public class SessioneDiGioco{
     private int numeroDomande;// numero di domande per documento 
     private float punteggioFatto;
     private int durata;
+    
 
-    public SessioneDiGioco(int numeroDomande, int durata) {
+    public SessioneDiGioco(int numeroDomande, int durata, Utente utente) {
         this.numeroDomande = numeroDomande;
         this.Domande = new ArrayList<>();
         this.Documenti= new HashMap<>();
@@ -42,6 +44,7 @@ abstract public class SessioneDiGioco{
         this.punteggioFatto=0;
         this.durata=durata;
         this.risposte= new HashMap<>();
+        this.utente= utente;
     }
 
     public Map<Domanda, Integer> getRisposte() {
@@ -95,13 +98,13 @@ abstract public class SessioneDiGioco{
     }
     
     public void aggiornaPuntiFatti(){
-       Domanda[] dom=(Domanda[]) this.Domande.toArray();
+       Domanda[] dom= this.Domande.toArray(new Domanda[0]);
        for(Domanda d :  dom){
            
            if(d.rispostaCorretta== this.risposte.get(d)){
                this.punteggioFatto= this.punteggioFatto +10;
            }else{
-               this.punteggioFatto= this.punteggioFatto -5;
+              // this.punteggioFatto= this.punteggioFatto -5;
            }
        }
     }

@@ -336,6 +336,11 @@ public class AppViewController implements Initializable {
         
         if(appstate.isSessionViewHomeButton()){
             tornaAllaHome();
+            this.configuraPulsantiAdmin();
+            this.benvenutoLabel.setText("Benvenuto "+ appstate.getUtente().getUsername());
+            this.fotoProfilo.setImage(this.getImageFromByte(this.appstate.getUtente().getFotoProfilo()));
+            this.pulisciTutto();
+            this.chiudiTutto();
         }
         
         if(appstate.isSessionViewContinuaButton()){

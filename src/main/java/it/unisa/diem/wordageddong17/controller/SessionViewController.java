@@ -6,6 +6,7 @@
 package it.unisa.diem.wordageddong17.controller;
 
 import it.unisa.diem.wordageddong17.App;
+import it.unisa.diem.wordageddong17.model.AppState;
 import it.unisa.diem.wordageddong17.model.SessioneDiGiocoOnline;
 import java.io.IOException;
 import java.net.URL;
@@ -69,12 +70,23 @@ public class SessionViewController implements Initializable {
     private Button VaiAlQuizbutton;
     @FXML
     private Button ProssimoTestobutton;
+    @FXML
+    private Button tornaHomeButton;
+    @FXML
+    private VBox schermataGameOver;
+    @FXML
+    private Label highScoreLabel;
     
     private SessioneDiGioco sessione;
 
     private int contatoreDomanda = 1;
     private Timeline tm;
     private int durata;
+    private AppState stato;
+    @FXML
+    private Button continuaGiocoButton;
+    
+   
     /**
      * Initializes the controller class.
      */
@@ -87,6 +99,7 @@ public class SessionViewController implements Initializable {
         this.FaseRisposte.setVisible(false);
         this.FaseLettura.setVisible(true);
         sessione= new SessioneDiGiocoOnline(4);
+        stato = AppState.getInstance();
     }    
     
     private void DaRisposte(){
@@ -170,6 +183,17 @@ public class SessionViewController implements Initializable {
                 Logger.getLogger(SessionViewController.class.getName()).log(Level.SEVERE, null, ex);
             } 
         }
+    }
+     
+    @FXML
+    private void tornaAllaHome(ActionEvent event) throws IOException{
+        stato.setSessionViewHomeButton(true);
+        App.setRoot("AppView");
+    }
+    
+    private void continuaGioco (ActionEvent event) throws IOException{
+        stato.setSessionViewHomeButton(true);
+        App.setRoot("AppView");
     }
 
     

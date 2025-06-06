@@ -104,7 +104,7 @@ abstract public class SessioneDiGioco{
            if(d.rispostaCorretta== this.risposte.get(d)){
                this.punteggioFatto= this.punteggioFatto +10;
            }else{
-               this.punteggioFatto= this.punteggioFatto -5;
+              // this.punteggioFatto= this.punteggioFatto -5;
            }
        }
     }

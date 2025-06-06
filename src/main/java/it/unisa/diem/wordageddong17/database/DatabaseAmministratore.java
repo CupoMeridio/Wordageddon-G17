@@ -1,10 +1,5 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package it.unisa.diem.wordageddong17.database;
 
-import it.unisa.diem.wordageddong17.model.Classifica;
 import it.unisa.diem.wordageddong17.model.DocumentoDiTesto;
 import it.unisa.diem.wordageddong17.model.Lingua;
 import it.unisa.diem.wordageddong17.model.LivelloPartita;
@@ -13,7 +8,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -97,6 +91,7 @@ public class DatabaseAmministratore implements DosAmministratore {
         try (PreparedStatement pstmt = db.getConnection().prepareStatement(query)) {
             pstmt.setString(1, nomeFile); // inserisce il nome  nella prima posizione del preparestatment
             ResultSet r = pstmt.executeQuery();
+            
             if(r.next()){
             risultato = r.getBytes("documento");
             }
@@ -121,7 +116,7 @@ public class DatabaseAmministratore implements DosAmministratore {
        boolean risultato=false;
         try (PreparedStatement pstmt = db.getConnection().prepareStatement(query)) {
             pstmt.setString(1, nomeDocumento); // cancella il documento con questo nome
-            risultato = pstmt.execute();
+            risultato = pstmt.executeUpdate()>0;
             }   catch (SQLException ex) {
             Logger.getLogger(DatabaseRegistrazioneLogin.class.getName()).log(Level.SEVERE, null, ex);
         }

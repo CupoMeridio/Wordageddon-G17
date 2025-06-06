@@ -1,6 +1,5 @@
 package it.unisa.diem.wordageddong17.controller;
 
-import it.unisa.diem.wordageddong17.database.DatabaseAmministratore;
 import it.unisa.diem.wordageddong17.database.DatabaseClassifica;
 import it.unisa.diem.wordageddong17.database.DatabaseRegistrazioneLogin;
 import it.unisa.diem.wordageddong17.model.Amministratore;
@@ -19,6 +18,8 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.function.UnaryOperator;
@@ -38,7 +39,9 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioButton;
+import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -284,6 +287,12 @@ public class AppViewController implements Initializable {
     private RadioButton adminRadioDE;
     @FXML
     private RadioButton adminRadioFR;
+    @FXML
+    private Button gestDocButtonTornaAllaHome;
+    @FXML
+    private Button backToGestDoc;
+    @FXML
+    private AnchorPane loadingOverlay;
     
     // ========== ATTRIBUTI PRIVATI ==========
     
@@ -299,12 +308,8 @@ public class AppViewController implements Initializable {
     private Task<Void> currentLoadingTask;
     private File fileSelezionato;
     @FXML
-    private Button gestDocButtonTornaAllaHome;
-    @FXML
-    private Button backToGestDoc;
-    
-   
-    
+    private MenuItem eliminaDocItem;
+ 
     
     /**
      * Initializes the controller class.
@@ -357,44 +362,70 @@ public class AppViewController implements Initializable {
      */
     @FXML
     private void accediOnAction(ActionEvent event) {
+        
+        if (accediButton.isDisabled()) return;      // Blocca eventuali click multipli sul tasto prima che venga disabilitato
+        
         String email = emailTextField.getText();
         String password = passwordTextField.getText();
 
-        if  (email.isEmpty() || password.isEmpty()) {
-            mostraAlert("Errore", "I campi non possono essere vuoti", Alert.AlertType.WARNING); 
+        if (email.isEmpty() || password.isEmpty()) {
+            mostraAlert("Errore", "I campi non possono essere vuoti", Alert.AlertType.WARNING);
             return;
         }
 
         if (!isValidEmail(email)) {
-            mostraAlert("Errore", "Inserisci un indirizzo email valido.", Alert.AlertType.WARNING); 
+            mostraAlert("Errore", "Inserisci un indirizzo email valido.", Alert.AlertType.WARNING);
             return;
         }
-  
-        try {
-            boolean pwCorretta = db.verificaPassword(email, password);
 
-            if(pwCorretta){
-                appstate.setUtente(db.prendiUtente(email));
-                Utente utente = appstate.getUtente();
-                if (utente != null) {
-                    configuraPulsantiAdmin();
-                    benvenutoLabel.setText("Benvenuto "+ utente.getUsername());
-                    emailTextField.clear();
-                    passwordTextField.clear();
-                    chiudiTutto();
-                    schermataHome.setVisible(true);
-                    initializeCronologiaPartite();
-                } else {
-                    mostraAlert("Errore", "Si è verificato un problema durante il recupero dei dati utente", Alert.AlertType.ERROR); 
+        // UI feedback
+        accediButton.setDisable(true);
+        passaARegistratiButton.setDisable(true);
+        loadingOverlay.setVisible(true);
+
+        // Task che esegue il login in background
+        Task<Utente> loginTask = new Task<>() {
+            @Override
+            protected Utente call() throws Exception {
+                if (!db.verificaPassword(email, password)) {
+                    return null;
                 }
+                return db.prendiUtente(email); // anche questa operazione può essere lenta
+            }
+        };
+
+        loginTask.setOnSucceeded(workerStateEvent -> {
+            accediButton.setDisable(false);
+            passaARegistratiButton.setDisable(false);
+            
+            Utente utente = loginTask.getValue();
+            if (utente != null) {
+                appstate.setUtente(utente);
+                configuraPulsantiAdmin();
+                benvenutoLabel.setText("Benvenuto " + utente.getUsername());
+                fotoProfilo.setImage(getImageFromByte(utente.getFotoProfilo()));
+                pulisciTutto();
+                chiudiTutto();
+                schermataHome.setVisible(true);
+
             } else {
                 mostraAlert("Errore", "Email o password errati", Alert.AlertType.WARNING);
             }
-        } catch (Exception e) {
-            mostraAlert("Errore", "Si è verificato un errore durante il login: " + e.getMessage(), Alert.AlertType.ERROR);
-            Logger.getLogger(AppViewController.class.getName()).log(Level.SEVERE, "Errore durante il login", e);
-        }
+            loadingOverlay.setVisible(false);
+        });
+
+        loginTask.setOnFailed(workerStateEvent -> {
+            accediButton.setDisable(false);
+            passaARegistratiButton.setDisable(false);
+            loadingOverlay.setVisible(false);
+
+            Throwable e = loginTask.getException();
+            mostraAlert("Errore", "Si è verificato un errore durante il login. Riprova più tardi.", Alert.AlertType.ERROR);
+        });
+
+        new Thread(loginTask).start();
     }
+
 
     /**
      * @brief Reindirizza l'utente alla schermata di registrazione
@@ -437,6 +468,8 @@ public class AppViewController implements Initializable {
      */
     @FXML
     private void classificheOnAction(ActionEvent event) {
+        if(classificheButton.isDisable()) return;
+        classificheButton.setDisable(true);
         // Interrompi eventuale caricamento in corso
         if (currentLoadingTask != null && currentLoadingTask.isRunning()) {
             currentLoadingTask.cancel();
@@ -476,12 +509,15 @@ public class AppViewController implements Initializable {
                 return null;
             }
         };
-
+        currentLoadingTask.setOnSucceeded(e-> classificheButton.setDisable(false));
+        currentLoadingTask.setOnCancelled(e-> classificheButton.setDisable(false));
+        
         currentLoadingTask.setOnFailed(e -> {
             Throwable exception = currentLoadingTask.getException();
             Platform.runLater(()
                     -> mostraAlert("Errore", "Caricamento fallito: " + exception.getMessage(), Alert.AlertType.ERROR));
             exception.printStackTrace(); // Log to console
+            classificheButton.setDisable(false);
         });
 
         new Thread(currentLoadingTask).start();
@@ -628,10 +664,11 @@ public class AppViewController implements Initializable {
 
         aggiornaFotoProfilo(immagineBytes);
         configuraPulsantiAdmin();
-        pulisciTutto();
+        
         chiudiTutto();
         schermataHome.setVisible(true);
         benvenutoLabel.setText("Benvenuto " + username.getText());
+        pulisciTutto();
         mostraAlert("Registrazione completata", "Registrazione avvenuta con successo!", Alert.AlertType.INFORMATION);
     }
 
@@ -966,20 +1003,22 @@ public class AppViewController implements Initializable {
             mostraAlert("Errore", "Utente non autenticato.", Alert.AlertType.ERROR); 
             return;
         }
+
         if (currentLoadingTask != null && currentLoadingTask.isRunning()) {
             currentLoadingTask.cancel();
         }
-    
+
         chiudiTutto();
         schermataInfoUtente.setVisible(true);
-    
-        usernameInfoUtente.setText("Username: "+utente.getUsername());
-        emailInfoUtente.setText("E-mail: "+utente.getEmail());
-    
-        currentLoadingTask = new Task<Void>() {
+
+        // Dati dell’utente: possono essere mostrati subito
+        usernameInfoUtente.setText("Username: " + utente.getUsername());
+        emailInfoUtente.setText("E-mail: " + utente.getEmail());
+
+        // Task per dati lenti da DB
+        currentLoadingTask = new Task<>() {
             @Override
             protected Void call() throws Exception {
-                if (isCancelled()) return null;
                 try {
                     List<Classifica> cronologiaPartiteList = sbc.recuperaCronologiaPartite(utente.getEmail());
                     int facileCount = sbc.recuperaNumeroPartite(utente.getEmail(), LivelloPartita.FACILE.getDbValue());
@@ -991,30 +1030,46 @@ public class AppViewController implements Initializable {
 
                     Platform.runLater(() -> {
                         listaCronologiaPartite.setAll(cronologiaPartiteList);
-                        n_facile.setText("N° partite difficoltà facile:"+facileCount);
-                        n_medio.setText("N° partite difficoltà media: "+medioCount);
-                        n_difficile.setText("N° partite difficoltà difficile: "+difficileCount);
+                        n_facile.setText("N° partite difficoltà facile: " + facileCount);
+                        n_medio.setText("N° partite difficoltà media: " + medioCount);
+                        n_difficile.setText("N° partite difficoltà difficile: " + difficileCount);
                         migliore_facile.setText(String.format("Miglior punteggio in difficoltà facile: %.1f", facilePunteggio));
                         migliore_medio.setText(String.format("Miglior punteggio in difficoltà media: %.1f", medioPunteggio));
                         migliore_difficile.setText(String.format("Miglior punteggio in difficoltà difficile: %.1f", difficilePunteggio));
-                        immagineInfoUtente.setImage(getImageFromByte(utente.getFotoProfilo()));
                     });
+
                 } catch (Exception e) {
                     Platform.runLater(() -> mostraAlert("Errore", "Impossibile caricare i dati del profilo: " + e.getMessage(), Alert.AlertType.ERROR)); 
                 }
                 return null;
             }
         };
-    
+
         currentLoadingTask.setOnFailed(e -> {
-            Throwable ex = currentLoadingTask.getException();
-            Logger.getLogger(AppViewController.class.getName()).log(Level.SEVERE, "Errore nel caricamento info profilo", ex);
+            Logger.getLogger(AppViewController.class.getName()).log(Level.SEVERE, "Errore nel caricamento info profilo", currentLoadingTask.getException());
             Platform.runLater(() ->
                 mostraAlert("Errore", "Impossibile caricare i dati del profilo", Alert.AlertType.ERROR)); 
         });
-    
-    new Thread(currentLoadingTask).start();
-}
+
+        new Thread(currentLoadingTask).start();
+
+        // Task separato per immagine
+        Task<Image> immagineTask = new Task<>() {
+            @Override
+            protected Image call() throws Exception {
+                return getImageFromByte(utente.getFotoProfilo());
+            }
+        };
+
+        immagineTask.setOnSucceeded(e -> immagineInfoUtente.setImage(immagineTask.getValue()));
+
+        immagineTask.setOnFailed(e -> {
+            Logger.getLogger(AppViewController.class.getName()).log(Level.SEVERE, "Errore caricamento immagine profilo", immagineTask.getException());
+        });
+
+        new Thread(immagineTask).start();
+    }
+
     
 
     @SuppressWarnings("unchecked")
@@ -1024,10 +1079,10 @@ public class AppViewController implements Initializable {
         difficoltàCronologiaPartite.setCellValueFactory(new PropertyValueFactory<>("difficolta"));
         punteggioCronologiaPartite.setCellValueFactory(new PropertyValueFactory("punti"));
         initializeCronologiaFiltro();
-        usernameInfoUtente.setText("Username: "+utente.getUsername());
-        emailInfoUtente.setText("E-mail: "+utente.getEmail());
     }
 
+    
+    
     @FXML
     private void chiudiInfoUtente(ActionEvent event) {
         chiudiTutto();
@@ -1319,6 +1374,7 @@ public class AppViewController implements Initializable {
         FilteredList<DocumentoDiTesto> filteredList = creaListaFiltrata();
         Runnable filtro = creaFiltro(filteredList);
         aggiungiListenerFiltri(filtro);
+        gestDocTabella.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
     }
 
     @FXML
@@ -1333,8 +1389,68 @@ public class AppViewController implements Initializable {
     private void backToGestDoc(ActionEvent event) {
         chiudiTutto();
         pulisciTutto();
-        listaDocumenti.clear();
-        
+        Utente u = appstate.getUtente();
+        if (u instanceof Amministratore amministratore) {
+                listaDocumenti.clear(); // Buona pratica: evita duplicati
+                listaDocumenti.addAll(amministratore.prendiTuttiIDocumenti());
+        }
         gestioneDocumentiView.setVisible(true);
     }
+
+    @FXML
+    private void eliminaDoc(ActionEvent event) {
+        List<DocumentoDiTesto> selezionati = new ArrayList<>(gestDocTabella.getSelectionModel().getSelectedItems());
+
+        if (selezionati.isEmpty()) {
+            mostraAlert("Attenzione", "Nessun documento selezionato.", Alert.AlertType.INFORMATION);
+            return;
+        }
+
+        if (!(appstate.getUtente() instanceof Amministratore)) {
+            mostraAlert("Errore", "Solo l'amministratore può eliminare documenti.", Alert.AlertType.ERROR);
+            return;
+        }
+
+        Amministratore a = (Amministratore) appstate.getUtente();
+
+        // Mostra l'overlay prima di iniziare
+        loadingOverlay.setVisible(true);
+
+        Task<Void> eliminaTask = new Task<>() {
+            @Override
+            protected Void call() {
+                for (DocumentoDiTesto doc : selezionati) {
+                    a.cancellaTesto(doc.getNomeFile()); // operazione di eliminazione lato "server"
+                }
+                return null;
+            }
+
+            @Override
+            protected void succeeded() {
+                Platform.runLater(() -> {
+                    loadingOverlay.setVisible(false);
+                    listaDocumenti.removeAll(selezionati);
+                    mostraAlert("Successo", "Documenti eliminati con successo.", Alert.AlertType.INFORMATION);
+                });
+            }
+
+            @Override
+            protected void failed() {
+                Throwable e = getException();
+                Platform.runLater(() -> {
+                    loadingOverlay.setVisible(false);
+                    mostraAlert("Errore", "Errore durante l'eliminazione: " + e.getMessage(), Alert.AlertType.ERROR);
+                });
+                e.printStackTrace();
+            }
+
+            @Override
+            protected void cancelled() {
+                Platform.runLater(() -> loadingOverlay.setVisible(false));
+            }
+        };
+
+        new Thread(eliminaTask).start();
+    }
+
 }

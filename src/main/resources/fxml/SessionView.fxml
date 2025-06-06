@@ -51,7 +51,7 @@
                         <VBox alignment="TOP_CENTER" prefHeight="94.0" prefWidth="306.0">
                            <children>
                               <Label fx:id="timeLettura" alignment="CENTER" prefHeight="30.0" prefWidth="214.0" text="Time: 00:000:00" />
-                              <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="33.0" prefWidth="122.0" text="1/N" />
+                              <Label fx:id="contatoreLettura" alignment="CENTER" contentDisplay="CENTER" prefHeight="33.0" prefWidth="122.0" text="1/N" />
                               <Button fx:id="VaiAlQuizbutton" alignment="CENTER_RIGHT" mnemonicParsing="false" onAction="#VaiAlQuiz" text="Vai al Quiz" />
                            </children>
                         </VBox>

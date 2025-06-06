@@ -81,6 +81,8 @@ public class SessionViewController implements Initializable {
     private Button VaiAlQuizbutton;
     @FXML
     private Button ProssimoTestobutton;
+    @FXML
+    private Label contatoreLettura;
     
     private CaricaSessioneDiGioco caricaSessione;
     private SessioneDiGioco sessione;
@@ -90,7 +92,8 @@ public class SessionViewController implements Initializable {
     private String[] NomiDocumenti;
     private final Queue<Domanda> domande = new ConcurrentLinkedDeque<>();
     
-    private int NumeroDiDomanda;
+    private int NumeroDiDomande;
+    private int NumeroDiTesto;
     /**
      * Initializes the controller class.
      */
@@ -101,9 +104,8 @@ public class SessionViewController implements Initializable {
     this.TestoDaLeggere.setFocusTraversable(false);
     this.FaseRisposte.setVisible(false);
     this.FaseLettura.setVisible(true);
-    this.NumeroDiDomanda=0;
-    this.counter.setText("1/"+4);
-    
+    this.NumeroDiDomande=0;
+   
     this.durata = 30; // o qualsiasi valore appropriato
     
     sessione = new SessioneDiGiocoOnline(4, 1, durata);
@@ -142,46 +144,82 @@ private void serviceInitialize() {
     });
 }
     private void cambioTesto(){
-           
-       //System.out.println("grandezzaPop: "+ this.domande.toString());
         Map<String, byte[]> s = this.sessione.getDocumenti();
-        
         this.NomiDocumenti=this.sessione.getDocumenti().keySet().toArray(new String[0]);
-        //System.out.println("139: " + s);
-        this.TestoDaLeggere.textProperty().setValue(new String(s.get(NomiDocumenti[0])));
+        this.TestoDaLeggere.textProperty().setValue(new String(s.get(NomiDocumenti[this.NumeroDiTesto])));
+        this.NumeroDiTesto++;
+        this.contatoreLettura.setText(this.NumeroDiTesto+"/"+ this.NomiDocumenti.length); 
     }
     
-    private void DaRisposte(){
+    private void cambioDomanda(){
+        
+        this.question.setText(this.domande.element().testo);
+        this.counter.setText(1+this.NumeroDiDomande-this.domande.size()+"/"+this.NumeroDiDomande);
+        
+        this.risposta1button.setText(this.domande.element().opzioni.get(0));
+        this.risposta2button.setText(this.domande.element().opzioni.get(1));
+        this.risposta3button.setText(this.domande.element().opzioni.get(2));
+        this.risposta4button.setText(this.domande.element().opzioni.get(3));
+    }
+    
+    private void DaLetturaARisposte(){
         this.FaseLettura.setVisible(false);
         this.FaseRisposte.setVisible(true);
+        this.NumeroDiDomande=this.domande.size();
     }
 
     @FXML
     private void risposta1(ActionEvent event) {
+        this.sessione.aggiornaRisposte(this.NumeroDiDomande-this.domande.size(), 0);
+        this.domande.remove();
+        this.risposta1button.setSelected(false);
+        this.cambioDomanda();
     }
 
     @FXML
     private void risposta2(ActionEvent event) {
+        this.sessione.aggiornaRisposte(this.NumeroDiDomande-this.domande.size(), 1);
+        this.domande.remove();
+        this.risposta2button.setSelected(false);
+        this.cambioDomanda();
     }
 
     @FXML
     private void risposta3(ActionEvent event) {
+        this.sessione.aggiornaRisposte(this.NumeroDiDomande-this.domande.size(), 2);
+        this.domande.remove();
+        this.risposta3button.setSelected(false);
+        this.cambioDomanda();
     }
 
     @FXML
     private void risposta4(ActionEvent event) {
+        this.sessione.aggiornaRisposte(this.NumeroDiDomande-this.domande.size(), 3);
+        this.domande.remove();
+        this.risposta4button.setSelected(false);
+        this.cambioDomanda();
     }
 
     @FXML
-    private void TestoPrecedente(ActionEvent event){
+    private void TestoPrecedente(ActionEvent event){  
+        this.NumeroDiTesto--;
+        if(this.NumeroDiTesto <0)
+            this.NumeroDiTesto=this.NomiDocumenti.length;
+        this.cambioTesto();
     }
 
     @FXML
     private void VaiAlQuiz(ActionEvent event) {
+        this.DaLetturaARisposte();
+        this.cambioDomanda();
     }
 
     @FXML
     private void ProssimoTesto(ActionEvent event) {
+         this.NumeroDiTesto++;
+        if(this.NumeroDiTesto > this.NomiDocumenti.length)
+            this.NumeroDiTesto=this.NomiDocumenti.length;
+        this.cambioTesto();
     }
     
     public void displayQuestion(){

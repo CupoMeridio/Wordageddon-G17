@@ -7,6 +7,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -34,7 +35,7 @@ import java.util.stream.Stream;
  * 
  * @author Mattia Sanzari
  */
-public class AnalisiDocumenti {
+public class AnalisiDocumenti implements Serializable {
     
     /**
      * Matrice principale che mantiene l'associazione tra nomi dei documenti
@@ -109,6 +110,12 @@ public class AnalisiDocumenti {
     
     
     public boolean appartenenzaStopWords(String parola){
+        if(this.stopWords!= null ){
+            String stringheStopWords = new String(this.stopWords);  
+            String[] parole = stringheStopWords.split("[\\s,\\n.;]+");
+            System.out.println("parole: "+ parole[0]);
+            return Arrays.asList(parole).contains(parola);
+        }
         return false;
     }
     

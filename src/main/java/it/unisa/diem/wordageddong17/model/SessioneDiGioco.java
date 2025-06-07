@@ -1,5 +1,6 @@
 package it.unisa.diem.wordageddong17.model;
 
+import it.unisa.diem.wordageddong17.database.Database;
 import it.unisa.diem.wordageddong17.model.GeneratoreDomande.Domanda;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -7,6 +8,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -19,7 +22,7 @@ import java.util.logging.Logger;
  *
  * @author Mattia Sanzari
  */
-public class SessioneDiGioco{
+public class SessioneDiGioco implements Serializable{
     private Utente utente;
     private List<Domanda> Domande;
     private Map<Domanda, Integer> risposte;
@@ -30,6 +33,10 @@ public class SessioneDiGioco{
     private int durata;
     private int numeroDocumenti;
     private byte[] stopWords;
+
+    public SessioneDiGioco() {
+        
+    }
 
     public void setStopWords(byte[] stopWords) {
         this.stopWords = stopWords;
@@ -51,6 +58,26 @@ public class SessioneDiGioco{
         this.utente= utente;
         this.numeroDocumenti = numeroDocumenti;
         this.stopWords = null;
+        
+        // Salvataggi se la sessione viene interrotta bruscamente
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            
+            Thread salva = new Thread(()->{
+                System.out.println("Inizio salvataggio");
+                this.salvaSessioneDiGioco("SalvataggioDi"+this.utente.getEmail()+".ser");
+                System.out.println("Fine salvataggio");
+            });
+            salva.start();
+            try{
+                salva.join(10000);
+                if(salva.isAlive()){
+                    System.out.println("Non hai avuto tempo");
+                    salva.interrupt();
+                }
+            }catch(InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }));
     }
 
     public Utente getUtente() {
@@ -110,7 +137,19 @@ public class SessioneDiGioco{
         }
     
     }
+    public void salvaSessioneDiGioco(){
+        
+        try(ObjectOutputStream oos= new ObjectOutputStream( new FileOutputStream("SalvataggioNormaleDi"+this.utente.getEmail()+".ser"))){
+            System.out.println("Inizio salvataggio");
+            oos.writeObject(this);
+            System.out.println("Fine salvataggio");
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(SessioneDiGioco.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(SessioneDiGioco.class.getName()).log(Level.SEVERE, null, ex);
+        }
     
+    }
     public void aggiornaRisposte(int numeroDomanda, int indiceRisposta){
         this.risposte.put(this.Domande.get(numeroDomanda), indiceRisposta);
     }
@@ -131,9 +170,17 @@ public class SessioneDiGioco{
         try(ObjectInputStream ois= new ObjectInputStream( new FileInputStream(NomeFile))){
             System.out.println("Inizio caricamento");
             SessioneDiGioco s= (SessioneDiGioco) ois.readObject();
-            this.Documenti= s.getDocumenti();
-            this.numeroDomande= s.numeroDomande;
-            this.analisi= s.getAnalisi();
+            System.out.println("s:"+s.toString());
+                this.utente = s.getUtente();
+                this.Domande = s.getDomande();
+                this.risposte = s.getRisposte();
+                this.analisi = s.getAnalisi();
+                this.Documenti = s.getDocumenti();
+                this.numeroDomande = s.numeroDomande;
+                this.punteggioFatto = s.getPunteggioFatto();
+                this.durata = s.getDurata();
+                this.numeroDocumenti = s.getNumeroDocumenti();
+                this.stopWords = s.getStopWords();
             System.out.println("Fine salvataggio");
         } catch (FileNotFoundException ex) {
             Logger.getLogger(SessioneDiGioco.class.getName()).log(Level.SEVERE, null, ex);
@@ -149,7 +196,7 @@ public class SessioneDiGioco{
         int documentiExtra = this.numeroDomande % nomiDocumenti.length;
         
         for(int i=0; i< nomiDocumenti.length;i++){
-            List<Domanda> prova = gen.getRaccoltaDiDomande(domandePerDocumento+(i < documentiExtra ? 1 : 0),nomiDocumenti[i]);
+            List<Domanda> prova = new ArrayList<>(gen.getRaccoltaDiDomande(domandePerDocumento+(i < documentiExtra ? 1 : 0),nomiDocumenti[i]));
             System.out.println("generaDomande:  130 "+ prova);
            this.Domande.addAll(prova) ;
         }  
@@ -193,6 +240,11 @@ public class SessioneDiGioco{
         } catch (IOException e) {
             System.err.println("Errore durante la scrittura del file: " + e.getMessage());
         }
+    }
+
+    @Override
+    public String toString() {
+        return "SessioneDiGioco{" + "utente=" + utente + ", Domande=" + Domande + ", risposte=" + risposte + ", analisi=" + analisi + ", Documenti=" + Documenti + ", numeroDomande=" + numeroDomande + ", punteggioFatto=" + punteggioFatto + ", durata=" + durata + ", numeroDocumenti=" + numeroDocumenti + ", stopWords=" + stopWords + '}';
     }
     
 }

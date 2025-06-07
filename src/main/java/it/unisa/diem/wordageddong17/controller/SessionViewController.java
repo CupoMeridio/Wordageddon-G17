@@ -6,7 +6,7 @@
 package it.unisa.diem.wordageddong17.controller;
 
 import it.unisa.diem.wordageddong17.App;
-import it.unisa.diem.wordageddong17.model.CaricaSessioneDiGioco;
+import it.unisa.diem.wordageddong17.service.CaricaSessioneDiGiocoService;
 import it.unisa.diem.wordageddong17.model.GeneratoreDomande.Domanda;
 import it.unisa.diem.wordageddong17.model.LivelloPartita;
 import it.unisa.diem.wordageddong17.model.AppState;
@@ -80,7 +80,7 @@ public class SessionViewController implements Initializable {
     @FXML
     private Label contatoreLettura;
     
-    private CaricaSessioneDiGioco caricaSessione;
+    private CaricaSessioneDiGiocoService caricaSessione;
     private SessioneDiGioco sessione;
     private int contatoreDomanda = 1;
     private Timeline tm;
@@ -109,7 +109,7 @@ public class SessionViewController implements Initializable {
     this.FaseLettura.setVisible(true);
     this.NumeroDiDomande=0;
     sessione = new SessioneDiGioco(4, durata, stato.getUtente(),1);
-    this.caricaSessione = new CaricaSessioneDiGioco(this.sessione, LivelloPartita.FACILE);
+    this.caricaSessione = new CaricaSessioneDiGiocoService(this.sessione, LivelloPartita.FACILE);
     this.serviceInitialize();
     this.caricaSessione.start();
     this.inizializzaTimer();

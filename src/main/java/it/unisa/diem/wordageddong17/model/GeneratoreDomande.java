@@ -1,5 +1,6 @@
 package it.unisa.diem.wordageddong17.model;
 
+import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -28,7 +29,7 @@ public class GeneratoreDomande {
      * Classe che rappresenta una domanda a risposta multipla.
      * Contiene il testo della domanda, le opzioni e l'indice della risposta corretta.
      */
-    public static class Domanda {
+    public static class Domanda implements Serializable{
         /** Testo della domanda */
         public final String testo;
         /** Lista delle opzioni di risposta */
@@ -126,7 +127,7 @@ public class GeneratoreDomande {
         if (parole == null || parole.size() < 4) return null; 
         List<String> paroleDoc = new ArrayList<>(parole.keySet());
         Collections.shuffle(paroleDoc); 
-        List<String> scelte = paroleDoc.subList(0, 4); 
+        List<String> scelte = new ArrayList<>(paroleDoc.subList(0, 4)); 
         String parolaMax = scelte.stream().max(Comparator.comparingInt(parole::get)).get(); // viene creato uno stream di parole, e si trova quella con frequenza massima
         int idx = scelte.indexOf(parolaMax); // indice della parola più frequente
 

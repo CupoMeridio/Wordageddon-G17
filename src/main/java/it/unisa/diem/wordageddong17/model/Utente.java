@@ -1,15 +1,14 @@
 package it.unisa.diem.wordageddong17.model;
 
-import it.unisa.diem.wordageddong17.database.DatabaseUtente;
 import it.unisa.diem.wordageddong17.interfaccia.DAOUtente;
+import java.io.Serializable;
 
 /**
  *
  * @author Mattia Sanzari
  */
-public class Utente {
+public class Utente implements Serializable {
     
-    DAOUtente db;
     private String username;
     private final String email;
     private byte[] fotoProfilo;
@@ -20,7 +19,6 @@ public class Utente {
         this.email = email;
         this.fotoProfilo = fotoProfilo;
         this.tipo = tipo;
-        db= DatabaseUtente.getInstance();
     }
 
     public Utente(String username, String email, TipoUtente tipo) {

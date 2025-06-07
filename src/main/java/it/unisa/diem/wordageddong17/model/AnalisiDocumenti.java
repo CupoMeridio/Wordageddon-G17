@@ -43,6 +43,7 @@ public class AnalisiDocumenti {
      */
     
     private Map<String,Map<String,Integer>> Matrice;
+    private byte[] stopWords;
     
     /**
      * Costruttore della classe AnalisiDocumenti.
@@ -51,6 +52,11 @@ public class AnalisiDocumenti {
     
     public AnalisiDocumenti() {
          Matrice = new HashMap<String,Map<String,Integer>>();
+         this.stopWords = null;
+    }
+
+    public void setStopWords(byte[] stopWords) {
+        this.stopWords = stopWords;
     }
     
     /**

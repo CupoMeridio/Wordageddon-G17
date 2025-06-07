@@ -1,5 +1,6 @@
 package it.unisa.diem.wordageddong17.database;
 
+import it.unisa.diem.wordageddong17.interfaccia.DAOClassifica;
 import it.unisa.diem.wordageddong17.model.Classifica;
 import it.unisa.diem.wordageddong17.model.LivelloPartita;
 import java.sql.PreparedStatement;
@@ -11,7 +12,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Implementazione dell'interfaccia {@code DosClassifica} per la gestione delle operazioni
+ * Implementazione dell'interfaccia {@code DAOClassifica} per la gestione delle operazioni
  * di classifica nel database.
  * <p>
  * Questa classe fornisce metodi per recuperare e gestire le classifiche dei giocatori
@@ -22,7 +23,7 @@ import java.util.logging.Logger;
  * 
  */
 
-public class DatabaseClassifica implements DosClassifica {
+public class DatabaseClassifica implements DAOClassifica {
     
     /**
      * Istanza del database utilizzata per le operazioni di accesso ai dati.
@@ -109,6 +110,7 @@ public class DatabaseClassifica implements DosClassifica {
         return DatabaseClassifica.Holder.INSTANCE;
     }
     
+    @Override
     public List<Classifica> recuperaCronologiaPartite(String email){
         List<Classifica> L = new ArrayList<>();
         String query = "SELECT utente.username, data, punti , difficolta\n"
@@ -135,6 +137,7 @@ public class DatabaseClassifica implements DosClassifica {
         return L;
     }
     
+    @Override
     public int recuperaNumeroPartite(String email, String difficoltà){
         int n = 0;
         String query = "SELECT COUNT(*) AS n_p\n"
@@ -155,6 +158,7 @@ public class DatabaseClassifica implements DosClassifica {
         return n;
     }
     
+    @Override
     public float recuperaMigliorPunteggio(String email, String difficoltà){
         float punteggio = 0;
         String query = "SELECT MAX(punti) AS max_p\n"

@@ -1,15 +1,15 @@
 package it.unisa.diem.wordageddong17.model;
 
 import it.unisa.diem.wordageddong17.database.DatabaseUtente;
-import it.unisa.diem.wordageddong17.database.DosUtente;
+import it.unisa.diem.wordageddong17.interfaccia.DAOUtente;
 
 /**
  *
  * @author Mattia Sanzari
  */
-public abstract class Utente {
+public class Utente {
     
-    DosUtente db;
+    DAOUtente db;
     private String username;
     private final String email;
     private byte[] fotoProfilo;

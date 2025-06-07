@@ -66,10 +66,17 @@
             <artifactId>jansi</artifactId>
             <version>${jansi.version}</version>
         </dependency>
+        
+            <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-javadoc-plugin -->
+        <dependency>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <version>3.11.2</version>
+        </dependency>
     </dependencies>
-    
+       
     <build>
-        <plugins>
+        <plugins>  
             <!-- Plugin per generare l'eseguibile con tutte le dipendenze -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

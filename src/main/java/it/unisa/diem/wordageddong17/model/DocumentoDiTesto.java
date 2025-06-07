@@ -26,20 +26,7 @@ public record DocumentoDiTesto(
     String emailAmministratore,
     Lingua lingua
 ) {
-    /**
-     * Costruttore compatto che valida tutti i parametri di input.
-     * 
-     * Questo costruttore viene chiamato automaticamente quando si crea una nuova istanza
-     * del record e garantisce che tutti i parametri obbligatori siano non-null.
-     * 
-     */
 
-    public DocumentoDiTesto {
-        Objects.requireNonNull(nomeFile, "Il nome del file non può essere null");
-        Objects.requireNonNull(emailAmministratore, "L'email dell'amministratore non può essere null");
-        Objects.requireNonNull(lingua, "La lingua non può essere null");
-        Objects.requireNonNull(difficolta, "La difficoltà non può essere null");
-    }
 
     /**
      * Restituisce il nome della lingua.

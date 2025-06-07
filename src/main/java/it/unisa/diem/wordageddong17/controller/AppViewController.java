@@ -2,12 +2,14 @@ package it.unisa.diem.wordageddong17.controller;
 
 import it.unisa.diem.wordageddong17.App;
 import it.unisa.diem.wordageddong17.database.DatabaseClassifica;
-import it.unisa.diem.wordageddong17.database.DatabaseRegistrazioneLogin;
-import it.unisa.diem.wordageddong17.model.Amministratore;
+import it.unisa.diem.wordageddong17.database.DatabaseDocumentoDiTesto;
+import it.unisa.diem.wordageddong17.database.DatabaseStopWords;
+import it.unisa.diem.wordageddong17.database.DatabaseUtente;
+import it.unisa.diem.wordageddong17.interfaccia.DAOClassifica;
+import it.unisa.diem.wordageddong17.interfaccia.DAOListaStopWords;
 import it.unisa.diem.wordageddong17.model.AppState;
 import it.unisa.diem.wordageddong17.model.Classifica;
 import it.unisa.diem.wordageddong17.model.DocumentoDiTesto;
-import it.unisa.diem.wordageddong17.model.Giocatore;
 import it.unisa.diem.wordageddong17.model.Lingua;
 import it.unisa.diem.wordageddong17.model.LivelloPartita;
 import it.unisa.diem.wordageddong17.model.TipoUtente;
@@ -20,7 +22,6 @@ import java.nio.file.Files;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.function.UnaryOperator;
@@ -62,6 +63,9 @@ import javafx.scene.layout.VBox;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.FileChooser;
+import it.unisa.diem.wordageddong17.interfaccia.DAODocumentoDiTesto;
+import it.unisa.diem.wordageddong17.interfaccia.DAOUtente;
+import java.nio.file.Paths;
 
 /**
  * FXML Controller class
@@ -294,8 +298,8 @@ public class AppViewController implements Initializable {
     // ========== ATTRIBUTI PRIVATI ==========
     
     /** @brief Istanza singleton del database per autenticazione */
-    private final DatabaseRegistrazioneLogin db = DatabaseRegistrazioneLogin.getInstance();
-    private final DatabaseClassifica sbc = DatabaseClassifica.getInstance();
+    private final DAOUtente db = DatabaseUtente.getInstance();
+    private final DAOClassifica dbC= DatabaseClassifica.getInstance();
     private final AppState appstate = AppState.getInstance();
     private ObservableList<Classifica> classificaFacile;
     private ObservableList<Classifica> classificaMedia;
@@ -304,6 +308,9 @@ public class AppViewController implements Initializable {
     private ObservableList<DocumentoDiTesto> listaDocumenti;
     private Task<Void> currentLoadingTask;
     private File fileSelezionato;
+    private DAODocumentoDiTesto dbDT= DatabaseDocumentoDiTesto.getInstance();
+    private DAOListaStopWords dbSW = DatabaseStopWords.getInstance();
+    
     @FXML
     private MenuItem eliminaDocItem;
     @FXML
@@ -503,17 +510,17 @@ public class AppViewController implements Initializable {
                     return null;
                 }
 
-                List<Classifica> facile = sbc.prendiClassifica(LivelloPartita.FACILE);
+                List<Classifica> facile = dbC.prendiClassifica(LivelloPartita.FACILE);
                 if (isCancelled()) {
                     return null;
                 }
 
-                List<Classifica> medio = sbc.prendiClassifica(LivelloPartita.MEDIO);
+                List<Classifica> medio = dbC.prendiClassifica(LivelloPartita.MEDIO);
                 if (isCancelled()) {
                     return null;
                 }
 
-                List<Classifica> difficile = sbc.prendiClassifica(LivelloPartita.DIFFICILE);
+                List<Classifica> difficile = dbC.prendiClassifica(LivelloPartita.DIFFICILE);
                 if (isCancelled()) {
                     return null;
                 }
@@ -667,12 +674,12 @@ public class AppViewController implements Initializable {
         }
 
         // Crea l'utente una sola volta, a seconda che ci sia immagine o meno
-        Giocatore nuovoUtente;
+        Utente nuovoUtente;
         if (immagineBytes == null) {
-            nuovoUtente = new Giocatore(username.getText(), email.getText(), TipoUtente.giocatore);
+            nuovoUtente = new Utente(username.getText(), email.getText(), TipoUtente.giocatore);
             fotoProfilo.setImage(getPlaceholderImage());
         } else {
-            nuovoUtente = new Giocatore(username.getText(), email.getText(), immagineBytes, TipoUtente.giocatore);
+            nuovoUtente = new Utente(username.getText(), email.getText(), immagineBytes, TipoUtente.giocatore);
             fotoProfilo.setImage(new Image(new ByteArrayInputStream(immagineBytes)));
         }
         appstate.setUtente(nuovoUtente);
@@ -882,16 +889,14 @@ public class AppViewController implements Initializable {
         Object utente = appstate.getUtente();
 
         try {
-            if (utente instanceof Amministratore amministratore) {
+            
                 listaDocumenti.clear(); // Buona pratica: evita duplicati
-                listaDocumenti.addAll(amministratore.prendiTuttiIDocumenti());
+                listaDocumenti.addAll(dbDT.prendiTuttiIDocumenti());
 
                 if (listaDocumenti.isEmpty()) {
                     mostraAlert("Attenzione", "Nessun documento trovato.", Alert.AlertType.INFORMATION);
                 }
-            } else {
-                mostraAlert("Errore", "Accesso negato: solo un amministratore può visualizzare i documenti.", Alert.AlertType.ERROR);
-            }
+
         } catch (Exception e) {
             mostraAlert("Errore", "Impossibile caricare la lista documenti: " + e.getMessage(), Alert.AlertType.ERROR);
         }
@@ -968,17 +973,14 @@ public class AppViewController implements Initializable {
             mostraAlert("Errore", "Completa tutti i campi prima di salvare.", Alert.AlertType.WARNING);
             return;
         }
-        Utente utente = appstate.getUtente();
-        if (!(utente instanceof Amministratore amministratore)) {
-            mostraAlert("Errore", "Solo un amministratore può caricare testi.", Alert.AlertType.ERROR);
-            return;
-        }
+
         try {
-            amministratore.caricaTesto(
+            dbDT.caricaTesto(
+                appstate.getUtente().getEmail(),
                 fileSelezionato.getName(),
                 getDifficoltaSelezionataAdmin(),
-                fileSelezionato.getAbsolutePath(),
-                getLinguaSelezionataAdmin()
+                fileSelezionato.getAbsolutePath().getBytes(),
+                getLinguaSelezionataAdmin()               
             );
             mostraAlert("Successo", "Documento caricato correttamente.", Alert.AlertType.INFORMATION);
             pathTextField.clear();
@@ -996,12 +998,9 @@ public class AppViewController implements Initializable {
         String nomeFile = fileSelezionato.getName();
         String path = fileSelezionato.getAbsolutePath();
         Object utente = appstate.getUtente();
-        if (!(utente instanceof Amministratore amministratore)) {
-            mostraAlert("Errore", "Solo un amministratore può caricare stopwords.", Alert.AlertType.ERROR);
-            return;
-        }
+
         try {
-            amministratore.CaricareStopwords(nomeFile, path);
+            dbSW.CaricareStopwords(appstate.getUtente().getEmail(), Files.readAllBytes(Paths.get(path)),nomeFile);
             mostraAlert("Successo", "Documento caricato correttamente.", Alert.AlertType.INFORMATION);
             pathTextField.clear();
             fileSelezionato = null;
@@ -1035,13 +1034,13 @@ public class AppViewController implements Initializable {
             @Override
             protected Void call() throws Exception {
                 try {
-                    List<Classifica> cronologiaPartiteList = sbc.recuperaCronologiaPartite(utente.getEmail());
-                    int facileCount = sbc.recuperaNumeroPartite(utente.getEmail(), LivelloPartita.FACILE.getDbValue());
-                    int medioCount = sbc.recuperaNumeroPartite(utente.getEmail(), LivelloPartita.MEDIO.getDbValue());
-                    int difficileCount = sbc.recuperaNumeroPartite(utente.getEmail(), LivelloPartita.DIFFICILE.getDbValue());
-                    float facilePunteggio = sbc.recuperaMigliorPunteggio(utente.getEmail(), LivelloPartita.FACILE.getDbValue());
-                    float medioPunteggio = sbc.recuperaMigliorPunteggio(utente.getEmail(), LivelloPartita.MEDIO.getDbValue());
-                    float difficilePunteggio = sbc.recuperaMigliorPunteggio(utente.getEmail(), LivelloPartita.DIFFICILE.getDbValue());
+                    List<Classifica> cronologiaPartiteList = dbC.recuperaCronologiaPartite(utente.getEmail());
+                    int facileCount = dbC.recuperaNumeroPartite(utente.getEmail(), LivelloPartita.FACILE.getDbValue());
+                    int medioCount = dbC.recuperaNumeroPartite(utente.getEmail(), LivelloPartita.MEDIO.getDbValue());
+                    int difficileCount = dbC.recuperaNumeroPartite(utente.getEmail(), LivelloPartita.DIFFICILE.getDbValue());
+                    float facilePunteggio = dbC.recuperaMigliorPunteggio(utente.getEmail(), LivelloPartita.FACILE.getDbValue());
+                    float medioPunteggio = dbC.recuperaMigliorPunteggio(utente.getEmail(), LivelloPartita.MEDIO.getDbValue());
+                    float difficilePunteggio = dbC.recuperaMigliorPunteggio(utente.getEmail(), LivelloPartita.DIFFICILE.getDbValue());
 
                     Platform.runLater(() -> {
                         listaCronologiaPartite.setAll(cronologiaPartiteList);
@@ -1290,14 +1289,8 @@ public class AppViewController implements Initializable {
                     DocumentoDiTesto doc = getTableView().getItems().get(getIndex());
                     if (doc == null) return;
 
-                    Object utente = appstate.getUtente();
-                    if (!(utente instanceof Amministratore amministratore)) {
-                        mostraAlert("Errore", "Operazione non permessa!", Alert.AlertType.ERROR);
-                        return;
-                    }
-
                     try {
-                        byte[] contenuto = amministratore.prendiTesto(doc.getNomeFile());
+                        byte[] contenuto = dbDT.prendiTesto(doc.getNomeFile());
                         if (contenuto == null || contenuto.length == 0) {
                             mostraAlert("Attenzione", "File vuoto o non trovato", Alert.AlertType.WARNING);
                             return;
@@ -1404,11 +1397,10 @@ public class AppViewController implements Initializable {
     private void backToGestDoc(ActionEvent event) {
         chiudiTutto();
         pulisciTutto();
-        Utente u = appstate.getUtente();
-        if (u instanceof Amministratore amministratore) {
+
                 listaDocumenti.clear(); // Buona pratica: evita duplicati
-                listaDocumenti.addAll(amministratore.prendiTuttiIDocumenti());
-        }
+                listaDocumenti.addAll(dbDT.prendiTuttiIDocumenti());
+        
         gestioneDocumentiView.setVisible(true);
     }
 
@@ -1421,12 +1413,6 @@ public class AppViewController implements Initializable {
             return;
         }
 
-        if (!(appstate.getUtente() instanceof Amministratore)) {
-            mostraAlert("Errore", "Solo l'amministratore può eliminare documenti.", Alert.AlertType.ERROR);
-            return;
-        }
-
-        Amministratore a = (Amministratore) appstate.getUtente();
 
         // Mostra l'overlay prima di iniziare
         loadingOverlay.setVisible(true);
@@ -1435,7 +1421,7 @@ public class AppViewController implements Initializable {
             @Override
             protected Void call() {
                 for (DocumentoDiTesto doc : selezionati) {
-                    a.cancellaTesto(doc.getNomeFile()); // operazione di eliminazione lato "server"
+                    dbDT.cancellaTesto(doc.getNomeFile()); // operazione di eliminazione lato "server"
                 }
                 return null;
             }

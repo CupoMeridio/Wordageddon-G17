@@ -10,13 +10,9 @@ import it.unisa.diem.wordageddong17.model.CaricaSessioneDiGioco;
 import it.unisa.diem.wordageddong17.model.GeneratoreDomande.Domanda;
 import it.unisa.diem.wordageddong17.model.LivelloPartita;
 import it.unisa.diem.wordageddong17.model.AppState;
-import it.unisa.diem.wordageddong17.model.Giocatore;
-import it.unisa.diem.wordageddong17.model.SessioneDiGiocoOnline;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.event.ActionEvent;
@@ -32,12 +28,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 import it.unisa.diem.wordageddong17.model.SessioneDiGioco;
-import it.unisa.diem.wordageddong17.model.TipoUtente;
-import java.io.DataInputStream;
-import java.io.FileInputStream;
-import java.nio.file.Files;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
@@ -114,7 +104,6 @@ public class SessionViewController implements Initializable {
    public void initialize(URL url, ResourceBundle rb) {
     
     this.stato = AppState.getInstance();
-    stato.setUtente(new Giocatore("username", "email", TipoUtente.giocatore));
     this.TestoDaLeggere.setEditable(false);
     this.TestoDaLeggere.setMouseTransparent(true);
     this.TestoDaLeggere.setFocusTraversable(false);
@@ -122,7 +111,7 @@ public class SessionViewController implements Initializable {
     this.schermataGameOver.setVisible(false);
     this.FaseLettura.setVisible(true);
     this.NumeroDiDomande=0;
-    sessione = new SessioneDiGiocoOnline(4, 1, durata, this.stato.getUtente());
+    sessione = new SessioneDiGioco(4, durata, stato.getUtente(),1);
     this.caricaSessione = new CaricaSessioneDiGioco(this.sessione, LivelloPartita.FACILE);
     this.serviceInitialize();
     this.caricaSessione.start();

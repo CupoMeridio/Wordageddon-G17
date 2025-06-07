@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package it.unisa.diem.wordageddong17.model;
 
 import it.unisa.diem.wordageddong17.model.GeneratoreDomande.Domanda;
@@ -15,17 +11,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.concurrent.Service;
-import javafx.concurrent.Task;
 
 /**
  *
  * @author Mattia Sanzari
  */
-abstract public class SessioneDiGioco{
+public class SessioneDiGioco{
     private Utente utente;
     private List<Domanda> Domande;
     private Map<Domanda, Integer> risposte;
@@ -34,9 +28,19 @@ abstract public class SessioneDiGioco{
     private int numeroDomande;// numero di domande per documento 
     private float punteggioFatto;
     private int durata;
+    private int numeroDocumenti;
+    private byte[] stopWords;
+
+    public void setStopWords(byte[] stopWords) {
+        this.stopWords = stopWords;
+    }
+
+    public byte[] getStopWords() {
+        return stopWords;
+    }
     
 
-    public SessioneDiGioco(int numeroDomande, int durata, Utente utente) {
+    public SessioneDiGioco(int numeroDomande, int durata, Utente utente, int numeroDocumenti) {
         this.numeroDomande = numeroDomande;
         this.Domande = new ArrayList<>();
         this.Documenti= new HashMap<>();
@@ -45,6 +49,20 @@ abstract public class SessioneDiGioco{
         this.durata=durata;
         this.risposte= new HashMap<>();
         this.utente= utente;
+        this.numeroDocumenti = numeroDocumenti;
+        this.stopWords = null;
+    }
+
+    public Utente getUtente() {
+        return utente;
+    }
+
+    public int getDurata() {
+        return durata;
+    }
+
+    public int getNumeroDocumenti() {
+        return numeroDocumenti;
     }
 
     public Map<Domanda, Integer> getRisposte() {
@@ -139,6 +157,42 @@ abstract public class SessioneDiGioco{
         System.out.println("generaDomande:  136 "+ Domande);
     }
 
-    public abstract void generaDocumenti(LivelloPartita l);
+    public void generaDocumenti(LivelloPartita l, Map<String, byte[]>  documentiDifficolta ) {
+       // Map<String, byte[]> documentiDifficolta = db.prendiDocumenti(l);
+        List<String> chiavi= new ArrayList<>(documentiDifficolta.keySet());
+        
+        Random rnd = new Random();
+        System.out.println("generaDocumenti: " +documentiDifficolta);
+        
+        if(documentiDifficolta != null && !documentiDifficolta.isEmpty()){
+            for(int i=0; i<this.numeroDocumenti; i++){
+                int numerocasuale=rnd.nextInt(this.numeroDocumenti);
+                this.addDocumenti(chiavi.get(numerocasuale), documentiDifficolta.get(chiavi.get(numerocasuale))); 
+                this.generaAnalisi( chiavi.get(numerocasuale),documentiDifficolta.get(chiavi.get(numerocasuale)));
+            }
+        }else{
+            System.out.println("Non ci sono documenti con quella difficoltà");
+        }
+    }
+    
+    private void generaAnalisi(String NomeDocumento,byte[] doc){
+        try {
+            this.getAnalisi().analisiUnDocumento(doc, NomeDocumento);
+        } catch (IOException ex) {
+            System.getLogger(SessioneDiGioco.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+        }
+        
+    
+    }
+    //per ora non è utile-> nel caso si elimina
+    private void SalvaDocumentiInLocale(String nomedoc, byte[] documento){
+    
+         try (FileOutputStream fos = new FileOutputStream(nomedoc)) {
+            fos.write(documento);
+            System.out.println("Scrittura completata!");
+        } catch (IOException e) {
+            System.err.println("Errore durante la scrittura del file: " + e.getMessage());
+        }
+    }
     
 }

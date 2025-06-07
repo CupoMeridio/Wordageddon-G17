@@ -1,11 +1,7 @@
 package it.unisa.diem.wordageddong17.controller;
 
 import it.unisa.diem.wordageddong17.App;
-import it.unisa.diem.wordageddong17.database.DatabaseClassifica;
-import it.unisa.diem.wordageddong17.database.DatabaseDocumentoDiTesto;
 import it.unisa.diem.wordageddong17.database.DatabaseStopWords;
-import it.unisa.diem.wordageddong17.database.DatabaseUtente;
-import it.unisa.diem.wordageddong17.interfaccia.DAOClassifica;
 import it.unisa.diem.wordageddong17.interfaccia.DAOListaStopWords;
 import it.unisa.diem.wordageddong17.model.AppState;
 import it.unisa.diem.wordageddong17.model.Classifica;
@@ -63,9 +59,22 @@ import javafx.scene.layout.VBox;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.FileChooser;
-import it.unisa.diem.wordageddong17.interfaccia.DAODocumentoDiTesto;
-import it.unisa.diem.wordageddong17.interfaccia.DAOUtente;
+import it.unisa.diem.wordageddong17.model.InfoGiocatore;
+import it.unisa.diem.wordageddong17.service.CaricaTestoService;
+import it.unisa.diem.wordageddong17.service.EliminaTestoService;
+import it.unisa.diem.wordageddong17.service.InserisciUtenteService;
+import it.unisa.diem.wordageddong17.service.LoginService;
+import it.unisa.diem.wordageddong17.service.ModificaFotoProfiloService;
+import it.unisa.diem.wordageddong17.service.PrendiClassificheService;
+import it.unisa.diem.wordageddong17.service.PrendiInfoUtenteService;
+import it.unisa.diem.wordageddong17.service.PrendiTestoService;
+import it.unisa.diem.wordageddong17.service.PrendiTuttiIDocumentiService;
+import it.unisa.diem.wordageddong17.service.PrendiUtenteService;
 import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
+import javafx.concurrent.Service;
+import javafx.concurrent.Worker;
 
 /**
  * FXML Controller class
@@ -293,24 +302,7 @@ public class AppViewController implements Initializable {
     @FXML
     private Button backToGestDoc;
     @FXML
-    private AnchorPane loadingOverlay;
-    
-    // ========== ATTRIBUTI PRIVATI ==========
-    
-    /** @brief Istanza singleton del database per autenticazione */
-    private final DAOUtente db = DatabaseUtente.getInstance();
-    private final DAOClassifica dbC= DatabaseClassifica.getInstance();
-    private final AppState appstate = AppState.getInstance();
-    private ObservableList<Classifica> classificaFacile;
-    private ObservableList<Classifica> classificaMedia;
-    private ObservableList<Classifica> classificaDifficile;
-    private ObservableList<Classifica> listaCronologiaPartite;
-    private ObservableList<DocumentoDiTesto> listaDocumenti;
-    private Task<Void> currentLoadingTask;
-    private File fileSelezionato;
-    private DAODocumentoDiTesto dbDT= DatabaseDocumentoDiTesto.getInstance();
-    private DAOListaStopWords dbSW = DatabaseStopWords.getInstance();
-    
+    private AnchorPane loadingOverlay;     
     @FXML
     private MenuItem eliminaDocItem;
     @FXML
@@ -334,6 +326,31 @@ public class AppViewController implements Initializable {
     @FXML
     private Button iniziaPartita;
  
+    
+    // ========== ATTRIBUTI PRIVATI ==========
+    
+    /** @brief Istanza singleton del database per autenticazione */
+
+
+    private final AppState appstate = AppState.getInstance();
+    private ObservableList<Classifica> classificaFacile;
+    private ObservableList<Classifica> classificaMedia;
+    private ObservableList<Classifica> classificaDifficile;
+    private ObservableList<Classifica> listaCronologiaPartite;
+    private ObservableList<DocumentoDiTesto> listaDocumenti;
+    private File fileSelezionato;
+    private final DAOListaStopWords dbSW = DatabaseStopWords.getInstance();
+    private PrendiClassificheService pcs = new PrendiClassificheService();
+    private PrendiInfoUtenteService pius = new PrendiInfoUtenteService();
+    private PrendiUtenteService pus = new PrendiUtenteService();
+    private InserisciUtenteService ius = new InserisciUtenteService();
+    private LoginService ls = new LoginService();
+    private EliminaTestoService ets = new EliminaTestoService();
+    private PrendiTuttiIDocumentiService ptds = new PrendiTuttiIDocumentiService();
+    private CaricaTestoService cts = new CaricaTestoService();
+    private PrendiTestoService pts = new PrendiTestoService();
+    private ModificaFotoProfiloService mfps = new ModificaFotoProfiloService();
+
     
     /**
      * Initializes the controller class.
@@ -408,22 +425,14 @@ public class AppViewController implements Initializable {
         passaARegistratiButton.setDisable(true);
         loadingOverlay.setVisible(true);
 
-        // Task che esegue il login in background
-        Task<Utente> loginTask = new Task<>() {
-            @Override
-            protected Utente call() throws Exception {
-                if (!db.verificaPassword(email, password)) {
-                    return null;
-                }
-                return db.prendiUtente(email); // anche questa operazione può essere lenta
-            }
-        };
+        this.ls.setEmail(email);
+        this.ls.setPassword(password);     
 
-        loginTask.setOnSucceeded(workerStateEvent -> {
+        ls.setOnSucceeded(workerStateEvent -> {
             accediButton.setDisable(false);
             passaARegistratiButton.setDisable(false);
             
-            Utente utente = loginTask.getValue();
+            Utente utente = this.ls.getValue();
             if (utente != null) {
                 appstate.setUtente(utente);
                 configuraPulsantiAdmin();
@@ -437,18 +446,19 @@ public class AppViewController implements Initializable {
                 mostraAlert("Errore", "Email o password errati", Alert.AlertType.WARNING);
             }
             loadingOverlay.setVisible(false);
+            this.resetService(ls);
         });
 
-        loginTask.setOnFailed(workerStateEvent -> {
+        ls.setOnFailed(workerStateEvent -> {
             accediButton.setDisable(false);
             passaARegistratiButton.setDisable(false);
             loadingOverlay.setVisible(false);
 
-            Throwable e = loginTask.getException();
             mostraAlert("Errore", "Si è verificato un errore durante il login. Riprova più tardi.", Alert.AlertType.ERROR);
+            this.resetService(ls);
         });
 
-        new Thread(loginTask).start();
+        this.ls.start();
     }
 
 
@@ -493,59 +503,40 @@ public class AppViewController implements Initializable {
      */
     @FXML
     private void classificheOnAction(ActionEvent event) {
+
         if(classificheButton.isDisable()) return;
         classificheButton.setDisable(true);
         // Interrompi eventuale caricamento in corso
-        if (currentLoadingTask != null && currentLoadingTask.isRunning()) {
-            currentLoadingTask.cancel();
+        if (this.pcs != null && pcs.isRunning()) {
+            pcs.cancel();
         }
-
         chiudiTutto();
         schermataClassifiche.setVisible(true);
-
-        currentLoadingTask = new Task<Void>() {
-            @Override
-            protected Void call() throws Exception {
-                if (isCancelled()) {
-                    return null;
-                }
-
-                List<Classifica> facile = dbC.prendiClassifica(LivelloPartita.FACILE);
-                if (isCancelled()) {
-                    return null;
-                }
-
-                List<Classifica> medio = dbC.prendiClassifica(LivelloPartita.MEDIO);
-                if (isCancelled()) {
-                    return null;
-                }
-
-                List<Classifica> difficile = dbC.prendiClassifica(LivelloPartita.DIFFICILE);
-                if (isCancelled()) {
-                    return null;
-                }
-
-                Platform.runLater(() -> {
-                    classificaFacile.setAll(facile);
-                    classificaMedia.setAll(medio);
-                    classificaDifficile.setAll(difficile);
-                });
-
-                return null;
-            }
-        };
-        currentLoadingTask.setOnSucceeded(e-> classificheButton.setDisable(false));
-        currentLoadingTask.setOnCancelled(e-> classificheButton.setDisable(false));
         
-        currentLoadingTask.setOnFailed(e -> {
-            Throwable exception = currentLoadingTask.getException();
-            Platform.runLater(()
-                    -> mostraAlert("Errore", "Caricamento fallito: " + exception.getMessage(), Alert.AlertType.ERROR));
-            exception.printStackTrace(); // Log to console
+        this.pcs.setOnSucceeded(e->{
             classificheButton.setDisable(false);
+            Map<LivelloPartita,List<Classifica>> classifiche =new HashMap<LivelloPartita, List<Classifica>>();
+            classifiche = pcs.getValue();
+            classificaFacile.setAll(classifiche.get(LivelloPartita.FACILE));
+            classificaMedia.setAll(classifiche.get(LivelloPartita.MEDIO));
+            classificaDifficile.setAll(classifiche.get(LivelloPartita.DIFFICILE));
+            this.resetService(pcs);
+        });
+        
+        pcs.setOnCancelled(e->{ 
+                classificheButton.setDisable(false);
+                this.resetService(pcs);
+        });
+        
+        pcs.setOnFailed(e -> {
+            Platform.runLater(()
+                    -> mostraAlert("Errore", "Caricamento delle classifiche fallito.", Alert.AlertType.ERROR));
+            classificheButton.setDisable(false);
+            this.resetService(pcs);
         });
 
-        new Thread(currentLoadingTask).start();
+        pcs.start();
+
     }
 
     /**
@@ -571,8 +562,8 @@ public class AppViewController implements Initializable {
 
     @FXML
     private void chiudiClassificheOnAction(ActionEvent event) {
-        if (currentLoadingTask != null && currentLoadingTask.isRunning()) {
-            currentLoadingTask.cancel();
+        if (pcs != null && pcs.isRunning()) {
+            pcs.cancel();
         }
         chiudiTutto();
         schermataHome.setVisible(true);
@@ -645,10 +636,17 @@ public class AppViewController implements Initializable {
             mostraAlert("Email non valida", "L'email inserita non è valida.", Alert.AlertType.ERROR);
             return;
         }
-        if (db.prendiUtente(email.getText()) != null) {
+        this.pus.setEmail(email.getText());
+        pus.start();
+        
+        pus.setOnSucceeded(e->{
+            if (pus.getValue() != null) {
             mostraAlert("Email già utilizzata", "Questa email è già associata a un altro account.", Alert.AlertType.ERROR);
+            this.resetService(pus);
             return;
         }
+        });
+        
         if (!password.getText().equals(repeatPassword.getText())) {
             mostraAlert("Password non corrispondenti", "Le due password inserite non corrispondono", Alert.AlertType.ERROR);
             return;
@@ -665,13 +663,18 @@ public class AppViewController implements Initializable {
                 return;
             }
         }
-
-        try {
-            db.inserisciUtente(username.getText(), email.getText(), password.getText(), immagineBytes);
-        } catch (Exception e) {
-            mostraAlert("Errore", "Errore durante la registrazione: " + e.getMessage(), Alert.AlertType.ERROR);
-            return;
-        }
+        
+        this.ius.setEmail(email.getText());
+        this.ius.setUsername(username.getText());
+        this.ius.setImmagineBytes(immagineBytes);
+        this.ius.setPassword(password.getText());
+        
+        ius.setOnFailed(e->{
+             mostraAlert("Errore", "Errore durante la registrazione. ", Alert.AlertType.ERROR);
+             this.resetService(ius);
+             return;
+        });
+        ius.start();
 
         // Crea l'utente una sola volta, a seconda che ci sia immagine o meno
         Utente nuovoUtente;
@@ -889,13 +892,18 @@ public class AppViewController implements Initializable {
         Object utente = appstate.getUtente();
 
         try {
-            
+                ptds.setOnSucceeded(e->{
                 listaDocumenti.clear(); // Buona pratica: evita duplicati
-                listaDocumenti.addAll(dbDT.prendiTuttiIDocumenti());
-
+                listaDocumenti.addAll(this.ptds.getValue());
                 if (listaDocumenti.isEmpty()) {
                     mostraAlert("Attenzione", "Nessun documento trovato.", Alert.AlertType.INFORMATION);
                 }
+                this.resetService(ptds);
+                });
+               
+                this.ptds.start();
+                
+                
 
         } catch (Exception e) {
             mostraAlert("Errore", "Impossibile caricare la lista documenti: " + e.getMessage(), Alert.AlertType.ERROR);
@@ -974,20 +982,25 @@ public class AppViewController implements Initializable {
             return;
         }
 
-        try {
-            dbDT.caricaTesto(
-                appstate.getUtente().getEmail(),
-                fileSelezionato.getName(),
-                getDifficoltaSelezionataAdmin(),
-                fileSelezionato.getAbsolutePath().getBytes(),
-                getLinguaSelezionataAdmin()               
-            );
-            mostraAlert("Successo", "Documento caricato correttamente.", Alert.AlertType.INFORMATION);
-            pathTextField.clear();
-            fileSelezionato = null;
-        } catch (Exception e) {
-            mostraAlert("Errore", "Errore durante il caricamento del documento: " + e.getMessage(), Alert.AlertType.ERROR);
-        }
+            this.cts.setDifficoltà(getDifficoltaSelezionataAdmin());
+            this.cts.setDocumento(fileSelezionato.getAbsolutePath().getBytes());
+            this.cts.setEmail(appstate.getUtente().getEmail());
+            this.cts.setNomeFile(fileSelezionato.getName());
+            this.cts.setLingua(getLinguaSelezionataAdmin());
+            this.cts.setOnSucceeded(e->{
+                mostraAlert("Successo", "Documento caricato correttamente.", Alert.AlertType.INFORMATION);
+                pathTextField.clear();
+                fileSelezionato = null;
+                this.resetService(cts);
+            });
+
+            this.cts.setOnFailed(e->{
+                mostraAlert("Errore", "Errore durante il caricamento del documento.", Alert.AlertType.INFORMATION);
+                pathTextField.clear();
+                fileSelezionato = null;
+                this.resetService(cts);
+            });
+            this.cts.start();
     }
     
     private void caricaStopword(ActionEvent event) {
@@ -1012,14 +1025,15 @@ public class AppViewController implements Initializable {
     
     @FXML
     private void passaAInfoProfilo(ActionEvent event) {
+        this.pius = new PrendiInfoUtenteService(appstate.getUtente().getEmail());
         Utente utente = appstate.getUtente();
         if (utente == null) {
             mostraAlert("Errore", "Utente non autenticato.", Alert.AlertType.ERROR); 
             return;
         }
 
-        if (currentLoadingTask != null && currentLoadingTask.isRunning()) {
-            currentLoadingTask.cancel();
+        if (this.pius != null && this.pius.isRunning()) {
+            pius.cancel();
         }
 
         chiudiTutto();
@@ -1028,44 +1042,28 @@ public class AppViewController implements Initializable {
         // Dati dell’utente: possono essere mostrati subito
         usernameInfoUtente.setText("Username: " + utente.getUsername());
         emailInfoUtente.setText("E-mail: " + utente.getEmail());
+            
+        pius.setOnSucceeded(e->{
+            InfoGiocatore ig = pius.getValue();
+            listaCronologiaPartite.setAll(ig.getCronologiaPartiteList());
+            n_facile.setText("N° partite difficoltà facile: " + ig.getFacileCount());
+            n_medio.setText("N° partite difficoltà media: " + ig.getMedioCount());
+            n_difficile.setText("N° partite difficoltà difficile: " + ig.difficileCount());
+            migliore_facile.setText(String.format("Miglior punteggio in difficoltà facile: %.1f", ig.getFacilePunteggio()));
+            migliore_medio.setText(String.format("Miglior punteggio in difficoltà media: %.1f", ig.getMedioPunteggio()));
+            migliore_difficile.setText(String.format("Miglior punteggio in difficoltà difficile: %.1f", ig.getDifficilePunteggio()));
+            this.resetService(pius);
+        });
+           
 
-        // Task per dati lenti da DB
-        currentLoadingTask = new Task<>() {
-            @Override
-            protected Void call() throws Exception {
-                try {
-                    List<Classifica> cronologiaPartiteList = dbC.recuperaCronologiaPartite(utente.getEmail());
-                    int facileCount = dbC.recuperaNumeroPartite(utente.getEmail(), LivelloPartita.FACILE.getDbValue());
-                    int medioCount = dbC.recuperaNumeroPartite(utente.getEmail(), LivelloPartita.MEDIO.getDbValue());
-                    int difficileCount = dbC.recuperaNumeroPartite(utente.getEmail(), LivelloPartita.DIFFICILE.getDbValue());
-                    float facilePunteggio = dbC.recuperaMigliorPunteggio(utente.getEmail(), LivelloPartita.FACILE.getDbValue());
-                    float medioPunteggio = dbC.recuperaMigliorPunteggio(utente.getEmail(), LivelloPartita.MEDIO.getDbValue());
-                    float difficilePunteggio = dbC.recuperaMigliorPunteggio(utente.getEmail(), LivelloPartita.DIFFICILE.getDbValue());
-
-                    Platform.runLater(() -> {
-                        listaCronologiaPartite.setAll(cronologiaPartiteList);
-                        n_facile.setText("N° partite difficoltà facile: " + facileCount);
-                        n_medio.setText("N° partite difficoltà media: " + medioCount);
-                        n_difficile.setText("N° partite difficoltà difficile: " + difficileCount);
-                        migliore_facile.setText(String.format("Miglior punteggio in difficoltà facile: %.1f", facilePunteggio));
-                        migliore_medio.setText(String.format("Miglior punteggio in difficoltà media: %.1f", medioPunteggio));
-                        migliore_difficile.setText(String.format("Miglior punteggio in difficoltà difficile: %.1f", difficilePunteggio));
-                    });
-
-                } catch (Exception e) {
-                    Platform.runLater(() -> mostraAlert("Errore", "Impossibile caricare i dati del profilo: " + e.getMessage(), Alert.AlertType.ERROR)); 
-                }
-                return null;
-            }
-        };
-
-        currentLoadingTask.setOnFailed(e -> {
-            Logger.getLogger(AppViewController.class.getName()).log(Level.SEVERE, "Errore nel caricamento info profilo", currentLoadingTask.getException());
+        pius.setOnFailed(e -> {
+            Logger.getLogger(AppViewController.class.getName()).log(Level.SEVERE, "Errore nel caricamento info profilo", pius.getException());
             Platform.runLater(() ->
-                mostraAlert("Errore", "Impossibile caricare i dati del profilo", Alert.AlertType.ERROR)); 
+                mostraAlert("Errore", "Impossibile caricare i dati del profilo", Alert.AlertType.ERROR));
+            this.resetService(pius);
         });
 
-        new Thread(currentLoadingTask).start();
+        pius.start();
 
         // Task separato per immagine
         Task<Image> immagineTask = new Task<>() {
@@ -1214,34 +1212,32 @@ public class AppViewController implements Initializable {
 
     private void aggiornaFotoProfilo(byte[] immagineBytes) {
         Utente utente = appstate.getUtente();
-        try {
-            boolean successo = utente.setFotoProfilo(immagineBytes);
-
-            if (!successo) {
-                throw new RuntimeException("Salvataggio nel database fallito");
-            }
-
+        mfps.setEmail(utente.getEmail());
+        mfps.setImmagine(immagineBytes);
+        this.mfps.setOnSucceeded(e->{   
             Image image = immagineBytes != null ? new Image(new ByteArrayInputStream(immagineBytes)) : getPlaceholderImage();
-
-            Platform.runLater(() -> {
+                utente.setFotoProfilo(immagineBytes);
                 fotoProfilo.setImage(image);
                 immagineInfoUtente.setImage(image);
+                resetService(mfps);
+                loadingOverlay.setVisible(false);
             });
-
-        } catch (Exception e) {
-            Platform.runLater(() -> mostraAlert("Errore", "Impossibile aggiornare l'immagine: " + e.getMessage(), Alert.AlertType.ERROR));
-
-            // Ripristino immagine vecchia solo se c'è un errore
-            byte[] vecchiaImmagine = utente.getFotoProfilo();
-            Image oldImage = vecchiaImmagine != null ?
+            
+            this.mfps.setOnFailed(e->{
+                mostraAlert("Errore", "Impossibile aggiornare l'immagine: ",Alert.AlertType.ERROR);
+                // Ripristino immagine vecchia solo se c'è un errore
+                byte[] vecchiaImmagine = utente.getFotoProfilo();
+                Image oldImage = vecchiaImmagine != null ?
                 new Image(new ByteArrayInputStream(vecchiaImmagine)) :
                 getPlaceholderImage();
-
-            Platform.runLater(() -> {
                 fotoProfilo.setImage(oldImage);
                 immagineInfoUtente.setImage(oldImage);
+                resetService(mfps);
+                loadingOverlay.setVisible(false);
             });
-        }
+            
+            loadingOverlay.setVisible(true);
+            mfps.start();
     }
 
 
@@ -1288,9 +1284,10 @@ public class AppViewController implements Initializable {
                 btnDownload.setOnAction(event -> {
                     DocumentoDiTesto doc = getTableView().getItems().get(getIndex());
                     if (doc == null) return;
-
-                    try {
-                        byte[] contenuto = dbDT.prendiTesto(doc.getNomeFile());
+                    
+                    pts.setNomeFile(doc.getNomeFile());
+                    pts.setOnSucceeded(e->{
+                        byte[] contenuto = pts.getValue();
                         if (contenuto == null || contenuto.length == 0) {
                             mostraAlert("Attenzione", "File vuoto o non trovato", Alert.AlertType.WARNING);
                             return;
@@ -1302,12 +1299,22 @@ public class AppViewController implements Initializable {
                         File fileDest = fileChooser.showSaveDialog(getTableView().getScene().getWindow());
 
                         if (fileDest != null) {
-                            Files.write(fileDest.toPath(), contenuto);
+                            try {
+                                Files.write(fileDest.toPath(), contenuto);
+                            } catch (IOException ex) {
+                                System.getLogger(AppViewController.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+                            }
                             mostraAlert("Successo", "File salvato in:\n" + fileDest.getAbsolutePath(), Alert.AlertType.INFORMATION);
                         }
-                    } catch (Exception e) {
-                        mostraAlert("Errore", "Errore durante il salvataggio: " + e.getMessage(), Alert.AlertType.ERROR);
-                    }
+                        resetService(pts);
+                    });
+                    
+                    pts.setOnFailed(e->{
+                        mostraAlert("Errore", "Errore durante il recupero del file.", Alert.AlertType.ERROR);
+                        resetService(pts);
+                    });
+                    
+                    pts.start();
                 });
             }
 
@@ -1399,8 +1406,12 @@ public class AppViewController implements Initializable {
         pulisciTutto();
 
                 listaDocumenti.clear(); // Buona pratica: evita duplicati
-                listaDocumenti.addAll(dbDT.prendiTuttiIDocumenti());
-        
+                this.ptds.setOnSucceeded(e->{
+                    listaDocumenti.addAll(this.ptds.getValue());
+                    this.resetService(ptds);
+                });
+                
+                this.ptds.start();
         gestioneDocumentiView.setVisible(true);
     }
 
@@ -1413,45 +1424,32 @@ public class AppViewController implements Initializable {
             return;
         }
 
-
+        
         // Mostra l'overlay prima di iniziare
         loadingOverlay.setVisible(true);
+        ets = new EliminaTestoService(selezionati);
 
-        Task<Void> eliminaTask = new Task<>() {
-            @Override
-            protected Void call() {
-                for (DocumentoDiTesto doc : selezionati) {
-                    dbDT.cancellaTesto(doc.getNomeFile()); // operazione di eliminazione lato "server"
-                }
-                return null;
-            }
 
-            @Override
-            protected void succeeded() {
+            ets.setOnSucceeded(e->{
                 Platform.runLater(() -> {
                     loadingOverlay.setVisible(false);
                     listaDocumenti.removeAll(selezionati);
                     mostraAlert("Successo", "Documenti eliminati con successo.", Alert.AlertType.INFORMATION);
                 });
-            }
+                this.resetService(ets);
+            }); 
 
-            @Override
-            protected void failed() {
-                Throwable e = getException();
-                Platform.runLater(() -> {
+            ets.setOnFailed(e->{
                     loadingOverlay.setVisible(false);
-                    mostraAlert("Errore", "Errore durante l'eliminazione: " + e.getMessage(), Alert.AlertType.ERROR);
-                });
-                e.printStackTrace();
-            }
-
-            @Override
-            protected void cancelled() {
-                Platform.runLater(() -> loadingOverlay.setVisible(false));
-            }
-        };
-
-        new Thread(eliminaTask).start();
+                    mostraAlert("Errore", "Errore durante l'eliminazione dei documenti", Alert.AlertType.ERROR);
+                    this.resetService(ets);
+            });
+                
+            ets.setOnCancelled(e->{
+                loadingOverlay.setVisible(false);
+                this.resetService(ets);
+            });
+        ets.start();
     }
 
     @FXML
@@ -1514,4 +1512,13 @@ public class AppViewController implements Initializable {
             ).or(nessunaLinguaSelezionata)
         );
     }
+    
+    private void resetService(Service<?> service) {
+    if (service.getState() == Worker.State.SUCCEEDED || 
+        service.getState() == Worker.State.FAILED || 
+        service.getState() == Worker.State.CANCELLED) {
+        
+        service.reset();  // Resetta lo stato a READY
+    }
+}
 }

@@ -51,9 +51,9 @@ public class DatabaseUtente implements DAOUtente {
             String sql = "UPDATE utente SET foto_profilo = ? WHERE email = ?";
             try (PreparedStatement stmt = conn.prepareStatement(sql)) {
                 if (fotoProfilo != null) {
-                    stmt.setBinaryStream(1, new ByteArrayInputStream(fotoProfilo), fotoProfilo.length);
+                    stmt.setBytes(1, fotoProfilo); // Usa setBytes direttamente con byte[]
                 } else {
-                    stmt.setNull(1, Types.BLOB);
+                    stmt.setNull(1, Types.BINARY); // Usa Types.BINARY invece di BLOB per bytea
                 }
                 stmt.setString(2, email);
 
@@ -78,7 +78,7 @@ public class DatabaseUtente implements DAOUtente {
 
         } finally {
             try {
-                conn.setAutoCommit(true); // Non chiudere la connessione condivisa
+                conn.setAutoCommit(true);
             } catch (SQLException e) {
                 Logger.getLogger(DatabaseUtente.class.getName()).log(Level.WARNING, "Errore ripristino autoCommit", e);
             }

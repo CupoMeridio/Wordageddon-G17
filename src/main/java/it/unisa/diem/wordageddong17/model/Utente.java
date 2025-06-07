@@ -48,21 +48,11 @@ public class Utente {
     }
 
     public void setUsername(String username) {
-        if(db.modificaUsername(email, username)){
-            this.username = username;
-        }else{
-            System.out.println("User name non cambiato");
-        }
+            this.username = username;     
     }
 
-    public boolean setFotoProfilo(byte[] fotoProfilo) {
-        if(db.modificaFotoProfilo(email, fotoProfilo)){
+    public void setFotoProfilo(byte[] fotoProfilo) {   
             this.fotoProfilo = fotoProfilo;
-            return true;
-        }else{
-            System.out.println("Foto name non cambiato");
-            return false;
-        }
     }
     
     

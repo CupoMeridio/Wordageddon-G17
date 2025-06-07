@@ -23,7 +23,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.ToggleGroup;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
@@ -40,8 +39,6 @@ import java.util.concurrent.ConcurrentLinkedDeque;
  */
 public class SessionViewController implements Initializable {
 
-    @FXML
-    private AnchorPane anchorPane;
     @FXML
     private HBox FaseRisposte;
     @FXML

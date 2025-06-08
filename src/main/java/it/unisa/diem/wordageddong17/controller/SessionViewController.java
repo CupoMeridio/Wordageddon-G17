@@ -167,6 +167,7 @@ private void serviceInitialize() {
             this.FaseRisposte.setVisible(false);
             this.schermataGameOver.setVisible(true);
             this.sessione.aggiornaPuntiFatti(this.durata);
+            System.out.println("this.sessione.getPunteggioFatto() "+ this.sessione.getPunteggioFatto());
             this.highScoreLabel.setText("Punteggio:"+ this.sessione.getPunteggioFatto());
             System.out.println("\n Verifica "+ this.sessione.getRisposte());
         }else{

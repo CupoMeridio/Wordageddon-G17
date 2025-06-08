@@ -26,11 +26,14 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 import it.unisa.diem.wordageddong17.model.SessioneDiGioco;
+import it.unisa.diem.wordageddong17.service.CaricaPunteggioService;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedDeque;
+import javafx.concurrent.Service;
+import javafx.concurrent.Worker;
 
 /**
  * FXML Controller class
@@ -86,6 +89,7 @@ public class SessionViewController implements Initializable {
     private Timeline tm;
     private int durata;
     private AppState stato;
+    private final CaricaPunteggioService cps = new CaricaPunteggioService();
     
     
     Map<String, byte[]> MappaDocumenti;
@@ -169,6 +173,17 @@ private void serviceInitialize() {
             this.sessione.aggiornaPuntiFatti(this.durata);
             this.highScoreLabel.setText("Punteggio:"+ this.sessione.getPunteggioFatto());
             System.out.println("\n Verifica "+ this.sessione.getRisposte());
+            cps.setDifficoltà(stato.getDifficoltà());
+            cps.setEmail(stato.getUtente().getEmail());
+            cps.setPunteggio(this.sessione.getPunteggioFatto());
+            cps.setOnSucceeded(e->{
+                resetService(cps);
+            });
+            cps.setOnFailed(e->{
+                System.out.println("Service fallito");
+                 resetService(cps);
+            });
+            cps.start();
         }else{
             this.question.setText(this.domande.element().testo);
             this.counter.setText(1+this.NumeroDiDomande-this.domande.size()+"/"+this.NumeroDiDomande);
@@ -281,6 +296,15 @@ private void serviceInitialize() {
         tm.stop();
         this.DaLetturaARisposte();
         this.cambioDomanda();
+    }
+    
+    private void resetService(Service<?> service) {
+        if (service.getState() == Worker.State.SUCCEEDED || 
+            service.getState() == Worker.State.FAILED || 
+            service.getState() == Worker.State.CANCELLED) {
+
+            service.reset();  // Resetta lo stato a READY
+        }
     }
 }
 

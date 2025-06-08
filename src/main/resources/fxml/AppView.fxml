@@ -447,13 +447,16 @@
                            <HBox.margin>
                               <Insets left="10.0" />
                            </HBox.margin>
+                           <toggleGroup>
+                              <ToggleGroup fx:id="inserisciDifficoltà" />
+                           </toggleGroup>
                         </RadioButton>
-                        <RadioButton fx:id="adminRadioMedio" mnemonicParsing="false" text="Medio">
+                        <RadioButton fx:id="adminRadioMedio" mnemonicParsing="false" text="Medio" toggleGroup="$inserisciDifficoltà">
                            <HBox.margin>
                               <Insets left="10.0" />
                            </HBox.margin>
                         </RadioButton>
-                        <RadioButton fx:id="adminRadioDifficile" mnemonicParsing="false" text="Difficile">
+                        <RadioButton fx:id="adminRadioDifficile" mnemonicParsing="false" text="Difficile" toggleGroup="$inserisciDifficoltà">
                            <HBox.margin>
                               <Insets left="10.0" />
                            </HBox.margin>

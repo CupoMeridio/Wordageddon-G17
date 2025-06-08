@@ -178,4 +178,17 @@ public class DatabaseClassifica implements DAOClassifica {
         }
         return punteggio;
     }
+    
+    @Override
+    public void inserisciPunteggio(String email, float punteggio, LivelloPartita difficoltà){
+        String query = "INSERT INTO punteggio(email_utente, punti, difficolta) VALUES (?,?,?);";
+        try(PreparedStatement pstmt = db.getConnection().prepareStatement(query)){
+            pstmt.setString(1,email);
+            pstmt.setFloat(2, punteggio);
+            pstmt.setString(3,difficoltà.getDbValue());
+            pstmt.executeUpdate();
+        } catch (SQLException ex) {
+            System.getLogger(DatabaseClassifica.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+        }
+    }
 }

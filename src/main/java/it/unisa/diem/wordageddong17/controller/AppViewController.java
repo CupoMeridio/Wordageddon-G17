@@ -812,7 +812,6 @@ public class AppViewController implements Initializable {
         classificaFacile = FXCollections.observableArrayList();
         classificaMedia = FXCollections.observableArrayList();
         classificaDifficile = FXCollections.observableArrayList();
-        listaCronologiaPartite = FXCollections.observableArrayList();
         setupTable(facileTable, facilePosizione, facileNome, facilePunteggio, classificaFacile);
         setupTable(mediaTable, mediaPosizione, mediaNome, mediaPunteggio, classificaMedia);
         setupTable(difficileTable, difficilePosizione, difficileNome, difficilePunteggio, classificaDifficile);
@@ -1034,8 +1033,9 @@ public class AppViewController implements Initializable {
     
     @FXML
     private void passaAInfoProfilo(ActionEvent event) {
-        this.pius = new PrendiInfoUtenteService(appstate.getUtente().getEmail());
         Utente utente = appstate.getUtente();
+        pius.setEmail(utente.getEmail());
+        
         if (utente == null) {
             mostraAlert("Errore", "Utente non autenticato.", Alert.AlertType.ERROR); 
             return;
@@ -1161,12 +1161,14 @@ public class AppViewController implements Initializable {
     }
 
     private void initializeInfoUtente() {
+        listaCronologiaPartite = FXCollections.observableArrayList();
         UnaryOperator<TextFormatter.Change> floatFilter = change -> {
             String newText = change.getControlNewText();
             return newText.matches("-?\\d*(\\.\\d*)?") ? change : null;
         };
         punteggioMinimo.setTextFormatter(new TextFormatter<>(floatFilter));
         punteggioMassimo.setTextFormatter(new TextFormatter<>(floatFilter));
+        initializeCronologiaPartite();
     }
 
     private void initializeCronologiaFiltro() {

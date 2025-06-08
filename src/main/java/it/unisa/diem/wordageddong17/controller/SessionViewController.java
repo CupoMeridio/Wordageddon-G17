@@ -245,6 +245,7 @@ private void serviceInitialize() {
         App.setRoot("AppView");
     }
     
+    @FXML
     private void continuaGioco (ActionEvent event) throws IOException{
         stato.setSessionViewContinuaButton(true);
         App.setRoot("AppView");

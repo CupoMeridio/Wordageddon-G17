@@ -358,20 +358,6 @@ public class AppViewController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         
-        if(appstate.isSessionViewHomeButton()){
-            tornaAllaHome();
-            this.configuraPulsantiAdmin();
-            this.benvenutoLabel.setText("Benvenuto "+ appstate.getUtente().getUsername());
-            this.fotoProfilo.setImage(this.getImageFromByte(this.appstate.getUtente().getFotoProfilo()));
-            this.pulisciTutto();
-            this.chiudiTutto();
-        }
-        
-        if(appstate.isSessionViewContinuaButton()){
-            startOnAction(new ActionEvent());
-        }
-        chiudiTutto();
-        schermataDiLogin.setVisible(true);
         ritagliaQuadrato(imageView, 250);
         ritagliaQuadrato(immagineInfoUtente,250);
         ritagliaCerchio(fotoProfilo, 40);
@@ -379,6 +365,23 @@ public class AppViewController implements Initializable {
         initializeInfoUtente();
         initializeGestioneDocumenti();
         initializeSchermataDifficoltà();
+        chiudiTutto();
+        
+        if(appstate.isSessionViewHomeButton()){
+            tornaAllaHome();
+            this.configuraPulsantiAdmin();
+            this.benvenutoLabel.setText("Benvenuto "+ appstate.getUtente().getUsername());
+            this.fotoProfilo.setImage(this.getImageFromByte(this.appstate.getUtente().getFotoProfilo()));
+            this.pulisciTutto();
+            
+        }
+        
+        else if(appstate.isSessionViewContinuaButton()){
+            startOnAction(new ActionEvent());
+        }
+        else{
+            schermataDiLogin.setVisible(true);
+        }
      
 
     }
@@ -484,6 +487,7 @@ public class AppViewController implements Initializable {
      *
      * @post Viene visualizzata la schermata di selezione difficoltà
      */
+    
     @FXML
     private void startOnAction(ActionEvent event) {
 

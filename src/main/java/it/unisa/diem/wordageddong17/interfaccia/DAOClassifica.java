@@ -9,4 +9,5 @@ public interface DAOClassifica {
     public List<Classifica> recuperaCronologiaPartite(String email);
     public int recuperaNumeroPartite(String email, String difficoltà);
     public float recuperaMigliorPunteggio(String email, String difficoltà);
+    public void inserisciPunteggio(String email, float punteggio, LivelloPartita difficoltà);
 }

@@ -26,11 +26,16 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 import it.unisa.diem.wordageddong17.model.SessioneDiGioco;
+import it.unisa.diem.wordageddong17.service.CaricaPunteggioService;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedDeque;
+import javafx.concurrent.Service;
+import javafx.concurrent.Worker;
+import javafx.scene.control.ProgressBar;
+import javafx.scene.layout.AnchorPane;
 
 /**
  * FXML Controller class
@@ -86,6 +91,7 @@ public class SessionViewController implements Initializable {
     private Timeline tm;
     private int durata;
     private AppState stato;
+    private final CaricaPunteggioService cps = new CaricaPunteggioService();
     
     
     Map<String, byte[]> MappaDocumenti;
@@ -93,11 +99,16 @@ public class SessionViewController implements Initializable {
     private final Queue<Domanda> domande = new ConcurrentLinkedDeque<>(); 
     private int NumeroDiDomande;
     private int NumeroDiTesto;
+    @FXML
+    private AnchorPane loadingOverlay;
+    @FXML
+    private ProgressBar progessBar;
     /**
      * Initializes the controller class.
      */
     @Override
    public void initialize(URL url, ResourceBundle rb) {
+    
     
     this.stato = AppState.getInstance();
     this.TestoDaLeggere.setEditable(false);
@@ -111,10 +122,11 @@ public class SessionViewController implements Initializable {
     sessione = new SessioneDiGioco( stato.getUtente());
     System.out.println("this.stato.getDifficoltà() :"+this.stato.getDifficoltà());
     this.caricaSessione = new CaricaSessioneDiGiocoService(this.sessione, this.stato.getDifficoltà(),this.stato.getLingue());
-   
+    this.progessBar.progressProperty().bind(this.caricaSessione.progressProperty());
     this.NumeroDiTesto=0;
     MappaDocumenti = new HashMap<>();
     this.serviceInitialize();
+    loadingOverlay.setVisible(true);
     this.caricaSessione.start();  
 }    
 
@@ -124,9 +136,9 @@ private void serviceInitialize() {
     });
     
     this.caricaSessione.setOnSucceeded(e -> {
+        loadingOverlay.setVisible(false);  
         System.out.println("Service completato con successo!");
         List<Domanda> domandeCaricate = caricaSessione.getValue();
-        
         if(domandeCaricate != null && !domandeCaricate.isEmpty()) {
             this.domande.addAll(domandeCaricate);
             System.out.println("Caricate " + domandeCaricate.size() + " domande"); 
@@ -137,9 +149,12 @@ private void serviceInitialize() {
             System.out.println("Nessuna domanda caricata o lista vuota");
             return;
         }
+        resetService(caricaSessione);
     });
     
     this.caricaSessione.setOnFailed(e -> {
+        loadingOverlay.setVisible(false);
+        progessBar.progressProperty().set(0);    
         System.out.println("Service fallito!");
         Throwable exception = caricaSessione.getException();
         if(exception != null) {
@@ -147,6 +162,7 @@ private void serviceInitialize() {
         } else {
             System.out.println("Nessuna eccezione specificata");
         }
+        resetService(caricaSessione);
     });
 }
 
@@ -170,6 +186,17 @@ private void serviceInitialize() {
             System.out.println("this.sessione.getPunteggioFatto() "+ this.sessione.getPunteggioFatto());
             this.highScoreLabel.setText("Punteggio:"+ this.sessione.getPunteggioFatto());
             System.out.println("\n Verifica "+ this.sessione.getRisposte());
+            cps.setDifficoltà(stato.getDifficoltà());
+            cps.setEmail(stato.getUtente().getEmail());
+            cps.setPunteggio(this.sessione.getPunteggioFatto());
+            cps.setOnSucceeded(e->{
+                resetService(cps);
+            });
+            cps.setOnFailed(e->{
+                System.out.println("Service fallito");
+                 resetService(cps);
+            });
+            cps.start();
         }else{
             this.question.setText(this.domande.element().testo);
             this.counter.setText(1+this.NumeroDiDomande-this.domande.size()+"/"+this.NumeroDiDomande);
@@ -282,6 +309,15 @@ private void serviceInitialize() {
         tm.stop();
         this.DaLetturaARisposte();
         this.cambioDomanda();
+    }
+    
+    private void resetService(Service<?> service) {
+        if (service.getState() == Worker.State.SUCCEEDED || 
+            service.getState() == Worker.State.FAILED || 
+            service.getState() == Worker.State.CANCELLED) {
+
+            service.reset();  // Resetta lo stato a READY
+        }
     }
 }
 

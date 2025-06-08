@@ -11,5 +11,5 @@ public interface DAODocumentoDiTesto {
     public boolean caricaTesto(String email, String nomeFile, String difficolta, byte[] file, Lingua lingua);
     public byte[] prendiTesto(String nomeDocumento);
     public ArrayList<DocumentoDiTesto> prendiTuttiIDocumenti();
-    public Map<String,byte[]> prendiDocumentiPerDifficolta(LivelloPartita livello);
+    public ArrayList<String> prendiNomiDocumentiFiltrati(LivelloPartita livello,ArrayList<Lingua> lingue);
 }

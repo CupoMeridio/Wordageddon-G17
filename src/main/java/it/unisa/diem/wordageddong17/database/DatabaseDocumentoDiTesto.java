@@ -131,26 +131,39 @@ public class DatabaseDocumentoDiTesto implements DAODocumentoDiTesto{
     
     
     @Override
-    public Map<String,byte[]> prendiDocumentiPerDifficolta(LivelloPartita livello) {
-        Map<String,byte[]> documenti = new HashMap<>();
-        String query="SELECT nome_file, documento FROM testo where difficolta= ?;";
-        
-        try(PreparedStatement pstmt = db.getConnection().prepareStatement(query)){
-            pstmt.setString(1, livello.getDbValue());
-            ResultSet r=pstmt.executeQuery();
-            byte[] documentoInBytes;
-            String nome_file;
-            while(r.next()){
-               documentoInBytes=r.getBytes("documento");
-               nome_file= r.getString("nome_file");
-               documenti.put(nome_file, documentoInBytes);
+    public ArrayList<String> prendiNomiDocumentiFiltrati(LivelloPartita livello, ArrayList<Lingua> lingue) {
+        ArrayList<String> nomiDocumenti = new ArrayList<>();
+
+        // Costruisce i segnaposto per la clausola IN (?, ?, ...)
+        StringBuilder placeholdersBuilder = new StringBuilder();
+        for (int i = 0; i < lingue.size(); i++) {
+            placeholdersBuilder.append("?::lingua_type");
+            if (i < lingue.size() - 1) {
+                placeholdersBuilder.append(", ");
             }
-        } catch (SQLException ex) { 
-            System.getLogger(DatabaseDocumentoDiTesto.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
         }
-        
-        
-        return documenti;
+        String placeholdersPerLingue = placeholdersBuilder.toString();
+        String query = "SELECT nome_file FROM testo WHERE difficolta = ? AND lingua IN (" + placeholdersPerLingue + ")";
+
+        try (PreparedStatement pstmt = db.getConnection().prepareStatement(query)) {
+            pstmt.setString(1, livello.getDbValue());
+
+            for (int i = 0; i < lingue.size(); i++) {
+                pstmt.setString(i + 2, lingue.get(i).getCodice());
+            }
+
+            try (ResultSet r = pstmt.executeQuery()) {
+                while (r.next()) {
+                    nomiDocumenti.add(r.getString("nome_file"));
+                }
+            }
+
+        } catch (SQLException ex) {
+            System.getLogger(DatabaseDocumentoDiTesto.class.getName())
+                  .log(System.Logger.Level.ERROR, "Errore nel recupero dei nomi dei documenti filtrati", ex);
+        }
+
+        return nomiDocumenti;
     }
     
     /**

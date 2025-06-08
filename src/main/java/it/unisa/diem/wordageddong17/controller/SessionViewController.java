@@ -8,7 +8,6 @@ package it.unisa.diem.wordageddong17.controller;
 import it.unisa.diem.wordageddong17.App;
 import it.unisa.diem.wordageddong17.service.CaricaSessioneDiGiocoService;
 import it.unisa.diem.wordageddong17.model.GeneratoreDomande.Domanda;
-import it.unisa.diem.wordageddong17.model.LivelloPartita;
 import it.unisa.diem.wordageddong17.model.AppState;
 import java.io.IOException;
 import java.net.URL;
@@ -27,6 +26,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 import it.unisa.diem.wordageddong17.model.SessioneDiGioco;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
@@ -88,10 +88,9 @@ public class SessionViewController implements Initializable {
     private AppState stato;
     
     
-   
+    Map<String, byte[]> MappaDocumenti;
     private String[] NomiDocumenti;
-    private final Queue<Domanda> domande = new ConcurrentLinkedDeque<>();
-    
+    private final Queue<Domanda> domande = new ConcurrentLinkedDeque<>(); 
     private int NumeroDiDomande;
     private int NumeroDiTesto;
     /**
@@ -108,13 +107,15 @@ public class SessionViewController implements Initializable {
     this.schermataGameOver.setVisible(false);
     this.FaseLettura.setVisible(true);
     this.NumeroDiDomande=0;
-    sessione = new SessioneDiGioco(4, durata, stato.getUtente(),1);
-    this.caricaSessione = new CaricaSessioneDiGiocoService(this.sessione, LivelloPartita.FACILE);
+    durata=0;
+    sessione = new SessioneDiGioco( stato.getUtente());
+    System.out.println("this.stato.getDifficoltà() :"+this.stato.getDifficoltà());
+    this.caricaSessione = new CaricaSessioneDiGiocoService(this.sessione, this.stato.getDifficoltà(),this.stato.getLingue());
+   
+    this.NumeroDiTesto=0;
+    MappaDocumenti = new HashMap<>();
     this.serviceInitialize();
-    this.caricaSessione.start();
-    this.inizializzaTimer();
-    startTimer();
-    
+    this.caricaSessione.start();  
 }    
 
 private void serviceInitialize() {
@@ -128,11 +129,13 @@ private void serviceInitialize() {
         
         if(domandeCaricate != null && !domandeCaricate.isEmpty()) {
             this.domande.addAll(domandeCaricate);
-            System.out.println("Caricate " + domandeCaricate.size() + " domande");      
+            System.out.println("Caricate " + domandeCaricate.size() + " domande"); 
+            MappaDocumenti = this.sessione.getDocumenti();
+            this.inizializzaTimer();
             cambioTesto();
         } else {
             System.out.println("Nessuna domanda caricata o lista vuota");
-            // Gestisci il caso in cui non ci sono domande
+            return;
         }
     });
     
@@ -148,24 +151,22 @@ private void serviceInitialize() {
 }
 
     private void cambioTesto(){
-        Map<String, byte[]> s = this.sessione.getDocumenti();
         this.NomiDocumenti=this.sessione.getDocumenti().keySet().toArray(new String[0]);
-        this.TestoDaLeggere.textProperty().setValue(new String(s.get(NomiDocumenti[this.NumeroDiTesto])));
-        this.NumeroDiTesto++;
+        System.out.println("MappaDocumenti: "+MappaDocumenti);
+        this.TestoDaLeggere.textProperty().setValue(new String(MappaDocumenti.get(NomiDocumenti[this.NumeroDiTesto])));
+        //this.NumeroDiTesto++;
         System.out.println("NumeroDiTesto :"+ NumeroDiTesto +" this.NomiDocumenti.length: "+this.NomiDocumenti.length);
-        this.contatoreLettura.setText(this.NumeroDiTesto+"/"+ this.NomiDocumenti.length);
+        this.contatoreLettura.setText(this.NumeroDiTesto+1+"/"+ this.NomiDocumenti.length);
     }
     
     private void cambioDomanda(){
-        
-        
-        
+         
         System.out.println("this.domande.size() ;"+ this.domande.size());
         if(this.domande.isEmpty()){
             this.FaseLettura.setVisible(false);
             this.FaseRisposte.setVisible(false);
             this.schermataGameOver.setVisible(true);
-            this.sessione.aggiornaPuntiFatti();
+            this.sessione.aggiornaPuntiFatti(this.durata);
             this.highScoreLabel.setText("Punteggio:"+ this.sessione.getPunteggioFatto());
             System.out.println("\n Verifica "+ this.sessione.getRisposte());
         }else{
@@ -219,25 +220,29 @@ private void serviceInitialize() {
 
     @FXML
     private void TestoPrecedente(ActionEvent event){  
+        System.out.println("ProssimoTesto: "+ this.NumeroDiTesto);
         this.NumeroDiTesto--;
         if(this.NumeroDiTesto <0)
-            this.NumeroDiTesto=this.NomiDocumenti.length;
+            this.NumeroDiTesto=this.NomiDocumenti.length-1;
         this.cambioTesto();
     }
-
+ 
+    @FXML
+    private void ProssimoTesto(ActionEvent event) {
+        System.out.println("ProssimoTesto: "+ this.NumeroDiTesto);
+         this.NumeroDiTesto++;
+        if(this.NumeroDiTesto > this.NomiDocumenti.length-1)
+            this.NumeroDiTesto=0;
+        this.cambioTesto();
+    }
     @FXML
     private void VaiAlQuiz(ActionEvent event) {
         this.DaLetturaARisposte();
         this.cambioDomanda();
+        this.durata=this.sessione.getDurata();
+        tm.stop();
     }
 
-    @FXML
-    private void ProssimoTesto(ActionEvent event) {
-         this.NumeroDiTesto++;
-        if(this.NumeroDiTesto > this.NomiDocumenti.length)
-            this.NumeroDiTesto=this.NomiDocumenti.length;
-        this.cambioTesto();
-    }
      
     @FXML
     private void tornaAllaHome(ActionEvent event) throws IOException{
@@ -251,17 +256,16 @@ private void serviceInitialize() {
         App.setRoot("AppView");
     } 
     
-    private void startTimer() {
-        durata = 30;               // durata ------------------------> Da settare in base al livello
+    private void startTimer() {               
         setTimerLabel();
         tm.playFromStart();
     }
     
     private void inizializzaTimer() {
         tm = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
-            durata--;
+            this.sessione.setDurata( this.sessione.getDurata()-1);
             setTimerLabel();
-            if (durata <= 0) {
+            if (this.sessione.getDurata() <= 0) {
                 handleTimeout();
             }
         }));
@@ -270,7 +274,7 @@ private void serviceInitialize() {
     }
      
     private void setTimerLabel() {
-        timeLettura.setText(String.valueOf(this.durata));
+        timeLettura.setText(String.valueOf(this.sessione.getDurata()));
     }
 
     private void handleTimeout() {

@@ -987,7 +987,12 @@ public class AppViewController implements Initializable {
         }
 
             this.cts.setDifficoltà(getDifficoltaSelezionataAdmin());
-            this.cts.setDocumento(fileSelezionato.getAbsolutePath().getBytes());
+        try {
+            this.cts.setDocumento(Files.readAllBytes(fileSelezionato.toPath()));
+        } catch (IOException ex) {
+            System.getLogger(AppViewController.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+        }
+
             this.cts.setEmail(appstate.getUtente().getEmail());
             this.cts.setNomeFile(fileSelezionato.getName());
             this.cts.setLingua(getLinguaSelezionataAdmin());

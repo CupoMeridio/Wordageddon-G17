@@ -1,11 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import javafx.geometry.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.image.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.CheckBox?>
@@ -33,7 +27,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane prefHeight="645.0" prefWidth="870.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unisa.diem.wordageddong17.controller.AppViewController">
+<BorderPane prefHeight="645.0" prefWidth="870.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unisa.diem.wordageddong17.controller.AppViewController">
 
     <center>
         <StackPane fx:id="root" alignment="CENTER">
@@ -596,20 +590,6 @@
                   <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
                </StackPane.margin>
             </VBox>
-                <AnchorPane fx:id="loadingOverlay" style="-fx-background-color: rgba(0, 0, 0, 0.7);" visible="false" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0" StackPane.alignment="CENTER">
-                    <children>
-                        <VBox alignment="CENTER" spacing="10.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                           <children>
-                               <ProgressIndicator style="-fx-progress-color: white;" />
-                               <Label style="-fx-text-fill: white;" text="Caricamento in corso...">
-                                   <font>
-                                       <Font size="24.0" />
-                                   </font>
-                               </Label>
-                           </children>
-                        </VBox>
-                    </children>
-                </AnchorPane>
             <VBox fx:id="gestStopwordsTable" prefHeight="200.0" prefWidth="100.0">
                <children>
                   <TableView editable="true">
@@ -647,6 +627,20 @@
                   </HBox>
                </children>
             </VBox>
+                <AnchorPane fx:id="loadingOverlay" style="-fx-background-color: rgba(0, 0, 0, 0.7);" visible="false" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0" StackPane.alignment="CENTER">
+                    <children>
+                        <VBox alignment="CENTER" spacing="10.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                           <children>
+                               <ProgressIndicator style="-fx-progress-color: white;" />
+                               <Label style="-fx-text-fill: white;" text="Caricamento in corso...">
+                                   <font>
+                                       <Font size="24.0" />
+                                   </font>
+                               </Label>
+                           </children>
+                        </VBox>
+                    </children>
+                </AnchorPane>
            </children>
          <BorderPane.margin>
             <Insets />

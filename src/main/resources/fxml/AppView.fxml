@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.CheckBox?>
@@ -27,14 +33,14 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane prefHeight="645.0" prefWidth="870.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unisa.diem.wordageddong17.controller.AppViewController">
+<BorderPane prefHeight="645.0" prefWidth="870.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unisa.diem.wordageddong17.controller.AppViewController">
 
     <center>
         <StackPane fx:id="root" alignment="CENTER">
             <children>
    
                <!-- Schermata di login -->
-               <VBox fx:id="schermataDiLogin" alignment="CENTER" spacing="20.0">
+               <VBox fx:id="schermataDiLogin" alignment="CENTER" spacing="20.0" visible="false">
                    <children>
                        <ImageView fitHeight="150.0" fitWidth="300.0" pickOnBounds="true" preserveRatio="true">
                            <image>
@@ -99,7 +105,7 @@
                               <Button fx:id="infoProfiloButton" onAction="#passaAInfoProfilo" text="Info profilo" />
                               <Button text="Impostazioni" />
                               <Button fx:id="newDocument" onAction="#mostraGestioneDocumenti" text="Gestione documenti" />
-                              <Button fx:id="stopwordList" onAction="#mostraGestioneStopwords" text="Stopwords" />
+                              <Button fx:id="stopwordList" onAction="#mostraStopwordTable" text="Stopwords" />
                               <Button onAction="#logout" text="Logout" />
                           </children>
                       </VBox>
@@ -371,7 +377,41 @@
                         <Insets top="50.0" />
                      </VBox.margin>
                   </HBox>
-                  <HBox alignment="CENTER" prefHeight="94.0" prefWidth="870.0">
+                  <HBox alignment="CENTER" prefHeight="71.0" prefWidth="870.0" spacing="10.0">
+                     <children>
+                        <Label text="Scegli lingua:" />
+                        <RadioButton mnemonicParsing="false" text="IT" />
+                        <RadioButton mnemonicParsing="false" text="EN" />
+                        <RadioButton mnemonicParsing="false" text="ES" />
+                        <RadioButton mnemonicParsing="false" text="DE" />
+                        <RadioButton mnemonicParsing="false" text="FR" />
+                     </children>
+                  </HBox>
+                  <HBox alignment="CENTER" prefHeight="74.0" prefWidth="870.0" spacing="10.0">
+                     <children>
+                        <Label text="Scegli la diffficoltà: ">
+                           <HBox.margin>
+                              <Insets />
+                           </HBox.margin>
+                        </Label>
+                        <RadioButton mnemonicParsing="false" text="Facile">
+                           <HBox.margin>
+                              <Insets left="10.0" />
+                           </HBox.margin>
+                        </RadioButton>
+                        <RadioButton mnemonicParsing="false" text="Medio">
+                           <HBox.margin>
+                              <Insets left="10.0" />
+                           </HBox.margin>
+                        </RadioButton>
+                        <RadioButton mnemonicParsing="false" text="Difficile">
+                           <HBox.margin>
+                              <Insets left="10.0" />
+                           </HBox.margin>
+                        </RadioButton>
+                     </children>
+                  </HBox>
+                  <HBox alignment="CENTER" prefHeight="115.0" prefWidth="870.0">
                      <children>
                         <Button fx:id="stopwordBrowse" alignment="CENTER" mnemonicParsing="false" onAction="#scegliFileStopwords" text="Scegli file di stopwords">
                            <HBox.margin>
@@ -380,7 +420,7 @@
                         </Button>
                      </children>
                   </HBox>
-                  <HBox alignment="CENTER" prefHeight="79.0" prefWidth="870.0">
+                  <HBox alignment="CENTER" prefHeight="104.0" prefWidth="870.0">
                      <children>
                         <Button fx:id="stopwordSave" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" onAction="#caricaTesto" text="Salva file" />
                         <Button fx:id="backHomeButton1" mnemonicParsing="false" onAction="#tornaAllaHome" text="Torna alla Home">
@@ -558,16 +598,55 @@
             </VBox>
                 <AnchorPane fx:id="loadingOverlay" style="-fx-background-color: rgba(0, 0, 0, 0.7);" visible="false" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0" StackPane.alignment="CENTER">
                     <children>
-                        <VBox alignment="CENTER" spacing="10.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                            <ProgressIndicator style="-fx-progress-color: white;" />
-                            <Label style="-fx-text-fill: white;" text="Caricamento in corso...">
-                                <font>
-                                    <Font size="24.0" />
-                                </font>
-                            </Label>
+                        <VBox alignment="CENTER" spacing="10.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                           <children>
+                               <ProgressIndicator style="-fx-progress-color: white;" />
+                               <Label style="-fx-text-fill: white;" text="Caricamento in corso...">
+                                   <font>
+                                       <Font size="24.0" />
+                                   </font>
+                               </Label>
+                           </children>
                         </VBox>
                     </children>
                 </AnchorPane>
+            <VBox fx:id="gestStopwordsTable" prefHeight="200.0" prefWidth="100.0">
+               <children>
+                  <TableView editable="true">
+                     <columnResizePolicy>
+                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                     </columnResizePolicy>
+                     <columns>
+                        <TableColumn prefWidth="75.0" text="Nome file" />
+                        <TableColumn prefWidth="75.0" text="Difficoltà" />
+                        <TableColumn prefWidth="75.0" text="Inserito da:" />
+                        <TableColumn prefWidth="75.0" text="Lingua" />
+                        <TableColumn prefWidth="75.0" text="Documento" />
+                     </columns>
+                     <contextMenu>
+                        <ContextMenu>
+                           <items>
+                              <MenuItem mnemonicParsing="false" onAction="#eliminaDoc" text="Elimina" />
+                           </items>
+                        </ContextMenu>
+                     </contextMenu>
+                  </TableView>
+                  <HBox alignment="CENTER" prefHeight="184.0" prefWidth="870.0">
+                     <children>
+                        <Button fx:id="goToStopwordsButton" mnemonicParsing="false" onAction="#mostraGestioneStopwords" text="Inserisci un nuovo documento">
+                           <HBox.margin>
+                              <Insets right="20.0" />
+                           </HBox.margin>
+                        </Button>
+                        <Button fx:id="backHomeStopwords" mnemonicParsing="false" onAction="#tornaAllaHomeFromGestDoc" text="Torna alla Homepage">
+                           <HBox.margin>
+                              <Insets left="20.0" />
+                           </HBox.margin>
+                        </Button>
+                     </children>
+                  </HBox>
+               </children>
+            </VBox>
            </children>
          <BorderPane.margin>
             <Insets />

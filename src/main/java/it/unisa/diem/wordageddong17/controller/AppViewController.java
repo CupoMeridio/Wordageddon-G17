@@ -325,7 +325,15 @@ public class AppViewController implements Initializable {
     private CheckBox checkES;
     @FXML
     private Button iniziaPartita;
- 
+    @FXML
+    private ToggleGroup inserisciDifficoltà;
+    @FXML
+    private VBox gestStopwordsTable;
+    @FXML
+    private Button goToStopwordsButton;
+    @FXML
+    private Button backHomeStopwords;
+
     
     // ========== ATTRIBUTI PRIVATI ==========
     
@@ -350,7 +358,7 @@ public class AppViewController implements Initializable {
     private CaricaTestoService cts = new CaricaTestoService();
     private PrendiTestoService pts = new PrendiTestoService();
     private ModificaFotoProfiloService mfps = new ModificaFotoProfiloService();
-
+    
     
     /**
      * Initializes the controller class.
@@ -727,6 +735,7 @@ public class AppViewController implements Initializable {
         schermataStopwords.setVisible(false);
         schermataDocumentiAdmin.setVisible(false);
         gestioneDocumentiView.setVisible(false);
+        gestStopwordsTable.setVisible(false);
     }
 
     private void pulisciTutto() {
@@ -924,6 +933,12 @@ public class AppViewController implements Initializable {
     private void tornaAllaHome() {
         chiudiTutto();
         schermataHome.setVisible(true);
+    }
+    
+    @FXML 
+    private void mostraStopwordTable(){
+        chiudiTutto();
+        gestStopwordsTable.setVisible(true);
     }
 
     private String getDifficoltaSelezionataAdmin() {

@@ -110,35 +110,59 @@ public class DatabaseClassifica implements DAOClassifica {
         return DatabaseClassifica.Holder.INSTANCE;
     }
     
+    /**
+     * Recupera la cronologia delle partite per l'utente specificato.
+     * <p>
+     * Esegue una query sul database per ottenere i record relativi alle partite giocate dall'utente identificato dall'email.
+     * La query effettua un JOIN tra le tabelle "punteggio" e "utente" per recuperare l'username, la data, il punteggio ed
+     * la difficoltà della partita, ordinando i record in ordine decrescente per data.
+     * Ogni risultato viene mappato in un oggetto {@link Classifica} e aggiunto a una lista.
+     * </p>
+     *
+     * @param email l'email dell'utente per cui si vuole recuperare la cronologia delle partite
+     * @return una lista di oggetti {@link Classifica} contenente i dati della cronologia delle partite;
+     *         se nessun record viene trovato, ritorna una lista vuota
+     */
     @Override
-    public List<Classifica> recuperaCronologiaPartite(String email){
+    public List<Classifica> recuperaCronologiaPartite(String email) {
         List<Classifica> L = new ArrayList<>();
         String query = "SELECT utente.username, data, punti , difficolta\n"
                 + "FROM punteggio\n"
                 + "JOIN utente ON utente.email = punteggio.email_utente\n"
                 + "WHERE punteggio.email_utente= ?\n"
                 + "ORDER BY data DESC;";
-    
+
         try (PreparedStatement pstmt = db.getConnection().prepareStatement(query)) {
             pstmt.setString(1, email);
-        
+
             ResultSet result = pstmt.executeQuery();
-            while(result.next()) {
+            while (result.next()) {
                 L.add(new Classifica(
                     result.getString("username"),
                     result.getTimestamp("data"),
                     result.getFloat("punti"),
-                    LivelloPartita.fromDbValue(result.getString("difficolta"))));
+                    LivelloPartita.fromDbValue(result.getString("difficolta"))
+                ));
             }
-        }
-        catch (SQLException ex) {
+        } catch (SQLException ex) {
             Logger.getLogger(DatabaseClassifica.class.getName()).log(Level.SEVERE, "Errore nel recupero della cronologia delle partite.", ex);
         }
         return L;
     }
-    
+
+    /**
+     * Recupera il numero di partite giocate da un utente per una determinata difficoltà.
+     * <p>
+     * Esegue una query sul database che conta il numero di record nella tabella "punteggio"
+     * per l'utente identificato dall'email e per il livello di difficoltà specificato.
+     * </p>
+     *
+     * @param email l'email dell'utente
+     * @param difficoltà la difficoltà per cui contare le partite (ad esempio, "facile", "medio", "difficile")
+     * @return il numero di partite giocate che soddisfano i criteri specificati; se nessun record viene trovato, ritorna 0
+     */
     @Override
-    public int recuperaNumeroPartite(String email, String difficoltà){
+    public int recuperaNumeroPartite(String email, String difficoltà) {
         int n = 0;
         String query = "SELECT COUNT(*) AS n_p\n"
                 + "FROM punteggio\n"
@@ -147,19 +171,29 @@ public class DatabaseClassifica implements DAOClassifica {
         try (PreparedStatement pstmt = db.getConnection().prepareStatement(query)) {
             pstmt.setString(1, email);
             pstmt.setString(2, difficoltà);
-        
+
             ResultSet result = pstmt.executeQuery();
-            if(result.next())
+            if (result.next())
                 n = result.getInt("n_p");
-            }
-        catch (SQLException ex) {
+        } catch (SQLException ex) {
             Logger.getLogger(DatabaseClassifica.class.getName()).log(Level.SEVERE, "Errore nel recupero del numero di partite", ex);
         }
         return n;
     }
-    
+
+    /**
+     * Recupera il miglior punteggio ottenuto da un utente per una specifica difficoltà.
+     * <p>
+     * Esegue una query che seleziona il massimo punteggio (usando la funzione aggregate MAX)
+     * dalla tabella "punteggio" per l'utente identificato dall'email e in base al livello di difficoltà.
+     * </p>
+     *
+     * @param email l'email dell'utente
+     * @param difficoltà la difficoltà per cui recuperare il miglior punteggio (ad esempio, "facile", "medio", "difficile")
+     * @return il miglior punteggio ottenuto; se nessun record viene trovato, ritorna 0
+     */
     @Override
-    public float recuperaMigliorPunteggio(String email, String difficoltà){
+    public float recuperaMigliorPunteggio(String email, String difficoltà) {
         float punteggio = 0;
         String query = "SELECT MAX(punti) AS max_p\n"
                 + "FROM punteggio\n"
@@ -168,27 +202,39 @@ public class DatabaseClassifica implements DAOClassifica {
         try (PreparedStatement pstmt = db.getConnection().prepareStatement(query)) {
             pstmt.setString(1, email);
             pstmt.setString(2, difficoltà);
-        
+
             ResultSet result = pstmt.executeQuery();
-            if(result.next())
+            if (result.next())
                 punteggio = result.getFloat("max_p");
-            }
-        catch (SQLException ex) {
+        } catch (SQLException ex) {
             Logger.getLogger(DatabaseClassifica.class.getName()).log(Level.SEVERE, "Errore nel recupero del numero di partite", ex);
         }
         return punteggio;
     }
-    
+
+    /**
+     * Inserisce un nuovo punteggio nel database per un determinato utente.
+     * <p>
+     * Esegue una query di inserimento (INSERT) nella tabella "punteggio" utilizzando i parametri:
+     * l'email dell'utente, il punteggio ottenuto e il livello di difficoltà della partita.
+     * Il livello di difficoltà viene convertito nel suo valore di database tramite {@code getDbValue()}.
+     * </p>
+     *
+     * @param email l'email dell'utente che ha ottenuto il punteggio
+     * @param punteggio il punteggio da inserire nel database
+     * @param difficoltà il livello di difficoltà della partita (rappresentato come {@link LivelloPartita})
+     */
     @Override
-    public void inserisciPunteggio(String email, float punteggio, LivelloPartita difficoltà){
+    public void inserisciPunteggio(String email, float punteggio, LivelloPartita difficoltà) {
         String query = "INSERT INTO punteggio(email_utente, punti, difficolta) VALUES (?,?,?);";
-        try(PreparedStatement pstmt = db.getConnection().prepareStatement(query)){
-            pstmt.setString(1,email);
+        try (PreparedStatement pstmt = db.getConnection().prepareStatement(query)) {
+            pstmt.setString(1, email);
             pstmt.setFloat(2, punteggio);
-            pstmt.setString(3,difficoltà.getDbValue());
+            pstmt.setString(3, difficoltà.getDbValue());
             pstmt.executeUpdate();
         } catch (SQLException ex) {
             System.getLogger(DatabaseClassifica.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
-        }
+        } 
     }
+
 }

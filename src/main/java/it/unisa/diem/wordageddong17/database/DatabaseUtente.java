@@ -162,17 +162,30 @@ public class DatabaseUtente implements DAOUtente {
             return usernamePresa;
     }
     
+    /**
+     * Verifica se la password in chiaro fornita corrisponde alla password memorizzata per l'utente identificato dall'email.
+     * <p>
+     * Il metodo esegue una query sulla tabella "utente" per recuperare la password associata all'email specificata.
+     * Se viene trovato un record, il valore della password (presumibilmente un hash generato con BCrypt) viene confrontato
+     * con la password in chiaro fornita utilizzando il metodo {@code checkPassword}. Se la password corrisponde, il metodo
+     * restituisce {@code true}, altrimenti {@code false}. Se non viene trovato alcun record per l'email oppure la password recuperata
+     * è {@code null}, viene restituito {@code false}.
+     * </p>
+     *
+     * @param email    l'email dell'utente di cui verificare la password
+     * @param password la password in chiaro da verificare
+     * @return {@code true} se la password fornita corrisponde a quella presente nel database, {@code false} altrimenti
+     */
     @Override
     public boolean verificaPassword(String email, String password) {
-    
-        String query= "Select password from utente where email= ? ";
-        String pwPresa=null;
-            try (PreparedStatement pstmt = db.getConnection().prepareStatement(query)) {
-            pstmt.setString(1, email); 
+        String query = "Select password from utente where email= ? ";
+        String pwPresa = null;
+        try (PreparedStatement pstmt = db.getConnection().prepareStatement(query)) {
+            pstmt.setString(1, email);
             ResultSet result = pstmt.executeQuery();
-            if(result.next()){
+            if (result.next()) {
                 pwPresa = result.getString("password");
-            }else{
+            } else {
                 return false;
             }
         } catch (SQLException ex) {
@@ -181,10 +194,22 @@ public class DatabaseUtente implements DAOUtente {
         if (pwPresa == null) return false;
         return this.checkPassword(password, pwPresa);
     }
-    
-    private  String hashPassword(String password) {
+
+    /**
+     * Genera l'hash BCrypt della password fornita.
+     * <p>
+     * Questo metodo utilizza la libreria BCrypt per hashare in modo sicuro la password. In particolare, viene
+     * generato un salt casuale con {@code BCrypt.gensalt()} e la password viene hashata tramite {@code BCrypt.hashpw()}.
+     * L'hash risultante potrà essere memorizzato nel database per verifiche future.
+     * </p>
+     *
+     * @param password la password in chiaro da hashare
+     * @return la stringa contenente l'hash BCrypt della password
+     */
+    private String hashPassword(String password) {
         return BCrypt.hashpw(password, BCrypt.gensalt());
     }
+
     
     /**
     * 
@@ -199,45 +224,62 @@ public class DatabaseUtente implements DAOUtente {
     * @return  true se la password è uguale a hashed, se sono diverse false
     */
 
-
     private boolean checkPassword(String password, String hashed) {
         return BCrypt.checkpw(password, hashed);
     }
     
+    /**
+     * Recupera un utente dal database in base all'email specificata.
+     * <p>
+     * Esegue una query sulla tabella "utente" per recuperare le informazioni relative a:
+     * <ul>
+     *   <li><strong>username</strong> – il nome utente;</li>
+     *   <li><strong>email</strong> – l'indirizzo email;</li>
+     *   <li><strong>foto_profilo</strong> – i byte dell'immagine del profilo (possono essere {@code null});</li>
+     *   <li><strong>tipo</strong> – il tipo dell'utente, che verrà convertito in un oggetto {@link TipoUtente}.</li>
+     * </ul>
+     * Se il campo {@code foto_profilo} risulta {@code null}, verrà creato un oggetto {@code Utente} senza immagine.
+     * Altrimenti, l'oggetto {@code Utente} verrà creato includendo l'immagine.
+     * Se nessun record viene trovato, il metodo restituisce {@code null}.
+     * </p>
+     *
+     * @param email l'indirizzo email dell'utente da recuperare
+     * @return un oggetto {@code Utente} contenente i dati dell'utente, oppure {@code null} se l'utente non viene trovato
+     */
     @Override
     public Utente prendiUtente(String email) {
-        ResultSet result=null;
-        Utente u=null;
-        String query= "SELECT username, email, foto_profilo, tipo\n" +
-"	FROM utente where email= ?;";
-         try (PreparedStatement pstmt = db.getConnection().prepareStatement(query)) {
-            pstmt.setString(1, email); 
-            result = pstmt.executeQuery();
-            if(result.next()){
-                byte[] fotoProfilo = result.getBytes("foto_profilo");
-                if(fotoProfilo == null){
-                    u=new Utente(result.getString("username"),
-                        result.getString("email"),
-                        TipoUtente.valueOf(result.getString("tipo").trim())
+        Utente u = null;
+        String query = "SELECT username, email, foto_profilo, tipo FROM utente WHERE email = ?;";
+
+        try (PreparedStatement pstmt = db.getConnection().prepareStatement(query)) {
+            pstmt.setString(1, email);
+            try (ResultSet result = pstmt.executeQuery()) {
+                if (result.next()) {
+                    byte[] fotoProfilo = result.getBytes("foto_profilo");
+
+                    if (fotoProfilo == null) {
+                        u = new Utente(
+                            result.getString("username"),
+                            result.getString("email"),
+                            TipoUtente.valueOf(result.getString("tipo").trim())
                         );
+                    } else {
+                        u = new Utente(
+                            result.getString("username"),
+                            result.getString("email"),
+                            fotoProfilo,
+                            TipoUtente.valueOf(result.getString("tipo").trim())
+                        );
+                    }
                 }
-                
-                
-                else{
-                    u=new Utente(
-                        result.getString("username"),
-                        result.getString("email"),
-                        fotoProfilo,
-                        TipoUtente.valueOf(result.getString("tipo").trim())
-                        );
-                    
-                } 
             }
-         } catch (SQLException ex) {     
+        } catch (SQLException ex) {
             System.getLogger(DatabaseUtente.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
         }
-         return u;
+
+        return u;
     }
+
 
     // Singleton pattern con classe interna
     private static class Holder {

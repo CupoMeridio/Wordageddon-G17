@@ -8,11 +8,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import it.unisa.diem.wordageddong17.interfaccia.DAODocumentoDiTesto;
-import java.util.HashMap;
-import java.util.Map;
 
 public class DatabaseDocumentoDiTesto implements DAODocumentoDiTesto{
     
@@ -21,7 +17,8 @@ public class DatabaseDocumentoDiTesto implements DAODocumentoDiTesto{
     private DatabaseDocumentoDiTesto(){
         db= Database.getInstance();
     }
-        /**
+    
+    /**
      * Cancella un testo dal database.
      * 
      * Rimuove definitivamente il documento specificato dalla tabella testo.
@@ -42,8 +39,8 @@ public class DatabaseDocumentoDiTesto implements DAODocumentoDiTesto{
         }
         return risultato;
     }
-    
-        /**
+
+    /**
      * Carica un nuovo testo nel database.
      * <p>
      * Inserisce un nuovo documento nella tabella testo con le informazioni specificate.
@@ -77,7 +74,7 @@ public class DatabaseDocumentoDiTesto implements DAODocumentoDiTesto{
         return false;
     }
     
-        /**
+    /**
      * Recupera il contenuto di un testo dal database.
      * <p>
      * Cerca il documento specificato nella tabella testo e restituisce il suo contenuto
@@ -107,29 +104,68 @@ public class DatabaseDocumentoDiTesto implements DAODocumentoDiTesto{
         return risultato;
     }
         
+    /**
+     * Recupera tutti i documenti testuali presenti nel database.
+     * <p>
+     * Questo metodo esegue una query sulla tabella "testo" per ottenere i seguenti campi:
+     * <ul>
+     *   <li><code>nome_file</code>: il nome del file.</li>
+     *   <li><code>id_amministratore</code>: l'identificativo dell'amministratore che ha inserito il documento.</li>
+     *   <li><code>difficolta</code>: il livello di difficoltà del documento, convertito in un oggetto {@link LivelloPartita} tramite {@code LivelloPartita.fromDbValue()}.</li>
+     *   <li><code>lingua</code>: la lingua del documento, convertita in un oggetto {@link Lingua} tramite {@code Lingua.fromCodice()}.</li>
+     * </ul>
+     * Per ogni record viene creato un oggetto {@link DocumentoDiTesto} ed aggiunto a una lista.
+     * Se si verifica un'eccezione {@link SQLException} durante l'esecuzione della query, questa verrà loggata e il metodo restituirà
+     * una lista eventualmente vuota.
+     * </p>
+     *
+     * @return una {@link ArrayList} di {@link DocumentoDiTesto} contenente tutti i documenti recuperati dal database
+     */
     @Override
-    public ArrayList<DocumentoDiTesto> prendiTuttiIDocumenti(){
+    public ArrayList<DocumentoDiTesto> prendiTuttiIDocumenti() {
         ArrayList<DocumentoDiTesto> L = new ArrayList<>();
-        String query="SELECT nome_file, id_amministratore, difficolta, lingua FROM testo";
-        Statement s = null;
+        String query = "SELECT nome_file, id_amministratore, difficolta, lingua FROM testo";
+
         try (PreparedStatement pstmt = db.getConnection().prepareStatement(query)) {
             ResultSet result = pstmt.executeQuery();
-            while(result.next()) {
+            while (result.next()) {
                 L.add(new DocumentoDiTesto(
                     result.getString("nome_file"),
                     LivelloPartita.fromDbValue(result.getString("difficolta")),
                     result.getString("id_Amministratore"),
                     Lingua.fromCodice(result.getString("lingua"))
-                    ));
-                    
+                ));
             }
         } catch (SQLException ex) { 
             System.getLogger(DatabaseDocumentoDiTesto.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
         }
+
         return L;
     }
+
     
     
+    /**
+     * Recupera i nomi dei documenti filtrati in base al livello di difficoltà e alle lingue specificate.
+     * <p>
+     * Questo metodo esegue una query sulla tabella "testo" per selezionare il nome dei file (campo "nome_file")
+     * che corrispondono a:
+     * <ul>
+     *   <li>Un determinato livello di difficoltà, ottenuto tramite {@code livello.getDbValue()}.</li>
+     *   <li>Un insieme di lingue, passato come lista di {@link Lingua}. Per ogni lingua,
+     *       viene dinamicamente costruito un segnaposto della forma "?::lingua_type" per inserirla nella clausola IN.</li>
+     * </ul>
+     * Vengono quindi impostati i parametri nel {@link PreparedStatement} in modo che il primo parametro
+     * rappresenti il livello e i successivi, partendo dall'indice 2, rappresentino i codici delle lingue.
+     * Se la query esegue correttamente, i nomi dei documenti vengono aggiunti a una lista, che viene poi restituita.
+     * In caso di errore, l'eccezione {@link SQLException} viene loggata e il metodo restituisce la lista,
+     * eventualmente vuota.
+     * </p>
+     *
+     * @param livello il livello di partita (difficoltà) utilizzato come filtro (es. FACILE, MEDIO, DIFFICILE)
+     * @param lingue una lista di oggetti {@link Lingua} per filtrare i documenti in base alla lingua
+     * @return un {@link ArrayList} contenente i nomi dei documenti filtrati; se nessun documento viene trovato, viene restituita una lista vuota
+     */
     @Override
     public ArrayList<String> prendiNomiDocumentiFiltrati(LivelloPartita livello, ArrayList<Lingua> lingue) {
         ArrayList<String> nomiDocumenti = new ArrayList<>();
@@ -146,8 +182,10 @@ public class DatabaseDocumentoDiTesto implements DAODocumentoDiTesto{
         String query = "SELECT nome_file FROM testo WHERE difficolta = ? AND lingua IN (" + placeholdersPerLingue + ")";
 
         try (PreparedStatement pstmt = db.getConnection().prepareStatement(query)) {
+            // Imposta il parametro relativo al livello
             pstmt.setString(1, livello.getDbValue());
 
+            // Imposta i parametri relativi alle lingue (a partire dall'indice 2)
             for (int i = 0; i < lingue.size(); i++) {
                 pstmt.setString(i + 2, lingue.get(i).getCodice());
             }
@@ -157,7 +195,6 @@ public class DatabaseDocumentoDiTesto implements DAODocumentoDiTesto{
                     nomiDocumenti.add(r.getString("nome_file"));
                 }
             }
-
         } catch (SQLException ex) {
             System.getLogger(DatabaseDocumentoDiTesto.class.getName())
                   .log(System.Logger.Level.ERROR, "Errore nel recupero dei nomi dei documenti filtrati", ex);
@@ -165,6 +202,7 @@ public class DatabaseDocumentoDiTesto implements DAODocumentoDiTesto{
 
         return nomiDocumenti;
     }
+
     
     /**
      * Classe statica interna che contiene l'istanza Singleton della classe {@code Database}.

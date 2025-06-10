@@ -12,6 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -58,6 +59,7 @@ public class AnalisiDocumenti implements Serializable {
 
     public void setStopWords(byte[] stopWords) {
         this.stopWords = stopWords;
+        System.out.println("this.stopWords");
     }
     
     /**
@@ -110,10 +112,13 @@ public class AnalisiDocumenti implements Serializable {
     
     
     public boolean appartenenzaStopWords(String parola){
+        System.out.println("this.stopWords: "+ this.stopWords);
+        
         if(this.stopWords!= null ){
-            String stringheStopWords = new String(this.stopWords);  
-            String[] parole = stringheStopWords.split("[\\s,\\n.;]+");
-            System.out.println("parole: "+ parole[0]);
+            String stringheStopWords = new String(this.stopWords); 
+            String[] parole = stringheStopWords.toUpperCase().split("[\\p{Punct}\\s]+");
+            System.out.println("Arrays.asList(parole):");
+           // Arrays.asList(parole).stream().forEach(e->System.out.println(e));
             return Arrays.asList(parole).contains(parola);
         }
         return false;

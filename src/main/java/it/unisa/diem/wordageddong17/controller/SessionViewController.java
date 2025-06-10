@@ -157,7 +157,7 @@ public class SessionViewController implements Initializable {
                 cambioTesto();
             } else {
                 System.out.println("Nessuna domanda caricata o lista vuota");
-                  this.mostraAlert("ERRORE", "Impossibile caricare le domande riprova più tardi", Alert.AlertType.NONE);
+                this.mostraAlert("ERRORE", "Impossibile caricare le domande riprova più tardi", Alert.AlertType.ERROR);
                 return;
             }
             resetService(caricaSessione);

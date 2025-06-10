@@ -154,6 +154,7 @@ public class SessionViewController implements Initializable {
                 cambioTesto();
             } else {
                 System.out.println("Nessuna domanda caricata o lista vuota");
+                this.mostraAlert("ERRORE", "Impossibile caricare le domande riprova più tardi", Alert.AlertType.NONE);
                 return;
             }
             resetService(caricaSessione);
@@ -167,9 +168,9 @@ public class SessionViewController implements Initializable {
             if (exception != null) {
                 exception.printStackTrace();
             } else {
-                System.out.println("Nessuna eccezione specificata");
-                
+                System.out.println("Nessuna eccezione specificata");   
             }
+            this.mostraAlert("ERRORE", "Impossibile caricare la sessione riprova più tardi", Alert.AlertType.NONE);
             resetService(caricaSessione);
         });
     }
@@ -200,9 +201,10 @@ public class SessionViewController implements Initializable {
             cps.setOnSucceeded(e -> {
                 resetService(cps);
             });
-            cps.setOnFailed(e->{
-                System.out.println("Service fallito CaricaPunteggioService  cps");
-                 resetService(cps);
+            cps.setOnFailed(e -> {
+                System.out.println("Service fallito");
+                mostraAlert("Errore", "Impossibile salvare il punteggio.", Alert.AlertType.WARNING);
+                resetService(cps);
             });
             cps.start();
             
@@ -377,5 +379,13 @@ public class SessionViewController implements Initializable {
             this.cambioDomanda();
         }
     }
-}
 
+    private void mostraAlert(String titolo, String messaggio, Alert.AlertType tipo) {
+        Alert alert = new Alert(tipo);
+        alert.setTitle(titolo);
+        alert.setHeaderText(null);
+        alert.setContentText(messaggio);
+        alert.showAndWait();
+    }
+
+}

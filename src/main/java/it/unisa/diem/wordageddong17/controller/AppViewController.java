@@ -77,6 +77,7 @@ import java.util.function.Consumer;
 import javafx.concurrent.Service;
 import javafx.concurrent.Worker;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.TextArea;
 
 /**
  * FXML Controller class
@@ -229,19 +230,11 @@ public class AppViewController implements Initializable {
     private Button tornaAllaHomepage;
     @FXML
     private Button infoProfiloButton;
-    @FXML
     private TextField pathTextField;
     @FXML
-    private Button browseButton;
-    @FXML
-    private Button saveButton;
-    @FXML
     private VBox schermataDocumentiAdmin;
-    @FXML
     private RadioButton adminRadioFacile;
-    @FXML
     private RadioButton adminRadioMedio;
-    @FXML
     private RadioButton adminRadioDifficile;
     @FXML
     private VBox schermataStopwords;
@@ -287,22 +280,13 @@ public class AppViewController implements Initializable {
     private TableColumn<DocumentoDiTesto, String> gestDocColDocumento;
     @FXML
     private TableColumn<DocumentoDiTesto, String> gestDocColNomeFile;
-    @FXML
-    private ToggleGroup lingua;
-    @FXML
     private RadioButton adminRadioIT;
-    @FXML
     private RadioButton adminRadioEN;
-    @FXML
     private RadioButton adminRadioES;
-    @FXML
     private RadioButton adminRadioDE;
-    @FXML
     private RadioButton adminRadioFR;
     @FXML
     private Button gestDocButtonTornaAllaHome;
-    @FXML
-    private Button backToGestDoc;
     @FXML
     private AnchorPane loadingOverlay;     
     @FXML
@@ -327,8 +311,6 @@ public class AppViewController implements Initializable {
     private CheckBox checkES;
     @FXML
     private Button iniziaPartita;
-    @FXML
-    private ToggleGroup inserisciDifficoltà;
     @FXML
     private VBox gestStopwordsTable;
     @FXML
@@ -360,6 +342,12 @@ public class AppViewController implements Initializable {
     private CaricaTestoService cts = new CaricaTestoService();
     private PrendiTestoService pts = new PrendiTestoService();
     private ModificaFotoProfiloService mfps = new ModificaFotoProfiloService();
+    @FXML
+    private TextArea stopwordTextArea;
+    @FXML
+    private Button tornaHomeButton;
+    @FXML
+    private Button salvaStopwordsButton;
     
     
     /**
@@ -979,16 +967,15 @@ public class AppViewController implements Initializable {
         schermataStopwords.setVisible(true);
     }
     
-     @FXML
+    @FXML
     private void tornaAllaHome() {
         chiudiTutto();
         schermataHome.setVisible(true);
     }
     
-    @FXML 
-    private void mostraStopwordTable(){
-        chiudiTutto();
-        gestStopwordsTable.setVisible(true);
+    @FXML
+    private void salvaStopwords(){
+        
     }
 
     private String getDifficoltaSelezionataAdmin() {
@@ -1009,7 +996,6 @@ public class AppViewController implements Initializable {
         return null;
     }
     
-    @FXML
     private void scegliFileTesto(ActionEvent event) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Seleziona un file di testo");
@@ -1476,7 +1462,6 @@ public class AppViewController implements Initializable {
         schermataHome.setVisible(true);
     }
 
-    @FXML
     private void backToGestDoc(ActionEvent event) {
         chiudiTutto();
         pulisciTutto();
@@ -1597,4 +1582,8 @@ public class AppViewController implements Initializable {
         service.reset();  // Resetta lo stato a READY
     }
 }
+
+    @FXML
+    private void salvaStopwords(ActionEvent event) {
+    }
 }

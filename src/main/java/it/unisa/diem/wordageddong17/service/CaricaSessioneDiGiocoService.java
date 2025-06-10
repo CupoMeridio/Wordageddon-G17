@@ -2,6 +2,7 @@ package it.unisa.diem.wordageddong17.service;
 
 import it.unisa.diem.wordageddong17.database.DatabaseDocumentoDiTesto;
 import it.unisa.diem.wordageddong17.database.DatabaseStopWords;
+import it.unisa.diem.wordageddong17.database.MancanzaDiDocumenti;
 import it.unisa.diem.wordageddong17.interfaccia.DAODocumentoDiTesto;
 import it.unisa.diem.wordageddong17.interfaccia.DAOListaStopWords;
 import it.unisa.diem.wordageddong17.model.AnalisiDocumenti;
@@ -120,9 +121,12 @@ public class CaricaSessioneDiGiocoService extends Service<List<GeneratoreDomande
     }
     
     
-    public List<GeneratoreDomande.Domanda> generaDomande( Map<String,byte[]> Documenti, AnalisiDocumenti analisi, int numeroDomande) {
+    public List<GeneratoreDomande.Domanda> generaDomande( Map<String,byte[]> Documenti, AnalisiDocumenti analisi, int numeroDomande) throws MancanzaDiDocumenti {
         GeneratoreDomande gen= new GeneratoreDomande(analisi);
         String[] nomiDocumenti =  Documenti.keySet().toArray(new String[0]);
+        if(nomiDocumenti.length<=0){
+            throw new MancanzaDiDocumenti("Non ci sono abbastanza documenti");
+        }
         int domandePerDocumento = numeroDomande / nomiDocumenti.length;
         int documentiExtra = numeroDomande % nomiDocumenti.length;
           List<GeneratoreDomande.Domanda> Domande = new ArrayList<>();

@@ -34,11 +34,13 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.stream.Collectors;
+import javafx.application.Platform;
 import javafx.concurrent.Service;
 import javafx.concurrent.Worker;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.AnchorPane;
+import javafx.stage.Stage;
 
 /**
  * FXML Controller class
@@ -155,7 +157,7 @@ public class SessionViewController implements Initializable {
                 cambioTesto();
             } else {
                 System.out.println("Nessuna domanda caricata o lista vuota");
-                this.mostraAlert("ERRORE", "Impossibile caricare le domande riprova più tardi", Alert.AlertType.NONE);
+                  this.mostraAlert("ERRORE", "Impossibile caricare le domande riprova più tardi", Alert.AlertType.NONE);
                 return;
             }
             resetService(caricaSessione);

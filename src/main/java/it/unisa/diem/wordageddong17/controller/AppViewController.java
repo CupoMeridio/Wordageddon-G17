@@ -502,8 +502,8 @@ public class AppViewController implements Initializable {
         schermataSelezioneDifficoltà.setVisible(true);
         
         if(verificaEsistenzaSalvataggio())
-            this.mostraAlert("Hai un slavataggio passato", 
-                    "Vuoi continuare a giocare col slavataggio?", 
+            this.mostraAlert("Hai un salvataggio passato", 
+                    "Vuoi continuare a giocare col salvataggio?", 
                     Alert.AlertType.CONFIRMATION,
                      e->{try {
                             this.appstate.setSessioneSalvata(e); 

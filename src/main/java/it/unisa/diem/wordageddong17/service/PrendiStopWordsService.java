@@ -32,7 +32,9 @@ public class PrendiStopWordsService extends Service<byte[]> {
             return new Task<byte[]>(){
                 @Override
                 protected byte[] call() throws Exception {
-                  return dbSW.PrendiStopwords(nomeFile);
+                    byte[] file=dbSW.PrendiStopwords(nomeFile);
+                    System.out.println(new String(file));
+                  return file;
                 }
             };
     }   

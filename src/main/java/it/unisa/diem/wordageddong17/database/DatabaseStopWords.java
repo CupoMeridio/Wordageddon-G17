@@ -40,7 +40,7 @@ public class DatabaseStopWords implements DAOListaStopWords {
             pstmt.setString(3, email);
             pstmt.setBytes(4, documentoStopwords);
             pstmt.setString(5, email);
-            risultato= pstmt.execute();// esegue il prepare statment
+            risultato= pstmt.executeUpdate()==1;// esegue il prepare statment
             
             } catch (SQLException ex) { 
             System.getLogger(DatabaseStopWords.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);

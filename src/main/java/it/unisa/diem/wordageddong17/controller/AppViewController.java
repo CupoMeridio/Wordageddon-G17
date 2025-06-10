@@ -971,6 +971,7 @@ public class AppViewController implements Initializable {
     @FXML
     private void mostraGestioneStopwords() {
         chiudiTutto();
+        this.mettiStopwordInTextArea();
         schermataStopwords.setVisible(true);
     }
     
@@ -1076,8 +1077,7 @@ public class AppViewController implements Initializable {
         
         ps.setOnSucceeded(e -> {
             this.stopwordTextArea.setText(new String(ps.getValue()));
-            
-        
+            System.out.println(" this.stopwordTextArea.setText "+  this.stopwordTextArea.getText());
         });
         
         ps.setOnFailed(e -> {

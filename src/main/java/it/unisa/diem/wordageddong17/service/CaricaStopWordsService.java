@@ -22,8 +22,8 @@ public class CaricaStopWordsService extends Service<Void> {
     private String email;
     private byte[] documento;
 
-    public CaricaStopWordsService(DAOListaStopWords dbSW, String nomeFile, String email, byte[] documento) {
-        this.dbSW = dbSW;
+    public CaricaStopWordsService(String nomeFile, String email, byte[] documento) {
+        this.dbSW = DatabaseStopWords.getInstance();
         this.nomeFile = nomeFile;
         this.email = email;
         this.documento = documento;

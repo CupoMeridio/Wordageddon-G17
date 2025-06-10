@@ -60,6 +60,7 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.FileChooser;
 import it.unisa.diem.wordageddong17.model.InfoGiocatore;
+import it.unisa.diem.wordageddong17.service.CaricaStopWordsService;
 import it.unisa.diem.wordageddong17.service.CaricaTestoService;
 import it.unisa.diem.wordageddong17.service.EliminaTestoService;
 import it.unisa.diem.wordageddong17.service.InserisciUtenteService;
@@ -67,6 +68,7 @@ import it.unisa.diem.wordageddong17.service.LoginService;
 import it.unisa.diem.wordageddong17.service.ModificaFotoProfiloService;
 import it.unisa.diem.wordageddong17.service.PrendiClassificheService;
 import it.unisa.diem.wordageddong17.service.PrendiInfoUtenteService;
+import it.unisa.diem.wordageddong17.service.PrendiStopWordsService;
 import it.unisa.diem.wordageddong17.service.PrendiTestoService;
 import it.unisa.diem.wordageddong17.service.PrendiTuttiIDocumentiService;
 import it.unisa.diem.wordageddong17.service.PrendiUtenteService;
@@ -78,6 +80,7 @@ import javafx.concurrent.Service;
 import javafx.concurrent.Worker;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextArea;
+
 
 /**
  * FXML Controller class
@@ -230,22 +233,8 @@ public class AppViewController implements Initializable {
     private Button tornaAllaHomepage;
     @FXML
     private Button infoProfiloButton;
-    private TextField pathTextField;
-    @FXML
-    private VBox schermataDocumentiAdmin;
-    private RadioButton adminRadioFacile;
-    private RadioButton adminRadioMedio;
-    private RadioButton adminRadioDifficile;
     @FXML
     private VBox schermataStopwords;
-    @FXML
-    private TextField stopwordTextField;
-    @FXML
-    private Button stopwordBrowse;
-    @FXML
-    private Button stopwordSave;
-    @FXML
-    private Button backHomeButton1;
     @FXML
     private VBox gestioneDocumentiView;
     @FXML
@@ -280,11 +269,6 @@ public class AppViewController implements Initializable {
     private TableColumn<DocumentoDiTesto, String> gestDocColDocumento;
     @FXML
     private TableColumn<DocumentoDiTesto, String> gestDocColNomeFile;
-    private RadioButton adminRadioIT;
-    private RadioButton adminRadioEN;
-    private RadioButton adminRadioES;
-    private RadioButton adminRadioDE;
-    private RadioButton adminRadioFR;
     @FXML
     private Button gestDocButtonTornaAllaHome;
     @FXML
@@ -311,12 +295,7 @@ public class AppViewController implements Initializable {
     private CheckBox checkES;
     @FXML
     private Button iniziaPartita;
-    @FXML
     private VBox gestStopwordsTable;
-    @FXML
-    private Button goToStopwordsButton;
-    @FXML
-    private Button backHomeStopwords;
 
     
     // ========== ATTRIBUTI PRIVATI ==========
@@ -348,6 +327,36 @@ public class AppViewController implements Initializable {
     private Button tornaHomeButton;
     @FXML
     private Button salvaStopwordsButton;
+    @FXML
+    private VBox schermataDocumentiAdmin;
+    @FXML
+    private TextField pathTextField;
+    @FXML
+    private RadioButton adminRadioIT;
+    @FXML
+    private ToggleGroup lingua;
+    @FXML
+    private RadioButton adminRadioEN;
+    @FXML
+    private RadioButton adminRadioES;
+    @FXML
+    private RadioButton adminRadioDE;
+    @FXML
+    private RadioButton adminRadioFR;
+    @FXML
+    private RadioButton adminRadioFacile;
+    @FXML
+    private ToggleGroup inserisciDifficoltà;
+    @FXML
+    private RadioButton adminRadioMedio;
+    @FXML
+    private RadioButton adminRadioDifficile;
+    @FXML
+    private Button browseButton;
+    @FXML
+    private Button saveButton;
+    @FXML
+    private Button backToGestDoc;
     
     
     /**
@@ -769,11 +778,9 @@ public class AppViewController implements Initializable {
         schermataSelezioneDifficoltà.setVisible(false);
         dashboardMenu.setVisible(false);
         schermataInfoUtente.setVisible(false);
-        schermataDocumentiAdmin.setVisible(false);
         schermataStopwords.setVisible(false);
-        schermataDocumentiAdmin.setVisible(false);
         gestioneDocumentiView.setVisible(false);
-        gestStopwordsTable.setVisible(false);
+        
     }
 
     private void pulisciTutto() {
@@ -974,9 +981,25 @@ public class AppViewController implements Initializable {
     }
     
     @FXML
-    private void salvaStopwords(){
-        
+    private void salvaStopwords(ActionEvent event){
+       String testo = this.stopwordTextArea.getText();
+       byte[] bytes = testo.getBytes();
+       CaricaStopWordsService cs = new CaricaStopWordsService("ListaStopwords", this.appstate.getUtente().getEmail(), bytes);
+       
+       
+       cs.setOnSucceeded(e -> {
+           mostraAlert("Avviso", "Stopwords caricate con successo.",  Alert.AlertType.INFORMATION);
+           
+       });
+       
+       cs.setOnFailed(e -> {
+           mostraAlert("Avviso", "Stopwords non caricate correttamente.",  Alert.AlertType.INFORMATION);
+       });
+       
+       cs.start();
     }
+    
+    
 
     private String getDifficoltaSelezionataAdmin() {
         if (adminRadioFacile.isSelected()) return LivelloPartita.FACILE.getDbValue();
@@ -996,6 +1019,7 @@ public class AppViewController implements Initializable {
         return null;
     }
     
+    @FXML
     private void scegliFileTesto(ActionEvent event) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Seleziona un file di testo");
@@ -1012,22 +1036,7 @@ public class AppViewController implements Initializable {
         }
     }
     
-    @FXML
-    private void scegliFileStopwords(ActionEvent event) {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Seleziona un file");
-        fileChooser.getExtensionFilters().addAll(
-            new FileChooser.ExtensionFilter("File di testo", "*.txt")
-        );
-
-        File file = fileChooser.showOpenDialog(null);
-        if (file != null) {
-            fileSelezionato = file;
-            stopwordTextField.setText(file.getName());
-        } else {
-            mostraAlert("Attenzione", "Nessun file selezionato.", Alert.AlertType.WARNING);
-        }
-    }
+    
     
     @FXML
     private void caricaTesto(ActionEvent event) {
@@ -1062,23 +1071,21 @@ public class AppViewController implements Initializable {
             this.cts.start();
     }
     
-    private void caricaStopword(ActionEvent event) {
-        if (fileSelezionato == null || getDifficoltaSelezionataAdmin() == null) {
-            mostraAlert("Errore", "Completa tutti i campi prima di salvare.", Alert.AlertType.WARNING);
-            return;
-        }
-        String nomeFile = fileSelezionato.getName();
-        String path = fileSelezionato.getAbsolutePath();
-        Object utente = appstate.getUtente();
-
-        try {
-            dbSW.CaricareStopwords(appstate.getUtente().getEmail(), Files.readAllBytes(Paths.get(path)),nomeFile);
-            mostraAlert("Successo", "Documento caricato correttamente.", Alert.AlertType.INFORMATION);
-            pathTextField.clear();
-            fileSelezionato = null;
-        } catch (Exception e) {
-            mostraAlert("Errore", "Errore durante il caricamento delle stopwords: " + e.getMessage(), Alert.AlertType.ERROR);
-        }
+    private void mettiStopwordInTextArea(){
+        PrendiStopWordsService ps = new PrendiStopWordsService("ListaStopwords");
+        
+        ps.setOnSucceeded(e -> {
+            this.stopwordTextArea.setText(new String(ps.getValue()));
+            
+        
+        });
+        
+        ps.setOnFailed(e -> {
+            mostraAlert("Warning", "Non risultano stopwords.", Alert.AlertType.INFORMATION);
+            
+        });
+        
+        ps.start();
     }
 
     
@@ -1462,6 +1469,7 @@ public class AppViewController implements Initializable {
         schermataHome.setVisible(true);
     }
 
+    @FXML
     private void backToGestDoc(ActionEvent event) {
         chiudiTutto();
         pulisciTutto();
@@ -1575,15 +1583,11 @@ public class AppViewController implements Initializable {
     }
     
     private void resetService(Service<?> service) {
-    if (service.getState() == Worker.State.SUCCEEDED || 
-        service.getState() == Worker.State.FAILED || 
-        service.getState() == Worker.State.CANCELLED) {
-        
-        service.reset();  // Resetta lo stato a READY
-    }
-}
+        if (service.getState() == Worker.State.SUCCEEDED || 
+            service.getState() == Worker.State.FAILED || 
+            service.getState() == Worker.State.CANCELLED) {
 
-    @FXML
-    private void salvaStopwords(ActionEvent event) {
+            service.reset();  // Resetta lo stato a READY
+        }
     }
-}
+}  

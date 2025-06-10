@@ -96,9 +96,13 @@ public class CaricaSessioneDiGiocoService extends Service<List<GeneratoreDomande
     private Map<String, byte[]> prendiDocumentiCasuali( ArrayList<String> nomiDocumenti, LivelloPartita l){
         Map<String, byte[]> documentiEstratti = new HashMap<>();
         Collections.shuffle(nomiDocumenti);
-        int numDocumenti;
-        
-        for(int i=0; i<l.getNumeroDocumenti(); i++ ){ 
+        int numeroDoc;
+        if(l.getNumeroDocumenti()>nomiDocumenti.size()){
+           numeroDoc= nomiDocumenti.size();
+        }else{
+            numeroDoc=l.getNumeroDocumenti();
+        }
+        for(int i=0; i<numeroDoc; i++ ){ 
             documentiEstratti.put(nomiDocumenti.get(i),
                                 this.dbDT.prendiTesto(nomiDocumenti.get(i)));
             this.generaAnalisi(nomiDocumenti.get(i), documentiEstratti.get(nomiDocumenti.get(i)));

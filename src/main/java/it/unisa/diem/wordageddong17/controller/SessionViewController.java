@@ -143,6 +143,7 @@ public class SessionViewController implements Initializable {
         });
 
         this.caricaSessione.setOnSucceeded(e -> {
+            progessBar.progressProperty().unbind();
             loadingOverlay.setVisible(false);
             System.out.println("Service completato con successo!");
             List<Domanda> domandeCaricate = caricaSessione.getValue();
@@ -162,7 +163,7 @@ public class SessionViewController implements Initializable {
 
         this.caricaSessione.setOnFailed(e -> {
             loadingOverlay.setVisible(false);
-            progessBar.progressProperty().set(0);
+            progessBar.progressProperty().unbind();
             System.out.println("Service fallito!");
             Throwable exception = caricaSessione.getException();
             if (exception != null) {

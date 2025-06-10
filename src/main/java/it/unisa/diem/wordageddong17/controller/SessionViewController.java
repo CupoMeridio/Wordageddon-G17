@@ -110,7 +110,6 @@ public class SessionViewController implements Initializable {
      * Initializes the controller class.
      */
     @Override
-<<<<<<< HEAD
    public void initialize(URL url, ResourceBundle rb) {
     this.TestoDaLeggere.setEditable(false);
     this.TestoDaLeggere.setMouseTransparent(true);
@@ -137,29 +136,6 @@ public class SessionViewController implements Initializable {
         this.caricaSessione.start();     
     }   
 }    
-=======
-    public void initialize(URL url, ResourceBundle rb) {
->>>>>>> origin/master
-
-        this.stato = AppState.getInstance();
-        this.TestoDaLeggere.setEditable(false);
-        this.TestoDaLeggere.setMouseTransparent(true);
-        this.TestoDaLeggere.setFocusTraversable(false);
-        this.FaseRisposte.setVisible(false);
-        this.schermataGameOver.setVisible(false);
-        this.FaseLettura.setVisible(true);
-        this.NumeroDiDomande = 0;
-        durata = 0;
-        sessione = new SessioneDiGioco(stato.getUtente());
-        System.out.println("this.stato.getDifficoltà() :" + this.stato.getDifficoltà());
-        this.caricaSessione = new CaricaSessioneDiGiocoService(this.sessione, this.stato.getDifficoltà(), this.stato.getLingue());
-        this.progessBar.progressProperty().bind(this.caricaSessione.progressProperty());
-        this.NumeroDiTesto = 0;
-        MappaDocumenti = new HashMap<>();
-        this.serviceInitialize();
-        loadingOverlay.setVisible(true);
-        this.caricaSessione.start();
-    }
 
     private void serviceInitialize() {
         this.caricaSessione.setOnRunning(e -> {
@@ -178,7 +154,6 @@ public class SessionViewController implements Initializable {
                 cambioTesto();
             } else {
                 System.out.println("Nessuna domanda caricata o lista vuota");
-                mostraAlert("Errore", "Impossibile caricare le domande. Riprova più tardi.", Alert.AlertType.ERROR);
                 return;
             }
             resetService(caricaSessione);
@@ -195,7 +170,6 @@ public class SessionViewController implements Initializable {
                 System.out.println("Nessuna eccezione specificata");
                 
             }
-            mostraAlert("Errore", "Impossibile caricare la sessione di gioco. Verifica la connessione internet.", Alert.AlertType.ERROR);
             resetService(caricaSessione);
         });
     }
@@ -217,40 +191,23 @@ public class SessionViewController implements Initializable {
             this.FaseRisposte.setVisible(false);
             this.schermataGameOver.setVisible(true);
             this.sessione.aggiornaPuntiFatti(this.durata);
-<<<<<<< HEAD
             System.out.println("this.sessione.getPunteggioFatto() "+ this.sessione.getPunteggioFatto());
             this.highScoreLabel.setText("Punteggio:"+ this.sessione.getPunteggioFatto());
             System.out.println("\n Verifica "+ this.sessione.getRisposte());
             cps.setDifficoltà(this.sessione.getLivello());
-=======
-            this.highScoreLabel.setText("Punteggio:" + this.sessione.getPunteggioFatto());
-            System.out.println("\n Verifica " + this.sessione.getRisposte());
-            cps.setDifficoltà(stato.getDifficoltà());
->>>>>>> origin/master
             cps.setEmail(stato.getUtente().getEmail());
             cps.setPunteggio(this.sessione.getPunteggioFatto());
             cps.setOnSucceeded(e -> {
                 resetService(cps);
             });
-<<<<<<< HEAD
             cps.setOnFailed(e->{
                 System.out.println("Service fallito CaricaPunteggioService  cps");
                  resetService(cps);
-=======
-            cps.setOnFailed(e -> {
-                System.out.println("Service fallito");
-                mostraAlert("Errore", "Impossibile salvare il punteggio.", Alert.AlertType.WARNING);
-                resetService(cps);
->>>>>>> origin/master
             });
             cps.start();
-<<<<<<< HEAD
             
             eliminaSalvataggi();
         }else{
-=======
-        } else {
->>>>>>> origin/master
             this.question.setText(this.domande.element().testo);
             this.counter.setText(1 + this.NumeroDiDomande - this.domande.size() + "/" + this.NumeroDiDomande);
             this.risposta1button.setText(this.domande.element().opzioni.get(0));
@@ -263,57 +220,33 @@ public class SessionViewController implements Initializable {
     private void DaLetturaARisposte() {
         this.FaseLettura.setVisible(false);
         this.FaseRisposte.setVisible(true);
-<<<<<<< HEAD
         this.NumeroDiDomande=this.sessione.getNumeroDomande();
-=======
-        this.NumeroDiDomande = this.domande.size();
->>>>>>> origin/master
     }
 
     @FXML
     private void risposta1(ActionEvent event) {
-<<<<<<< HEAD
         this.aggiornaPilaDopoLaRisposta(0);
-=======
-        this.sessione.aggiornaRisposte(this.NumeroDiDomande - this.domande.size(), 0);
-        this.domande.remove();
->>>>>>> origin/master
         this.risposta1button.setSelected(false);
         this.cambioDomanda();
     }
 
     @FXML
     private void risposta2(ActionEvent event) {
-<<<<<<< HEAD
         this.aggiornaPilaDopoLaRisposta(1);
-=======
-        this.sessione.aggiornaRisposte(this.NumeroDiDomande - this.domande.size(), 1);
-        this.domande.remove();
->>>>>>> origin/master
         this.risposta2button.setSelected(false);
         this.cambioDomanda();
     }
 
     @FXML
     private void risposta3(ActionEvent event) {
-<<<<<<< HEAD
         this.aggiornaPilaDopoLaRisposta(2);
-=======
-        this.sessione.aggiornaRisposte(this.NumeroDiDomande - this.domande.size(), 2);
-        this.domande.remove();
->>>>>>> origin/master
         this.risposta3button.setSelected(false);
         this.cambioDomanda();
     }
 
     @FXML
     private void risposta4(ActionEvent event) {
-<<<<<<< HEAD
         this.aggiornaPilaDopoLaRisposta(3);
-=======
-        this.sessione.aggiornaRisposte(this.NumeroDiDomande - this.domande.size(), 3);
-        this.domande.remove();
->>>>>>> origin/master
         this.risposta4button.setSelected(false);
         this.cambioDomanda();
     }
@@ -347,14 +280,9 @@ public class SessionViewController implements Initializable {
     private void VaiAlQuiz(ActionEvent event) {
         this.DaLetturaARisposte();
         this.cambioDomanda();
-<<<<<<< HEAD
         this.durata=this.sessione.getDurata();
         if(tm!=null)
             tm.stop();
-=======
-        this.durata = this.sessione.getDurata();
-        tm.stop();
->>>>>>> origin/master
     }
 
     @FXML
@@ -404,7 +332,6 @@ public class SessionViewController implements Initializable {
             service.reset();  // Resetta lo stato a READY
         }
     }
-<<<<<<< HEAD
 
     private boolean eliminaSalvataggi() {
         boolean f1 = new File("SalvataggioDi"+this.sessione.getUtente().getEmail()+".ser").delete();
@@ -451,15 +378,4 @@ public class SessionViewController implements Initializable {
         }
     }
 }
-=======
->>>>>>> origin/master
 
-    private void mostraAlert(String titolo, String messaggio, Alert.AlertType tipo) {
-        Alert alert = new Alert(tipo);
-        alert.setTitle(titolo);
-        alert.setHeaderText(null);
-        alert.setContentText(messaggio);
-        alert.showAndWait();
-    }
-
-}

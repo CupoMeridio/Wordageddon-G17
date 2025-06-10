@@ -72,7 +72,6 @@ import it.unisa.diem.wordageddong17.service.PrendiStopWordsService;
 import it.unisa.diem.wordageddong17.service.PrendiTestoService;
 import it.unisa.diem.wordageddong17.service.PrendiTuttiIDocumentiService;
 import it.unisa.diem.wordageddong17.service.PrendiUtenteService;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -604,24 +603,6 @@ public class AppViewController implements Initializable {
         }
         chiudiTutto();
         schermataHome.setVisible(true);
-    }
-
-    private void selezionaFacileButtonOnAction(ActionEvent event) {
-        // Imposta la difficoltà su facile e inizia il gioco
-        schermataSelezioneDifficoltà.setVisible(false);
-        // TODO: Implementare l'avvio del gioco con difficoltà facile
-    }
-
-    private void selezionaMedioButtonOnAction(ActionEvent event) {
-        // Imposta la difficoltà su medio e inizia il gioco
-        schermataSelezioneDifficoltà.setVisible(false);
-        // TODO: Implementare l'avvio del gioco con difficoltà media
-    }
-
-    private void selezionaDifficileButtonOnAction(ActionEvent event) {
-        // Imposta la difficoltà su difficile e inizia il gioco
-        schermataSelezioneDifficoltà.setVisible(false);
-        // TODO: Implementare l'avvio del gioco con difficoltà difficile
     }
 
     /**

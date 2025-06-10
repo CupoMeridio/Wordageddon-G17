@@ -137,7 +137,7 @@ public class AnalisiDocumenti implements Serializable {
                 .collect(Collectors.toMap(parola -> parola, parola -> 1, Integer::sum));
         System.out.println(documento.toString());
         this.aggiungiDocumento(NomeDocumento, documento);
-        f.deleteOnExit();
+        if(f!=null) f.deleteOnExit();
     }
     
     /**

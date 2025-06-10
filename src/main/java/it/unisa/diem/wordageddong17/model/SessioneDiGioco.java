@@ -20,6 +20,7 @@ import java.util.logging.Logger;
  * @author Mattia Sanzari
  */
 public class SessioneDiGioco implements Serializable{
+    private static final long serialVersionUID = 3L;
     private Utente utente;
     private List<Domanda> Domande;
     private Map<Domanda, Integer> risposte;
@@ -29,14 +30,36 @@ public class SessioneDiGioco implements Serializable{
     private int durata;
     private int numeroDocumenti;
     private byte[] stopWords;
-    private  int durataIniziale;
-
+    private int durataIniziale;
+    private LivelloPartita livello;
+    
     public SessioneDiGioco() {
         this.Domande = new ArrayList<>();
         this.Documenti= new HashMap<>();
         this.risposte= new HashMap<>();
         this.durata=0;
         this.durataIniziale=0;
+        // Salvataggi se la sessione viene interrotta bruscamente
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            
+            Thread salva = new Thread(()->{
+                System.out.println("Inizio salvataggio");
+                this.salvaSessioneDiGioco("SalvataggioDi"+this.utente.getEmail()+".ser");
+                System.out.println("Fine salvataggio");
+            });
+            
+            if(this.numeroDomande != this.risposte.size())
+                salva.start();
+            try{
+                salva.join(1000);
+                if(salva.isAlive()){
+                    System.out.println("Non hai avuto tempo");
+                    salva.interrupt();
+                }
+            }catch(InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }));
     }
 
     public SessioneDiGioco(int numeroDomande, int durata, Utente utente, int numeroDocumenti) {
@@ -50,36 +73,22 @@ public class SessioneDiGioco implements Serializable{
         this.durataIniziale=durata;
         this.utente= utente;
         this.numeroDocumenti = numeroDocumenti;
-
-        // Salvataggi se la sessione viene interrotta bruscamente
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            
-            Thread salva = new Thread(()->{
-                System.out.println("Inizio salvataggio");
-                this.salvaSessioneDiGioco("SalvataggioDi"+this.utente.getEmail()+".ser");
-                System.out.println("Fine salvataggio");
-            });
-            salva.start();
-            try{
-                salva.join(10000);
-                if(salva.isAlive()){
-                    System.out.println("Non hai avuto tempo");
-                    salva.interrupt();
-                }
-            }catch(InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-        }));
     }
 
     public SessioneDiGioco(Utente utente) {
-        this.Domande = new ArrayList<>();
-        this.Documenti= new HashMap<>();
-        this.risposte= new HashMap<>();
+        this();
         this.stopWords = null;
         this.utente = utente;
         this.durata=0;
         this.durataIniziale=0;
+    }
+
+    public void setLivello(LivelloPartita livello) {
+        this.livello = livello;
+    }
+
+    public LivelloPartita getLivello() {
+        return livello;
     }
     
     public void setNumeroDomande(int numeroDomande) {
@@ -126,6 +135,10 @@ public class SessioneDiGioco implements Serializable{
         return Domande;
     }
 
+    public int getDurataIniziale() {
+        return durataIniziale;
+    }
+
     public void setDocumenti(Map<String, byte[]> Documenti) {
         this.Documenti = Documenti;
     }
@@ -162,7 +175,7 @@ public class SessioneDiGioco implements Serializable{
     }
     public void salvaSessioneDiGioco(){
         
-        try(ObjectOutputStream oos= new ObjectOutputStream( new FileOutputStream("SalvataggioNormaleDi"+this.utente.getEmail()+".ser"))){
+        try(ObjectOutputStream oos= new ObjectOutputStream( new FileOutputStream("SalvataggioFaseGenerazioneDi"+this.utente.getEmail()+".ser"))){
             System.out.println("Inizio salvataggio");
             oos.writeObject(this);
             System.out.println("Fine salvataggio");
@@ -173,6 +186,7 @@ public class SessioneDiGioco implements Serializable{
         }
     
     }
+    
     public void aggiornaRisposte(int numeroDomanda, int indiceRisposta){
         this.risposte.put(this.Domande.get(numeroDomanda), indiceRisposta);
     }
@@ -180,6 +194,8 @@ public class SessioneDiGioco implements Serializable{
     public void aggiornaPuntiFatti(int tempoRimasto){
        Domanda[] dom= this.Domande.toArray(new Domanda[0]);
        int numRisposteCorrette=0;
+       for(Domanda d :  dom)
+        System.out.println("dom "+ d);
        for(Domanda d :  dom){
            if(d.rispostaCorretta== this.risposte.get(d)){
                numRisposteCorrette++;
@@ -191,14 +207,15 @@ public class SessioneDiGioco implements Serializable{
             float puntiMassimi=142;
             float precisione= this.punteggioFatto/dom.length;
             float puntBase= puntiMassimi*precisione;
-            float bonusTempo= (float) ((tempoRimasto/this.durataIniziale) * (puntiMassimi*0.3));
+            System.out.println("Durata iniziale"+ this.durataIniziale);
+            float bonusTempo= (float) ((tempoRimasto/this.durataIniziale+1) * (puntiMassimi*0.3));
             this.punteggioFatto= puntBase+bonusTempo;
        }else{
            this.punteggioFatto=0;
        }
     }
     
-    public void caricaSessioneDiGioco(String NomeFile){
+    public void caricaSessioneDiGioco(String NomeFile) throws IOException{
         try(ObjectInputStream ois= new ObjectInputStream( new FileInputStream(NomeFile))){
             System.out.println("Inizio caricamento");
             SessioneDiGioco s= (SessioneDiGioco) ois.readObject();
@@ -212,11 +229,12 @@ public class SessioneDiGioco implements Serializable{
                 this.durata = s.getDurata();
                 this.numeroDocumenti = s.getNumeroDocumenti();
                 this.stopWords = s.getStopWords();
-            System.out.println("Fine salvataggio");
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(SessioneDiGioco.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException | ClassNotFoundException ex) {
-            Logger.getLogger(SessioneDiGioco.class.getName()).log(Level.SEVERE, null, ex);
+                this.durataIniziale= s.getDurataIniziale();
+                this.livello= s.getLivello();
+                
+            System.out.println("Fine caricamento");
+        } catch (ClassNotFoundException ex) {
+            System.getLogger(SessioneDiGioco.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
         }
     }
  
@@ -234,7 +252,8 @@ public class SessioneDiGioco implements Serializable{
 
     @Override
     public String toString() {
-        return "SessioneDiGioco{" + "utente=" + utente + ", Domande=" + Domande + ", risposte=" + risposte + ", Documenti=" + Documenti + ", numeroDomande=" + numeroDomande + ", punteggioFatto=" + punteggioFatto + ", durata=" + durata + ", numeroDocumenti=" + numeroDocumenti + ", stopWords=" + stopWords + '}';
+        return "SessioneDiGioco{" + "utente=" + utente + ", Domande=" + Domande + ", risposte=" + risposte + ", Documenti=" + Documenti + ", numeroDomande=" + numeroDomande + ", punteggioFatto=" + punteggioFatto + ", durata=" + durata + ", numeroDocumenti=" + numeroDocumenti + ", stopWords=" + stopWords + ", durataIniziale=" + durataIniziale + ", livello=" + livello + '}';
     }
+
     
 }

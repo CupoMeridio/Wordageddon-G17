@@ -2,6 +2,7 @@
 import it.unisa.diem.wordageddong17.model.SessioneDiGioco;
 import it.unisa.diem.wordageddong17.model.TipoUtente;
 import it.unisa.diem.wordageddong17.model.Utente;
+import java.io.File;
 import java.util.Arrays;
 
 /*
@@ -37,11 +38,20 @@ public class Test {
        /* SessioneDiGioco sessione= new SessioneDiGioco(1, 30, new Utente("mattia","sanzari",TipoUtente.giocatore), 1);
         sessione.salvaSessioneDiGioco("SalvataggioDimattiasanzari2003@gmail.com.ser");
         */
+       /*
         SessioneDiGioco sessione2= new SessioneDiGioco();
         sessione2.caricaSessioneDiGioco("SalvataggioDimattiasanzari2003@gmail.com.ser");
         
-        System.out.println(sessione2);
+        System.out.println(sessione2);*/
+        System.out.print("Esiste il file 1 ? "+((new File("SalvataggioDi"+"mattiasanzari2003@gmail.com"+".ser").exists()) || 
+                (new File("SalvataggioFaseGenerazioneDi"+"mattiasanzari2003@gmail.com"+".ser").exists())));
         
+         System.out.print("Esiste il file 2 ? "+((new File("SalvataggioFaseGenerazioneDi"+"mattiasanzari2003@gmail.com"+".ser").exists())));
+        
+    }
+    private boolean verificaEsistenzaSalvataggio(){
+        return (new File("SalvataggioDi"+"mattiasanzari2003@gmail.com"+".ser").exists()) || 
+                (new File("SalvataggioFaseGenerazioneDi"+"mattiasanzari2003@gmail.com"+".ser").exists());
     }
     
 }

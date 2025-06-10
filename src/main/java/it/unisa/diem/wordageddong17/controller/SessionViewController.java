@@ -27,11 +27,13 @@ import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 import it.unisa.diem.wordageddong17.model.SessioneDiGioco;
 import it.unisa.diem.wordageddong17.service.CaricaPunteggioService;
+import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.stream.Collectors;
 import javafx.concurrent.Service;
 import javafx.concurrent.Worker;
 import javafx.scene.control.ProgressBar;
@@ -89,7 +91,7 @@ public class SessionViewController implements Initializable {
     private SessioneDiGioco sessione;
     private int contatoreDomanda = 1;
     private Timeline tm;
-    private int durata;
+    private int durata;// variabile che salva il tempo in più del giocatore 
     private AppState stato;
     private final CaricaPunteggioService cps = new CaricaPunteggioService();
     
@@ -108,9 +110,6 @@ public class SessionViewController implements Initializable {
      */
     @Override
    public void initialize(URL url, ResourceBundle rb) {
-    
-    
-    this.stato = AppState.getInstance();
     this.TestoDaLeggere.setEditable(false);
     this.TestoDaLeggere.setMouseTransparent(true);
     this.TestoDaLeggere.setFocusTraversable(false);
@@ -118,16 +117,23 @@ public class SessionViewController implements Initializable {
     this.schermataGameOver.setVisible(false);
     this.FaseLettura.setVisible(true);
     this.NumeroDiDomande=0;
-    durata=0;
-    sessione = new SessioneDiGioco( stato.getUtente());
-    System.out.println("this.stato.getDifficoltà() :"+this.stato.getDifficoltà());
-    this.caricaSessione = new CaricaSessioneDiGiocoService(this.sessione, this.stato.getDifficoltà(),this.stato.getLingue());
-    this.progessBar.progressProperty().bind(this.caricaSessione.progressProperty());
+    this.durata=0;
     this.NumeroDiTesto=0;
     MappaDocumenti = new HashMap<>();
-    this.serviceInitialize();
-    loadingOverlay.setVisible(true);
-    this.caricaSessione.start();  
+    this.stato = AppState.getInstance();
+       
+     System.out.println("this.stato.isSessioneSalvata()"+ this.stato.isSessioneSalvata());
+    if(this.stato.isSessioneSalvata()){
+        this.inizializeConSalvataggio();
+    }else{
+        sessione = new SessioneDiGioco( stato.getUtente());
+        sessione.setLivello(this.stato.getDifficoltà());
+        this.caricaSessione = new CaricaSessioneDiGiocoService(this.sessione, this.sessione.getLivello(),this.stato.getLingue());
+        this.progessBar.progressProperty().bind(this.caricaSessione.progressProperty());
+        this.serviceInitialize();
+        loadingOverlay.setVisible(true);
+        this.caricaSessione.start();     
+    }   
 }    
 
 private void serviceInitialize() {
@@ -186,17 +192,19 @@ private void serviceInitialize() {
             System.out.println("this.sessione.getPunteggioFatto() "+ this.sessione.getPunteggioFatto());
             this.highScoreLabel.setText("Punteggio:"+ this.sessione.getPunteggioFatto());
             System.out.println("\n Verifica "+ this.sessione.getRisposte());
-            cps.setDifficoltà(stato.getDifficoltà());
+            cps.setDifficoltà(this.sessione.getLivello());
             cps.setEmail(stato.getUtente().getEmail());
             cps.setPunteggio(this.sessione.getPunteggioFatto());
             cps.setOnSucceeded(e->{
                 resetService(cps);
             });
             cps.setOnFailed(e->{
-                System.out.println("Service fallito");
+                System.out.println("Service fallito CaricaPunteggioService  cps");
                  resetService(cps);
             });
             cps.start();
+            
+            eliminaSalvataggi();
         }else{
             this.question.setText(this.domande.element().testo);
             this.counter.setText(1+this.NumeroDiDomande-this.domande.size()+"/"+this.NumeroDiDomande);
@@ -211,39 +219,40 @@ private void serviceInitialize() {
     private void DaLetturaARisposte(){
         this.FaseLettura.setVisible(false);
         this.FaseRisposte.setVisible(true);
-        this.NumeroDiDomande=this.domande.size();
+        this.NumeroDiDomande=this.sessione.getNumeroDomande();
     }
 
     @FXML
     private void risposta1(ActionEvent event) {
-        this.sessione.aggiornaRisposte(this.NumeroDiDomande-this.domande.size(), 0);
-        this.domande.remove();
+        this.aggiornaPilaDopoLaRisposta(0);
         this.risposta1button.setSelected(false);
         this.cambioDomanda();
     }
 
     @FXML
     private void risposta2(ActionEvent event) {
-        this.sessione.aggiornaRisposte(this.NumeroDiDomande-this.domande.size(), 1);
-        this.domande.remove();
+        this.aggiornaPilaDopoLaRisposta(1);
         this.risposta2button.setSelected(false);
         this.cambioDomanda();
     }
 
     @FXML
     private void risposta3(ActionEvent event) {
-        this.sessione.aggiornaRisposte(this.NumeroDiDomande-this.domande.size(), 2);
-        this.domande.remove();
+        this.aggiornaPilaDopoLaRisposta(2);
         this.risposta3button.setSelected(false);
         this.cambioDomanda();
     }
 
     @FXML
     private void risposta4(ActionEvent event) {
-        this.sessione.aggiornaRisposte(this.NumeroDiDomande-this.domande.size(), 3);
-        this.domande.remove();
+        this.aggiornaPilaDopoLaRisposta(3);
         this.risposta4button.setSelected(false);
         this.cambioDomanda();
+    }
+    
+    private void aggiornaPilaDopoLaRisposta(int i){
+        this.sessione.aggiornaRisposte(this.NumeroDiDomande-this.domande.size(), i);
+        this.domande.remove();
     }
 
     @FXML
@@ -268,7 +277,8 @@ private void serviceInitialize() {
         this.DaLetturaARisposte();
         this.cambioDomanda();
         this.durata=this.sessione.getDurata();
-        tm.stop();
+        if(tm!=null)
+            tm.stop();
     }
 
      
@@ -317,6 +327,51 @@ private void serviceInitialize() {
             service.getState() == Worker.State.CANCELLED) {
 
             service.reset();  // Resetta lo stato a READY
+        }
+    }
+
+    private boolean eliminaSalvataggi() {
+        boolean f1 = new File("SalvataggioDi"+this.sessione.getUtente().getEmail()+".ser").delete();
+        System.out.println("Eliminazione file 1: "+ f1);
+        boolean f2 =new File(("SalvataggioFaseGenerazioneDi"+this.sessione.getUtente().getEmail()+".ser")).delete();
+        System.out.println("Eliminazione file 1: "+ f2);
+        return f1 && f2;
+    }
+
+    private void caricaSessioneDaFileSalvato() {
+         try {
+            sessione.caricaSessioneDiGioco("SalvataggioDi"+stato.getUtente().getEmail()+".ser");
+        } catch (IOException ex) {
+            try {
+                sessione.caricaSessioneDiGioco("SalvataggioFaseGenerazioneDi"+stato.getUtente().getEmail()+".ser");
+            } catch (IOException ex1) {
+                System.out.println("Notifica");
+                System.getLogger(SessionViewController.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex1);
+                this.eliminaSalvataggi();
+            }
+        }
+    }
+    
+    private void inizializeConSalvataggio(){
+        this.sessione= new SessioneDiGioco();
+            caricaSessioneDaFileSalvato();
+        this.NumeroDiDomande = sessione.getNumeroDomande();
+        this.MappaDocumenti = this.sessione.getDocumenti();
+        // popola domande
+        this.domande.addAll(
+                this.sessione.getDomande().stream().skip((int)this.sessione.getRisposte().size()).collect(Collectors.toList()));
+        
+        System.out.println("getDomande:"+ this.sessione.getDomande());
+        System.out.println("domande:"+ domande);
+        System.out.println("this.sessione.getRisposte().size() "+this.sessione.getRisposte().size());
+        System.out.println("this.sessione.getDurata(): "+ this.sessione.getDurata());
+        if(this.sessione.getDurata()>0 && this.sessione.getRisposte().size()<1 ){
+            cambioTesto();
+            this.inizializzaTimer();
+        }else{
+            this.durata= this.sessione.getDurata();
+            this.DaLetturaARisposte();
+            this.cambioDomanda();
         }
     }
 }

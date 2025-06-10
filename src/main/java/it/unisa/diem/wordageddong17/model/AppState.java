@@ -16,6 +16,15 @@ public class AppState {
     private boolean sessionViewHomeButton = false;
     private boolean sessionViewContinuaButton = false;
     private ArrayList<Lingua> lingue = null;
+    private boolean sessioneSalvata= false;
+
+    public void setSessioneSalvata(boolean sessioneSalvata) {
+        this.sessioneSalvata = sessioneSalvata;
+    }
+
+    public boolean isSessioneSalvata() {
+        return sessioneSalvata;
+    }
 
     public void setSessionViewHomeButton(boolean sessionViewHomeButton) {
         this.sessionViewHomeButton = sessionViewHomeButton;

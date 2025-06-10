@@ -73,8 +73,10 @@ import it.unisa.diem.wordageddong17.service.PrendiUtenteService;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Consumer;
 import javafx.concurrent.Service;
 import javafx.concurrent.Worker;
+import javafx.scene.control.ButtonType;
 
 /**
  * FXML Controller class
@@ -492,10 +494,36 @@ public class AppViewController implements Initializable {
     private void startOnAction(ActionEvent event) {
 
         chiudiTutto();
-
         schermataSelezioneDifficoltà.setVisible(true);
+        
+        if(verificaEsistenzaSalvataggio())
+            this.mostraAlert("Hai un slavataggio passato", 
+                    "Vuoi continuare a giocare col slavataggio?", 
+                    Alert.AlertType.CONFIRMATION,
+                     e->{try {
+                            this.appstate.setSessioneSalvata(e); 
+                            System.out.println("this.appstate.setSessioneSalvata(e): "+ this.appstate.isSessioneSalvata());
+                            App.setRoot("SessionView");
+                        } catch (IOException ex) {
+                            this.eliminaSalvataggi();
+                            System.getLogger(AppViewController.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+                        }
+                    }
+                    ,true);
     }
     
+    private boolean verificaEsistenzaSalvataggio(){
+        return (new File("SalvataggioDi"+this.appstate.getUtente().getEmail()+".ser").exists()) || 
+                (new File("SalvataggioFaseGenerazioneDi"+this.appstate.getUtente().getEmail()+".ser").exists());
+    }
+    
+     private boolean eliminaSalvataggi() {
+        boolean f1 = new File("SalvataggioDi"+this.appstate.getUtente().getEmail()+".ser").delete();
+        System.out.println("Eliminazione file 1: "+ f1);
+        boolean f2 =new File(("SalvataggioFaseGenerazioneDi"+this.appstate.getUtente().getEmail()+".ser")).delete();
+        System.out.println("Eliminazione file 1: "+ f2);
+        return f1 && f2;
+    }
     
 
      /**
@@ -628,7 +656,29 @@ public class AppViewController implements Initializable {
         alert.setContentText(messaggio);
         alert.showAndWait();
     }
-
+    
+    private <T> void mostraAlert(String titolo, String messaggio, Alert.AlertType tipo, Consumer<T> azione, T valore) {
+        
+        Alert alert = new Alert(tipo);
+        alert.setTitle(titolo);
+        alert.setHeaderText(null);
+        alert.setContentText(messaggio);
+        
+        if(tipo == Alert.AlertType.CONFIRMATION){
+        
+            alert.getButtonTypes().setAll(new ButtonType("OK"), new ButtonType("ANNULLA"));
+            alert.showAndWait().ifPresent(button -> {
+            // Se l'utente conferma, passiamo true al consumer, altrimenti false.
+            if (button.getText().equals("OK")) {
+                azione.accept(valore);
+            }else{
+                 this.eliminaSalvataggi();
+            }
+        });
+        }else{
+            alert.showAndWait();
+        }
+    }
 
     @FXML
     private void registerButtonOnAction(ActionEvent event) {

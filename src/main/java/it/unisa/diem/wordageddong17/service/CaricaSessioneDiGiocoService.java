@@ -33,12 +33,10 @@ public class CaricaSessioneDiGiocoService extends Service<List<GeneratoreDomande
     private AnalisiDocumenti analisi;
 
     public CaricaSessioneDiGiocoService(SessioneDiGioco sessione, LivelloPartita livello,ArrayList<Lingua> lingua) {
+        this();
         this.sessione = sessione;
         this.livello = livello;
-        this.dbDT= DatabaseDocumentoDiTesto.getInstance();
-        this.dbSW= DatabaseStopWords.getInstance();
-        this.lingua=lingua;
-        this.analisi= new AnalisiDocumenti();
+        this.lingua=lingua; 
     }
 
     public CaricaSessioneDiGiocoService() {

@@ -131,9 +131,9 @@ public class AnalisiDocumenti implements Serializable {
         if (this.stopWords != null) {
             String stringheStopWords = new String(this.stopWords);
             String[] parole = stringheStopWords.toUpperCase().split("[\\p{Punct}\\s]+");
-            System.out.println("Arrays.asList(parole):");
-            // Arrays.asList(parole).stream().forEach(e -> System.out.println(e));
-            return Arrays.asList(parole).contains(parola);
+           // System.out.println("Arrays.asList(parole): di "+ parola);
+             //Arrays.asList(parole).stream().forEach(e -> System.out.println(e));
+            return Arrays.asList(parole).contains(parola.toUpperCase());
         }
         return false;
     }

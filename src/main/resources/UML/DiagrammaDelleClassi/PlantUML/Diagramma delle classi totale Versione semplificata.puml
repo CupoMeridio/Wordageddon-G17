@@ -1,0 +1,93 @@
+@startuml
+skinparam classAttributeIconSize 0
+class AnalisiDocumenti
+class App
+class AppState
+class AppViewController
+class CaricaPunteggioService
+class CaricaSessioneDiGiocoService
+class CaricaStopWordsService
+class CaricaTestoService
+class Classifica
+class Database
+class DatabaseClassifica
+class DatabaseDocumentoDiTesto
+class DatabaseStopWords
+class DatabaseUtente
+class EliminaTestoService
+class GeneratoreDomande
+class InserisciUtenteService
+class LoginService
+class MancanzaDiDocumenti
+class ModificaFotoProfiloService
+class PrendiClassificheService
+class PrendiInfoUtenteService
+class PrendiStopWordsService
+class PrendiTestoService
+class PrendiTuttiIDocumentiService
+class PrendiUtenteService
+class RunMain
+class SessionViewController
+class SessioneDiGioco
+class Utente
+class Lingua
+class LivelloPartita
+class TipoUtente
+class Connection
+AppViewController --> PrendiClassificheService
+AppViewController --> InserisciUtenteService
+AppViewController --> CaricaTestoService
+AppViewController --> MenuItem
+AppViewController --> PrendiUtenteService
+AppViewController --> LoginService
+AppViewController --> PrendiTestoService
+AppViewController --> ModificaFotoProfiloService
+AppViewController --> PrendiInfoUtenteService
+AppViewController --> StackPane
+AppViewController --> DAOListaStopWords
+AppViewController --> EliminaTestoService
+AppViewController --> PrendiTuttiIDocumentiService
+AppViewController --> AppState
+SessionViewController --> CaricaSessioneDiGiocoService
+SessionViewController --> CaricaPunteggioService
+SessionViewController --> SessioneDiGioco
+SessionViewController --> Timeline
+SessionViewController --> AppState
+Database --> Dotenv
+Database --> Connection
+Database --> Logger
+DatabaseClassifica --> Database
+DatabaseDocumentoDiTesto --> Database
+DatabaseStopWords --> Database
+DatabaseUtente --> Database
+AppState --> Utente
+AppState --> LivelloPartita
+Classifica --> LivelloPartita
+Classifica --> DatabaseClassifica
+GeneratoreDomande --> Random
+GeneratoreDomande --> AnalisiDocumenti
+SessioneDiGioco --> Utente
+SessioneDiGioco --> LivelloPartita
+SessioneDiGioco --> long
+Utente --> TipoUtente
+CaricaPunteggioService --> DAOClassifica
+CaricaPunteggioService --> LivelloPartita
+CaricaSessioneDiGiocoService --> DAOListaStopWords
+CaricaSessioneDiGiocoService --> SessioneDiGioco
+CaricaSessioneDiGiocoService --> DAODocumentoDiTesto
+CaricaSessioneDiGiocoService --> AnalisiDocumenti
+CaricaSessioneDiGiocoService --> LivelloPartita
+CaricaStopWordsService --> DAOListaStopWords
+CaricaTestoService --> Lingua
+CaricaTestoService --> DAODocumentoDiTesto
+EliminaTestoService --> DAODocumentoDiTesto
+InserisciUtenteService --> DAOUtente
+LoginService --> DAOUtente
+ModificaFotoProfiloService --> DAOUtente
+PrendiClassificheService --> DAOClassifica
+PrendiInfoUtenteService --> DAOClassifica
+PrendiStopWordsService --> DAOListaStopWords
+PrendiTestoService --> DAODocumentoDiTesto
+PrendiTuttiIDocumentiService --> DAODocumentoDiTesto
+PrendiUtenteService --> DAOUtente
+@enduml

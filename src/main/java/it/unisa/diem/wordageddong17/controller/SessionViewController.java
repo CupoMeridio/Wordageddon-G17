@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import javafx.concurrent.Service;
 import javafx.concurrent.Worker;
@@ -210,7 +211,7 @@ public class SessionViewController implements Initializable {
                 resetService(cps);
             });
             cps.start();
-            
+            stampaResocontoDomande();
             eliminaSalvataggi();
         }else{
             this.question.setText(this.domande.element().testo);
@@ -400,4 +401,24 @@ public class SessionViewController implements Initializable {
     public SessionViewController() {
         // Costruttore vuoto o con inizializzazioni se necessarie
     }
+    private void stampaResocontoDomande() {
+    StringBuffer risultato = new StringBuffer();
+    
+    this.sessione.getDomande().forEach(domanda -> {
+        String rispostaCorretta = domanda.opzioni.get(domanda.rispostaCorretta);
+        String rispostaData = domanda.opzioni.get(this.sessione.getRisposte().get(domanda));
+        
+        risultato.append("Domanda:\n")
+                .append(domanda.testo).append("\n\n")
+                .append("Risposta corretta:\n")
+                .append(rispostaCorretta).append("\n\n")
+                .append("Risposta data:\n")
+                .append(rispostaData).append("\n")
+                .append("----------------------------\n\n");
+    });
+    
+    this.resocontoDomande.setText(risultato.toString());
 }
+}
+
+

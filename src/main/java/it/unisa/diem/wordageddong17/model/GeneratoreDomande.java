@@ -153,7 +153,7 @@ public class GeneratoreDomande {
                 case 1: lista.add(this.domandaFrequenzaAssoluta(nomeDocumento));
                     break;
                 default : lista.add(this.domandaParolaPiuFrequente(nomeDocumento));
-            } 
+            }
             
             System.out.println("getRaccoltaDiDomande: " + lista.get(i).testo);
             //System.out.println("getRaccoltaDiDomande: "+ lista);

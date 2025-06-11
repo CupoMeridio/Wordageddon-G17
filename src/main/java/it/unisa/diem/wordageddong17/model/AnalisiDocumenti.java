@@ -43,9 +43,11 @@ public class AnalisiDocumenti implements Serializable {
      * e le mappe delle parole con le loro frequenze.
      * Struttura: NomeDocumento -> (Parola -> Frequenza)
      */
-    
-    private Map<String,Map<String,Integer>> Matrice;
+    private Map<String, Map<String, Integer>> Matrice;
+
+    /** Array di byte contenente le stop words da escludere nell'analisi */
     private byte[] stopWords;
+
     
     /**
      * Costruttore della classe AnalisiDocumenti.
@@ -56,11 +58,17 @@ public class AnalisiDocumenti implements Serializable {
          Matrice = new HashMap<String,Map<String,Integer>>();
          this.stopWords = null;
     }
-
+    
+    /**
+     * Imposta l'array di byte contenente le stop words da utilizzare nell'analisi.
+     *
+     * @param stopWords array di byte rappresentante le stop words
+     */
     public void setStopWords(byte[] stopWords) {
         this.stopWords = stopWords;
         System.out.println("this.stopWords");
     }
+
     
     /**
      * Aggiunge un documento analizzato alla matrice.
@@ -111,39 +119,56 @@ public class AnalisiDocumenti implements Serializable {
     
     
     
-    public boolean appartenenzaStopWords(String parola){
-        System.out.println("this.stopWords: "+ this.stopWords);
-        
-        if(this.stopWords!= null ){
-            String stringheStopWords = new String(this.stopWords); 
+    /**
+     * Controlla se una parola è presente nella lista di stop words.
+     *
+     * @param parola la parola da controllare
+     * @return {@code true} se la parola è una stop word, {@code false} altrimenti
+     */
+    public boolean appartenenzaStopWords(String parola) {
+        System.out.println("this.stopWords: " + this.stopWords);
+
+        if (this.stopWords != null) {
+            String stringheStopWords = new String(this.stopWords);
             String[] parole = stringheStopWords.toUpperCase().split("[\\p{Punct}\\s]+");
             System.out.println("Arrays.asList(parole):");
-           // Arrays.asList(parole).stream().forEach(e->System.out.println(e));
+            // Arrays.asList(parole).stream().forEach(e -> System.out.println(e));
             return Arrays.asList(parole).contains(parola);
         }
         return false;
     }
-    
-    public void analisiUnDocumento(byte[] doc, String NomeDocumento) throws IOException{
-        Map<String,Integer>  documento;
-        Path p=null;
-        File f=null;
+
+    /**
+     * Esegue l'analisi di un singolo documento.
+     * Estrae le parole, filtra le stop words e conta la frequenza delle parole.
+     * Aggiunge il documento analizzato alla struttura dati interna.
+     *
+     * @param doc          il contenuto del documento in formato byte array
+     * @param NomeDocumento il nome identificativo del documento
+     * @throws IOException in caso di errore durante la lettura del documento temporaneo
+     */
+    public void analisiUnDocumento(byte[] doc, String NomeDocumento) throws IOException {
+        Map<String, Integer> documento;
+        Path p = null;
+        File f = null;
         try {
-            f=File.createTempFile("FileAnalisiUnDocumento", ".txt");
+            f = File.createTempFile("FileAnalisiUnDocumento", ".txt");
             p = Files.write(f.toPath(), doc);
-         }catch(IOException e){
-            System.out.println("Eccezione: "+e);
-         }
+        } catch (IOException e) {
+            System.out.println("Eccezione: " + e);
+        }
         Stream<String> stringStream = Files.lines(p);
-    
-        documento= stringStream.flatMap(riga -> Arrays.stream(riga.toUpperCase().split("\\W+")))
-                .filter(parola-> !parola.isEmpty())
-                .filter(parola ->!appartenenzaStopWords(parola))
-                .collect(Collectors.toMap(parola -> parola, parola -> 1, Integer::sum));
+
+        documento = stringStream
+            .flatMap(riga -> Arrays.stream(riga.toUpperCase().split("\\W+")))
+            .filter(parola -> !parola.isEmpty())
+            .filter(parola -> !appartenenzaStopWords(parola))
+            .collect(Collectors.toMap(parola -> parola, parola -> 1, Integer::sum));
         System.out.println(documento.toString());
         this.aggiungiDocumento(NomeDocumento, documento);
-        if(f!=null) f.deleteOnExit();
+        if (f != null) f.deleteOnExit();
     }
+
     
     /**
      * Salva la matrice corrente su file serializzato.

@@ -5,6 +5,16 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+/**
+ * Implementazione del DAO per la gestione della lista di stop words.
+ * 
+ * Questa classe si occupa di fornire l'accesso ai dati relativi alle stop words,
+ * utilizzate per filtrare parole non significative nei documenti di testo.
+ * Adotta il pattern Singleton per garantire una singola istanza condivisa
+ * durante l'esecuzione dell'applicazione.
+ * 
+ * @see DAOListaStopWords
+ */
 public class DatabaseStopWords implements DAOListaStopWords {
     
     private Database db;
@@ -14,10 +24,9 @@ public class DatabaseStopWords implements DAOListaStopWords {
     }
     /**
      * Carica o aggiorna un file di stopwords nel database.
-     * <p>
+     * 
      * Se un file con lo stesso nome esiste già, viene aggiornato con il nuovo contenuto.
      * Utilizza la clausola ON CONFLICT per gestire i duplicati.
-     * </p>
      * 
      * @param email l'email dell'amministratore che carica il file
      * @param documentoStopwords il contenuto del file di stopwords come array di byte
@@ -48,10 +57,9 @@ public class DatabaseStopWords implements DAOListaStopWords {
     
     /**
      * Recupera il contenuto di un file di stopwords dal database.
-     * <p>
+     * 
      * Cerca il file specificato nella tabella stopwords e restituisce il suo contenuto
      * sotto forma di array di byte.
-     * </p>
      * 
      * @param nomeFile il nome del file di stopwords da recuperare
      * @return l'array di byte contenente il documento, oppure {@code null} se il file non esiste
@@ -80,6 +88,16 @@ public class DatabaseStopWords implements DAOListaStopWords {
     }
     
     
+    /**
+     * Restituisce l'unica istanza di {@code DatabaseStopWords} secondo il pattern Singleton.
+     * <p>
+     * Il metodo garantisce che venga creata una sola istanza di {@code DatabaseStopWords} durante
+     * l'intera esecuzione dell'applicazione. L'istanza viene gestita tramite una classe interna statica,
+     * assicurando un'inizializzazione lazy e thread-safe.
+     * </p>
+     *
+     * @return l'istanza singleton di {@code DatabaseStopWords}
+     */
     public static DatabaseStopWords getInstance() {
         return DatabaseStopWords.Holder.INSTANCE;
     }

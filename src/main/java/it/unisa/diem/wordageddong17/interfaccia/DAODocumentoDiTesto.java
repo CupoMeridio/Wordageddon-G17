@@ -7,11 +7,9 @@ import java.util.ArrayList;
 
 /**
  * Interfaccia DAODocumentoDiTesto
- * <p>
  * Questa interfaccia definisce i metodi necessari per gestire i documenti testuali nel sistema.
  * Le operazioni previste includono l'eliminazione, il caricamento, il recupero del contenuto,
  * il recupero di tutti i documenti e il filtraggio dei documenti in base al livello di difficoltà e alla lingua.
- * </p>
  *
  * @see it.unisa.diem.wordageddong17.model.DocumentoDiTesto
  * @see it.unisa.diem.wordageddong17.model.Lingua
@@ -29,10 +27,8 @@ public interface DAODocumentoDiTesto {
 
     /**
      * Carica un documento testuale nel sistema.
-     * <p>
      * Permette di salvare un documento fornendo l'email dell'utente, il nome del file, il livello di difficoltà,
      * il contenuto del documento in formato byte e la lingua in cui è scritto.
-     * </p>
      *
      * @param email     l'email dell'utente che carica il documento
      * @param nomeFile  il nome del file da caricare
@@ -60,10 +56,8 @@ public interface DAODocumentoDiTesto {
 
     /**
      * Recupera i nomi dei documenti filtrati in base al livello di difficoltà e alle lingue specificate.
-     * <p>
      * Viene applicato un filtro per selezionare solo i documenti che corrispondono al livello di partita
      * indicato e che sono scritti in una delle lingue presenti nella lista.
-     * </p>
      *
      * @param livello il livello di difficoltà in base al quale filtrare i documenti
      * @param lingue  una lista di oggetti {@link Lingua} che specifica le lingue da includere nel filtro

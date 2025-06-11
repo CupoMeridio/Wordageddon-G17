@@ -12,12 +12,11 @@ import javafx.concurrent.Task;
 
 /**
  * Servizio per il recupero delle classifiche per ciascun livello di partita.
- * <p>
+ * 
  * Questo servizio recupera le classifiche dal database per i livelli
  * {@link LivelloPartita#FACILE}, {@link LivelloPartita#MEDIO} e {@link LivelloPartita#DIFFICILE}
  * e le aggrega in una mappa {@code Map<LivelloPartita, List<Classifica>>}. L'operazione viene eseguita
  * in modo asincrono tramite un {@link Task}.
- * </p>
  * 
  * @see DatabaseClassifica
  * @see DAOClassifica
@@ -33,22 +32,19 @@ public class PrendiClassificheService extends Service<Map<LivelloPartita, List<C
     public PrendiClassificheService() {
         this.dbC = DatabaseClassifica.getInstance();
     }
-    
+
     /**
      * Crea un task asincrono per il recupero delle classifiche.
-     * <p>
+     * 
      * Il task esegue le seguenti operazioni:
-     * <ol>
-     *   <li>Verifica se il task è stato cancellato; in tal caso, ritorna null.</li>
-     *   <li>Recupera la classifica per il livello {@link LivelloPartita#FACILE}.</li>
-     *   <li>Verifica nuovamente se il task è stato cancellato;</li>
-     *   <li>Recupera la classifica per il livello {@link LivelloPartita#MEDIO}.</li>
-     *   <li>Controlla se il task è stato cancellato;</li>
-     *   <li>Recupera la classifica per il livello {@link LivelloPartita#DIFFICILE}.</li>
-     *   <li>Aggrega le tre liste di classifiche in una mappa e la restituisce.</li>
-     * </ol>
-     * </p>
-     *
+     * 1. Verifica se il task è stato cancellato; in tal caso, ritorna null.
+     * 2. Recupera la classifica per il livello {@link LivelloPartita#FACILE}.
+     * 3. Verifica nuovamente se il task è stato cancellato.
+     * 4. Recupera la classifica per il livello {@link LivelloPartita#MEDIO}.
+     * 5. Controlla se il task è stato cancellato.
+     * 6. Recupera la classifica per il livello {@link LivelloPartita#DIFFICILE}.
+     * 7. Aggrega le tre liste di classifiche in una mappa e la restituisce.
+     * 
      * @return Un {@link Task} che restituisce una mappa contenente le classifiche organizzate per livello.
      */
     @Override

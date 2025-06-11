@@ -24,4 +24,15 @@ public class RunMain {
     public static void main(String[] args) {
         App.main(args);
     }
+    
+    /**
+     * Costruttore di default.
+     * <p>
+     * Inizializza una nuova istanza di RunMain.
+     * </p>
+     */
+    public RunMain() {
+        // Costruttore vuoto
+    }
+    
 }

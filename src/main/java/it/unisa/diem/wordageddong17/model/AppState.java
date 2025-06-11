@@ -6,11 +6,11 @@ import java.util.ArrayList;
  * Questa classe rappresenta lo stato globale dell'applicazione e mantiene
  * le informazioni rilevanti relative all'utente autenticato, alle impostazioni della sessione,
  * al livello di difficoltà della partita e alle lingue disponibili.
- * <p>
+ * 
  * La classe adotta il pattern Singleton, garantendo così che in tutta l'applicazione
  * esista una sola istanza di AppState. L'istanza viene creata in maniera lazy e in modo thread-safe 
  * grazie all'uso di una classe interna statica (Holder Pattern).
- * </p>
+ * 
  * 
  * @author cupom
  */
@@ -177,4 +177,14 @@ public class AppState {
         return AppState.Holder.INSTANCE;
     }
     
+    /**
+     * Costruttore di default.
+     * <p>
+     * Questo costruttore è privato per impedire la creazione di istanze multiple,
+     * garantendo il pattern Singleton.
+     * </p>
+     */
+    private AppState() {
+        // eventuale inizializzazione se serve
+    }
 }

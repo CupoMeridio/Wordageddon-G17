@@ -17,37 +17,58 @@ import java.util.logging.Logger;
 
 /**
  * Rappresenta una sessione di gioco nel sistema.
- * <p>
+ * 
  * La sessione di gioco incapsula le informazioni relative all'utente, alle domande, alle risposte fornite,
  * ai documenti utilizzati, ai punteggi, alla durata e al livello di difficoltà della partita.
  * Include inoltre funzionalità di salvataggio e caricamento della sessione in modo da consentire il ripristino
  * in caso di interruzioni inaspettate.
- * </p>
  *
  * @author Mattia Sanzari
  */
 public class SessioneDiGioco implements Serializable {
-    private static final long serialVersionUID = 3L;
+    private static final long serialVersionUID = 3L; // Versione per serializzazione
 
+    /** L'utente associato a questa sessione di gioco */
     private Utente utente;
+
+    /** Lista delle domande della sessione */
     private List<Domanda> Domande;
+
+    /** Mappa delle risposte date, associando ogni domanda al valore intero risposta */
     private Map<Domanda, Integer> risposte;
-    private Map<String, byte[]> Documenti; // Chiave: nome del documento; Valore: contenuto in byte
-    private int numeroDomande;             // Numero di domande per documento
+
+    /** Documenti associati alla sessione: chiave = nome documento, valore = contenuto in byte */
+    private Map<String, byte[]> Documenti;
+
+    /** Numero totale di domande per documento */
+    private int numeroDomande;
+
+    /** Punteggio ottenuto nella sessione */
     private float punteggioFatto;
+
+    /** Durata della sessione di gioco (in secondi o altro unità) */
     private int durata;
+
+    /** Numero totale di documenti */
     private int numeroDocumenti;
+
+    /** Array di byte contenente le stop words usate nell'elaborazione */
     private byte[] stopWords;
+
+    /** Durata iniziale della sessione */
     private int durataIniziale;
+
+    /** Livello della partita (es. facile, medio, difficile) */
     private LivelloPartita livello;
+
 
     /**
      * Costruttore di default.
-     * <p>
+     * 
      * Inizializza le liste e le mappe necessarie e imposta la durata a 0. 
      * Aggiunge anche un shutdown hook per salvare automaticamente la sessione in caso di interruzione brusca,
      * qualora non tutte le risposte siano state registrate.
-     * </p>
+     * 
      */
     public SessioneDiGioco() {
         this.Domande = new ArrayList<>();
@@ -150,10 +171,9 @@ public class SessioneDiGioco implements Serializable {
 
     /**
      * Imposta la durata rimanente della sessione.
-     * <p>
+     * 
      * Se la durata corrente e quella iniziale sono entrambe pari a zero, imposta la durata iniziale.
      * Questa operazione è sincronizzata per garantire la consistenza dei dati in un ambiente concorrente.
-     * </p>
      *
      * @param durata la nuova durata della sessione
      */
@@ -327,11 +347,10 @@ public class SessioneDiGioco implements Serializable {
     
     /**
      * Aggiorna il punteggio fatto dall'utente in base alle risposte corrette e al tempo rimanente.
-     * <p>
+     * 
      * Il metodo itera sulle domande della sessione e verifica se la risposta fornita corrisponde a quella corretta.
      * In base al numero di risposte corrette, calcola un punteggio di base e un bonus in base al tempo rimanente.
      * Se nessuna risposta è corretta, il punteggio viene impostato a zero.
-     * </p>
      *
      * @param tempoRimasto il tempo rimasto (in secondi) al termine della sessione
      */
@@ -390,9 +409,8 @@ public class SessioneDiGioco implements Serializable {
     
     /**
      * Salva un documento in locale come file.
-     * <p>
+     * 
      * Questo metodo è attualmente non utilizzato; può essere eliminato in futuro se non necessario.
-     * </p>
      *
      * @param nomedoc    il nome del file da creare
      * @param documento  il contenuto del documento da salvare in byte

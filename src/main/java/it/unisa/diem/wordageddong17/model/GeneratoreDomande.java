@@ -137,11 +137,11 @@ public class GeneratoreDomande {
     
     
     /**
-     * restituisce una collezione di N domande con tipo casuale 
-     * "Quale tra queste parole è la più frequente nel documento?"
-     * 
-     * @param nomeDocumento Nome del documento su cui basare la domanda
-     * @return Oggetto lista di tipo Domanda
+     * Restituisce una lista di domande generate da un documento specificato.
+     *
+     * @param num il numero massimo di domande da generare
+     * @param nomeDocumento il nome del documento da cui estrarre le domande
+     * @return una lista di oggetti {@link Domanda}
      */
     public List<Domanda> getRaccoltaDiDomande(int num, String nomeDocumento){
         List<Domanda> lista= new ArrayList<>();

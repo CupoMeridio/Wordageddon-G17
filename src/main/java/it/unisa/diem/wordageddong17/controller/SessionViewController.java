@@ -390,5 +390,14 @@ public class SessionViewController implements Initializable {
         alert.setContentText(messaggio);
         alert.showAndWait();
     }
-
+    
+    /**
+     * Costruttore di default.
+     * 
+     * Inizializza una nuova istanza del controller.
+     * 
+     */
+    public SessionViewController() {
+        // Costruttore vuoto o con inizializzazioni se necessarie
+    }
 }

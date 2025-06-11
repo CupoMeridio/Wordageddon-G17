@@ -4,14 +4,19 @@ import java.util.List;
 
 /**
  * Questo record rappresenta le informazioni di un giocatore.
- * <p>
- * Esso incapsula:
- * <ul>
- *   <li>La cronologia delle partite giocate (lista di {@link Classifica}).</li>
- *   <li>Il numero di partite giocate per ciascun livello di difficoltà (facile, medio, difficile).</li>
- *   <li>Il miglior punteggio ottenuto per ciascun livello di difficoltà.</li>
- * </ul>
- * </p>
+ * 
+ * Incapsula:
+ * - La cronologia delle partite giocate (lista di {@link Classifica}).
+ * - Il numero di partite giocate per ciascun livello di difficoltà (facile, medio, difficile).
+ * - Il miglior punteggio ottenuto per ciascun livello di difficoltà.
+ *
+ * @param cronologiaPartiteList la lista delle partite giocate
+ * @param facileCount numero di partite giocate in modalità facile
+ * @param medioCount numero di partite giocate in modalità medio
+ * @param difficileCount numero di partite giocate in modalità difficile
+ * @param facilePunteggio miglior punteggio in modalità facile
+ * @param medioPunteggio miglior punteggio in modalità medio
+ * @param difficilePunteggio miglior punteggio in modalità difficile
  */
 public record InfoGiocatore(
     List<Classifica> cronologiaPartiteList,

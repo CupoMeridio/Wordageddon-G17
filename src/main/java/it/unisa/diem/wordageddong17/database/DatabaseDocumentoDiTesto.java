@@ -6,10 +6,13 @@ import it.unisa.diem.wordageddong17.model.LivelloPartita;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import it.unisa.diem.wordageddong17.interfaccia.DAODocumentoDiTesto;
 
+/**
+ * Implementazione del DAO (Data Access Object) per la gestione dei documenti di testo.
+ * Questa classe utilizza un'istanza singleton di {@link Database} per operazioni di accesso e manipolazione dei dati.
+ */
 public class DatabaseDocumentoDiTesto implements DAODocumentoDiTesto{
     
     Database db;
@@ -42,10 +45,9 @@ public class DatabaseDocumentoDiTesto implements DAODocumentoDiTesto{
 
     /**
      * Carica un nuovo testo nel database.
-     * <p>
+     * 
      * Inserisce un nuovo documento nella tabella testo con le informazioni specificate.
      * Il documento viene associato all'amministratore che lo carica.
-     * </p>
      * 
      * @param email l'email dell'amministratore che carica il testo
      * @param nomeFile il nome del file da salvare
@@ -76,10 +78,9 @@ public class DatabaseDocumentoDiTesto implements DAODocumentoDiTesto{
     
     /**
      * Recupera il contenuto di un testo dal database.
-     * <p>
+     * 
      * Cerca il documento specificato nella tabella testo e restituisce il suo contenuto
      * sotto forma di array di byte.
-     * </p>
      * 
      * @param nomeDocumento il nome del documento da recuperare
      * @return l'array di byte contenente il documento, oppure {@code null} se il documento non esiste
@@ -106,18 +107,14 @@ public class DatabaseDocumentoDiTesto implements DAODocumentoDiTesto{
         
     /**
      * Recupera tutti i documenti testuali presenti nel database.
-     * <p>
      * Questo metodo esegue una query sulla tabella "testo" per ottenere i seguenti campi:
-     * <ul>
-     *   <li><code>nome_file</code>: il nome del file.</li>
-     *   <li><code>id_amministratore</code>: l'identificativo dell'amministratore che ha inserito il documento.</li>
-     *   <li><code>difficolta</code>: il livello di difficoltà del documento, convertito in un oggetto {@link LivelloPartita} tramite {@code LivelloPartita.fromDbValue()}.</li>
-     *   <li><code>lingua</code>: la lingua del documento, convertita in un oggetto {@link Lingua} tramite {@code Lingua.fromCodice()}.</li>
-     * </ul>
+     * - <code>nome_file</code>: il nome del file.
+     * - <code>id_amministratore</code>: l'identificativo dell'amministratore che ha inserito il documento.
+     * - <code>difficolta</code>: il livello di difficoltà del documento, convertito in un oggetto {@link LivelloPartita} tramite {@code LivelloPartita.fromDbValue()}.
+     * - <code>lingua</code>: la lingua del documento, convertita in un oggetto {@link Lingua} tramite {@code Lingua.fromCodice()}.
      * Per ogni record viene creato un oggetto {@link DocumentoDiTesto} ed aggiunto a una lista.
-     * Se si verifica un'eccezione {@link SQLException} durante l'esecuzione della query, questa verrà loggata e il metodo restituirà
-     * una lista eventualmente vuota.
-     * </p>
+     * Se si verifica un'eccezione {@link SQLException} durante l'esecuzione della query, questa verrà loggata
+     * e il metodo restituirà una lista eventualmente vuota.
      *
      * @return una {@link ArrayList} di {@link DocumentoDiTesto} contenente tutti i documenti recuperati dal database
      */
@@ -144,28 +141,24 @@ public class DatabaseDocumentoDiTesto implements DAODocumentoDiTesto{
     }
 
     
-    
     /**
      * Recupera i nomi dei documenti filtrati in base al livello di difficoltà e alle lingue specificate.
-     * <p>
      * Questo metodo esegue una query sulla tabella "testo" per selezionare il nome dei file (campo "nome_file")
      * che corrispondono a:
-     * <ul>
-     *   <li>Un determinato livello di difficoltà, ottenuto tramite {@code livello.getDbValue()}.</li>
-     *   <li>Un insieme di lingue, passato come lista di {@link Lingua}. Per ogni lingua,
-     *       viene dinamicamente costruito un segnaposto della forma "?::lingua_type" per inserirla nella clausola IN.</li>
-     * </ul>
+     * - Un determinato livello di difficoltà, ottenuto tramite {@code livello.getDbValue()}.
+     * - Un insieme di lingue, passato come lista di {@link Lingua}. Per ogni lingua,
+     *   viene dinamicamente costruito un segnaposto della forma "?::lingua_type" per inserirla nella clausola IN.
      * Vengono quindi impostati i parametri nel {@link PreparedStatement} in modo che il primo parametro
      * rappresenti il livello e i successivi, partendo dall'indice 2, rappresentino i codici delle lingue.
      * Se la query esegue correttamente, i nomi dei documenti vengono aggiunti a una lista, che viene poi restituita.
      * In caso di errore, l'eccezione {@link SQLException} viene loggata e il metodo restituisce la lista,
      * eventualmente vuota.
-     * </p>
      *
      * @param livello il livello di partita (difficoltà) utilizzato come filtro (es. FACILE, MEDIO, DIFFICILE)
      * @param lingue una lista di oggetti {@link Lingua} per filtrare i documenti in base alla lingua
      * @return un {@link ArrayList} contenente i nomi dei documenti filtrati; se nessun documento viene trovato, viene restituita una lista vuota
      */
+
     @Override
     public ArrayList<String> prendiNomiDocumentiFiltrati(LivelloPartita livello, ArrayList<Lingua> lingue) {
         ArrayList<String> nomiDocumenti = new ArrayList<>();
@@ -206,9 +199,8 @@ public class DatabaseDocumentoDiTesto implements DAODocumentoDiTesto{
     
     /**
      * Classe statica interna che contiene l'istanza Singleton della classe {@code Database}.
-     * <p>
+     * 
      * L'istanza viene creata solo quando la classe {@code Holder} viene caricata, garantendo la thread safety.
-     * </p>
      */
     private static class Holder {
         private static final DatabaseDocumentoDiTesto INSTANCE = new DatabaseDocumentoDiTesto();
@@ -216,10 +208,8 @@ public class DatabaseDocumentoDiTesto implements DAODocumentoDiTesto{
 
     /**
      * Restituisce l'istanza Singleton della classe {@code Database}.
-     * <p>
      * Utilizza il pattern del Lazy Holder per garantire l'inizializzazione pigra e la thread safety
      * senza la necessità di sincronizzazione esplicita.
-     * </p>
      *
      * @return l'istanza Singleton della classe {@code Database}.
      */

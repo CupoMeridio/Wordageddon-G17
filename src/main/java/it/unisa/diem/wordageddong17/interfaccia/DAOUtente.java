@@ -4,11 +4,10 @@ import it.unisa.diem.wordageddong17.model.Utente;
 
 /**
  * Interfaccia DAOUtente
- * <p>
+ * 
  * Questa interfaccia definisce i metodi necessari per gestire le operazioni sugli utenti nel sistema.
  * Le operazioni includono la modifica del nome utente e della foto profilo, l'inserimento di un nuovo utente,
  * il recupero del nome utente, la verifica della password e il recupero completo delle informazioni di un utente.
- * </p>
  */
 public interface DAOUtente {
 
@@ -32,10 +31,9 @@ public interface DAOUtente {
 
     /**
      * Inserisce un nuovo utente nel sistema.
-     * <p>
+     * 
      * Questo metodo registra un utente fornendo il nome utente, l'email, la password e, opzionalmente, una foto profilo.
      * La password dovrebbe essere opportunamente criptata prima del salvataggio.
-     * </p>
      *
      * @param username il nome utente da registrare
      * @param email    l'email dell'utente

@@ -5,21 +5,16 @@ import it.unisa.diem.wordageddong17.model.LivelloPartita;
 import java.util.List;
 
 /**
- * Interfaccia DAOClassifica
- * <p>
+ * Interfaccia DAOClassifica.
  * Questa interfaccia definisce i metodi necessari per le operazioni di accesso
  * ai dati relativi alle classifiche e alla cronologia delle partite degli utenti.
- * </p>
- * <p>
+ * 
  * I metodi dichiarati includono:
- * <ul>
- *   <li>Recuperare la classifica per un determinato livello di difficoltà.</li>
- *   <li>Recuperare la cronologia delle partite di un utente specifico.</li>
- *   <li>Recuperare il numero di partite giocate da un utente per un certo livello di difficoltà.</li>
- *   <li>Recuperare il miglior punteggio ottenuto da un utente per un dato livello di difficoltà.</li>
- *   <li>Inserire un nuovo punteggio per una partita dell'utente.</li>
- * </ul>
- * </p>
+ * - Recuperare la classifica per un determinato livello di difficoltà.
+ * - Recuperare la cronologia delle partite di un utente specifico.
+ * - Recuperare il numero di partite giocate da un utente per un certo livello di difficoltà.
+ * - Recuperare il miglior punteggio ottenuto da un utente per un dato livello di difficoltà.
+ * - Inserire un nuovo punteggio per una partita dell'utente.
  *
  * @see it.unisa.diem.wordageddong17.model.Classifica
  * @see it.unisa.diem.wordageddong17.model.LivelloPartita

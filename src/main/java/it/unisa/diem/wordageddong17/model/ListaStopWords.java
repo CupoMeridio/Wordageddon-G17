@@ -4,15 +4,11 @@ import java.sql.Timestamp;
 
 /**
  * Record che rappresenta una lista di stopwords.
- * <p>
- * Questo record incapsula le informazioni relative ad un file contenente stopwords, 
- * in particolare:
- * <ul>
- *   <li><strong>nomeFile</strong>: il nome del file contenente le stopwords;</li>
- *   <li><strong>amministratore</strong>: l'identificativo o l'email dell'amministratore che ha caricato il file;</li>
- *   <li><strong>dataUltimaModifica</strong>: la data e l'ora dell'ultima modifica apportata al file.</li>
- * </ul>
- * </p>
+ * Questo record incapsula le informazioni relative a un file contenente stopwords.
+ *
+ * @param nomeFile           il nome del file contenente le stopwords
+ * @param amministratore     l'identificativo o l'email dell'amministratore che ha caricato il file
+ * @param dataUltimaModifica la data e l'ora dell'ultima modifica apportata al file
  */
 public record ListaStopWords(
     String nomeFile,

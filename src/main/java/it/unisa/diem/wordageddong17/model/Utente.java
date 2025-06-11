@@ -5,23 +5,27 @@ import java.io.Serializable;
 
 /**
  * Rappresenta un utente del sistema.
- * <p>
- * La classe Utente incapsula le informazioni di base relative a un utente, 
- * quali:
- * <ul>
- *   <li><strong>username</strong> - il nome visibile dell'utente;</li>
- *   <li><strong>email</strong> - l'indirizzo email, immutabile dopo la creazione;</li>
- *   <li><strong>fotoProfilo</strong> - un array di byte rappresentante l'immagine del profilo (può essere {@code null});</li>
- *   <li><strong>tipo</strong> - il tipo di utente, indicato tramite l'enum {@link TipoUtente} (ad es. amministratore o giocatore).</li>
- * </ul>
- * </p>
+ * La classe Utente incapsula le informazioni di base relative a un utente, quali:
+ * - username: il nome visibile dell'utente;
+ * - email: l'indirizzo email, immutabile dopo la creazione;
+ * - fotoProfilo: un array di byte rappresentante l'immagine del profilo (può essere {@code null});
+ * - tipo: il tipo di utente, indicato tramite l'enum {@link TipoUtente} (ad es. amministratore o giocatore).
  */
+
 public class Utente implements Serializable {
 
-    private String username;
-    private final String email;
-    private byte[] fotoProfilo;
-    private TipoUtente tipo; // Enum: amministratore, giocatore
+/** Nome utente dell'utente */
+private String username;
+
+/** Email immutabile dell'utente */
+private final String email;
+
+/** Foto profilo dell'utente come array di byte, può essere null */
+private byte[] fotoProfilo;
+
+/** Tipo dell'utente (es. amministratore, giocatore) */
+private TipoUtente tipo;
+
 
     /**
      * Costruisce un nuovo utente con username, email, foto profilo e il tipo di utente.

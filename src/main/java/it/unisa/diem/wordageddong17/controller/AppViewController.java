@@ -80,24 +80,11 @@ import javafx.concurrent.Worker;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextArea;
 
-
 /**
- * FXML Controller class
- */
-/**
- * @class AppViewController
- * @brief Controller FXML principale per l'applicazione WordAged
- *
  * Questa classe gestisce tutte le interazioni dell'interfaccia utente
  * principale, inclusi login, registrazione, navigazione tra schermate e avvio
  * del gioco. Implementa il pattern MVC per separare la logica di controllo
  * dalla vista.
- *
- * @details Il controller gestisce le seguenti funzionalità principali: -
- * Autenticazione utente (login/registrazione) - Navigazione tra diverse
- * schermate - Gestione del profilo utente - Avvio del gioco con selezione
- * difficoltà - Visualizzazione classifiche
- *
  */
 public class AppViewController implements Initializable {
     @FXML
@@ -356,44 +343,37 @@ public class AppViewController implements Initializable {
     
     
     /**
-     * Inizializza la classe controller configurando l'interfaccia utente all'avvio.
-     * <p>
-     * In questo metodo vengono eseguite le seguenti operazioni:
-     * </p>
+     * Inizializza il controller configurando l'interfaccia utente all'avvio dell'applicazione.
+     *
+     * <p>Questo metodo esegue diverse operazioni per preparare l'interfaccia, tra cui:</p>
      * <ul>
-     *   <li>Viene ritagliata l'immagine presente in {@code imageView} e nell'oggetto {@code immagineInfoUtente}
-     *       applicando un ritaglio quadrato di dimensione 250.</li>
-     *   <li>Viene ritagliata in forma circolare l'immagine presente in {@code fotoProfilo} con raggio 40.</li>
-     *   <li>Vengono inizializzate le componenti dell'interfaccia relative alle classifiche, alle informazioni
-     *       dell'utente, alla gestione dei documenti e alla schermata di selezione della difficoltà, tramite
-     *       le chiamate ai metodi {@code initializeClassifiche()}, {@code initializeInfoUtente()},
+     *   <li>Ritaglio dell'immagine presente in {@code imageView} e {@code immagineInfoUtente}, creando un ritaglio quadrato di dimensione 250.</li>
+     *   <li>Ritaglio circolare dell'immagine {@code fotoProfilo} con raggio 40.</li>
+     *   <li>Inizializzazione delle componenti dell'interfaccia tramite i metodi:
+     *       {@code initializeClassifiche()}, {@code initializeInfoUtente()},
      *       {@code initializeGestioneDocumenti()} e {@code initializeSchermataDifficoltà()}.</li>
-     *   <li>Vengono chiuse eventuali finestre o pannelli aperti mediante {@code chiudiTutto()}.</li>
-     * </ul>
-     * <p>
-     * Successivamente, in base allo stato della sessione (contenuto nell'oggetto {@code appstate}), il metodo
-     * configura l'interfaccia:
-     * </p>
-     * <ul>
-     *   <li>Se il flag {@code sessionViewHomeButton} è {@code true}, vengono eseguite le seguenti operazioni:
-     *     <ul>
-     *       <li>Viene richiamato {@code tornaAllaHome()} per reimpostare la schermata principale.</li>
-     *       <li>Vengono configurati eventuali pulsanti per l'amministrazione tramite {@code configuraPulsantiAdmin()}.</li>
-     *       <li>Viene aggiornato il testo della label di benvenuto con il nome utente corrente.</li>
-     *       <li>Viene aggiornata l'immagine del profilo utilizzando il contenuto in byte ottenuto da
-     *           {@code appstate.getUtente().getFotoProfilo()}, convertito in immagine dal metodo {@code getImageFromByte()}.</li>
-     *       <li>Viene eseguito il metodo {@code pulisciTutto()} per ripulire o resettare altre eventuali sezioni.</li>
-     *     </ul>
-     *   </li>
-     *   <li>Se il flag {@code sessionViewContinuaButton} è {@code true}, viene simulato l'evento di avvio tramite
-     *       {@code startOnAction(new ActionEvent())}.</li>
-     *   <li>Se nessuno dei flag sopra è attivo, viene resa visibile la schermata di login impostando
-     *       {@code schermataDiLogin.setVisible(true)}.</li>
+     *   <li>Chiusura di eventuali finestre aperte con {@code chiudiTutto()}.</li>
      * </ul>
      *
-     * @param url la posizione relativa per il caricamento delle risorse (non utilizzato direttamente qui)
-     * @param rb il ResourceBundle utilizzato per l'internazionalizzazione (non utilizzato direttamente qui)
+     * <p>Successivamente, la configurazione dell'interfaccia dipende dallo stato della sessione, contenuto in {@code appstate}:</p>
+     * <ul>
+     *   <li>Se {@code sessionViewHomeButton} è attivo:
+     *     <ul>
+     *       <li>Richiama {@code tornaAllaHome()} per reimpostare la schermata principale.</li>
+     *       <li>Configura i pulsanti di amministrazione con {@code configuraPulsantiAdmin()}.</li>
+     *       <li>Aggiorna il testo della label di benvenuto con il nome utente corrente.</li>
+     *       <li>Imposta l'immagine del profilo basandosi sui dati in byte di {@code appstate.getUtente().getFotoProfilo()}, convertiti con {@code getImageFromByte()}.</li>
+     *       <li>Esegue {@code pulisciTutto()} per resettare sezioni aggiuntive.</li>
+     *     </ul>
+     *   </li>
+     *   <li>Se {@code sessionViewContinuaButton} è attivo, avvia la procedura con {@code startOnAction(new ActionEvent())}.</li>
+     *   <li>Se nessuno dei flag sopra è impostato, mostra la schermata di login con {@code schermataDiLogin.setVisible(true)}.</li>
+     * </ul>
+     *
+     * @param url Percorso relativo per il caricamento delle risorse (non utilizzato direttamente).
+     * @param rb ResourceBundle per l'internazionalizzazione (non utilizzato direttamente).
      */
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
 
@@ -422,24 +402,23 @@ public class AppViewController implements Initializable {
 
 
     /**
-     * @brief Gestisce il processo di login dell'utente
+     * Gestisce il processo di login dell'utente, validando i dati e autenticandolo nel database.
+     * In caso di successo, l'utente viene reindirizzato alla home.
      *
-     * Valida i dati inseriti dall'utente e procede con l'autenticazione tramite
-     * il database. In caso di successo, reindirizza alla home.
+     * <p>Il processo di validazione prevede:</p>
+     * <ul>
+     *   <li>Verifica che i campi email e password non siano vuoti.</li>
+     *   <li>Controllo della validità del formato email.</li>
+     *   <li>Autenticazione delle credenziali tramite il database.</li>
+     * </ul>
      *
-     * @param event Evento generato dal click sul pulsante di login
-     *
-     * @pre I campi email e password devono contenere dati validi
-     * @post In caso di successo, l'utente viene autenticato e reindirizzato
-     * alla home
-     *
-     * @details Validazioni eseguite: - Verifica che i campi non siano vuoti -
-     * Controllo formato email valido - Verifica credenziali tramite database
-     *
+     * @param event Evento generato dal click sul pulsante di login.
+     * 
      * @see mostraAlert()
      * @see isValidEmail()
      * @see DatabaseRegistrazioneLogin#verificaPassword()
      */
+
     @FXML
     private void accediOnAction(ActionEvent event) {
         
@@ -501,11 +480,12 @@ public class AppViewController implements Initializable {
 
 
     /**
-     * @brief Reindirizza l'utente alla schermata di registrazione
+     * Reindirizza l'utente alla schermata di registrazione.
      *
-     * @param event Evento generato dal click sul pulsante di registrazione
+     * <p>Quando l'utente clicca sul pulsante di registrazione, 
+     * viene visualizzata la schermata dedicata.</p>
      *
-     * @post La schermata di registrazione viene visualizzata
+     * @param event Evento generato dal click sul pulsante di registrazione.
      */
     @FXML
     private void passaARegistratiOnAction(ActionEvent event) {
@@ -516,13 +496,13 @@ public class AppViewController implements Initializable {
     }
 
     /**
-     * @brief Avvia il processo di selezione difficoltà per iniziare il gioco
+     * Avvia il processo di selezione della difficoltà per iniziare il gioco.
      *
-     * @param event Evento generato dal click sul pulsante Start
+     * <p>Quando l'utente clicca sul pulsante Start, viene mostrata la 
+     * schermata di selezione della difficoltà.</p>
      *
-     * @post Viene visualizzata la schermata di selezione difficoltà
+     * @param event Evento generato dal click sul pulsante Start.
      */
-    
     @FXML
     private void startOnAction(ActionEvent event) {
 
@@ -547,18 +527,19 @@ public class AppViewController implements Initializable {
     
     /**
      * Verifica se esiste almeno un file di salvataggio associato all'utente corrente.
-     * <p>
-     * Il metodo controlla l'esistenza di due file:
+     *
+     * <p>Il metodo controlla l'esistenza di due file specifici:</p>
      * <ul>
-     *   <li>"SalvataggioDi&lt;email&gt;.ser": il file di salvataggio principale dell'utente.</li>
-     *   <li>"SalvataggioFaseGenerazioneDi&lt;email&gt;.ser": il file relativo alla fase di generazione del salvataggio.</li>
+     *   <li>{@code SalvataggioDi[email].ser}: File di salvataggio principale dell'utente.</li>
+     *   <li>{@code SalvataggioFaseGenerazioneDi[email].ser}: File relativo alla fase di generazione del salvataggio.</li>
      * </ul>
-     * L'email dell'utente viene ottenuta tramite {@code this.appstate.getUtente().getEmail()}.
-     * Se almeno uno di questi file esiste, il metodo restituisce {@code true}.
-     * </p>
+     * 
+     * <p>L'email dell'utente viene ottenuta tramite {@code this.appstate.getUtente().getEmail()}.
+     * Se almeno uno di questi file esiste, il metodo restituisce {@code true}.</p>
      *
      * @return {@code true} se almeno uno dei file di salvataggio esiste, {@code false} altrimenti.
      */
+
     private boolean verificaEsistenzaSalvataggio() {
         return (new File("SalvataggioDi" + this.appstate.getUtente().getEmail() + ".ser").exists()) ||
                (new File("SalvataggioFaseGenerazioneDi" + this.appstate.getUtente().getEmail() + ".ser").exists());
@@ -567,18 +548,20 @@ public class AppViewController implements Initializable {
     
     /**
      * Elimina i file di salvataggio associati all'utente corrente.
-     * <p>
-     * Il metodo tenta di cancellare due file:
+     *
+     * Il metodo tenta di cancellare due file di salvataggio dell'utente:
      * <ul>
-     *   <li>"SalvataggioDi&lt;email&gt;.ser": file di salvataggio principale dell'utente.</li>
-     *   <li>"SalvataggioFaseGenerazioneDi&lt;email&gt;.ser": file relativo alla fase di generazione del salvataggio.</li>
+     *   <li>{@code SalvataggioDi[email].ser}: File di salvataggio principale.</li>
+     *   <li>{@code SalvataggioFaseGenerazioneDi[email].ser}: File relativo alla fase di generazione del salvataggio.</li>
      * </ul>
-     * L'email dell'utente viene ottenuta tramite {@code this.appstate.getUtente().getEmail()}.
-     * I risultati dell'operazione di eliminazione per ciascun file vengono stampati sulla console.
-     * </p>
+     * 
+     * L'email dell'utente viene ottenuta tramite {@code appstate.getUtente().getEmail()}.
+     * I risultati dell'operazione vengono stampati sulla console per confermare l'eliminazione dei file.
      *
      * @return {@code true} se entrambi i file sono stati eliminati con successo, {@code false} altrimenti.
      */
+
+
     private boolean eliminaSalvataggi() {
         boolean f1 = new File("SalvataggioDi" + this.appstate.getUtente().getEmail() + ".ser").delete();
         System.out.println("Eliminazione file 1: " + f1);
@@ -588,13 +571,14 @@ public class AppViewController implements Initializable {
     }
 
     
-
-     /**
-     * @brief Mostra la schermata delle classifiche 
-     * 
-     * @param event Evento generato dal click sul pulsante Classifiche
+    /**
+     * Visualizza la schermata delle classifiche con i dati aggiornati.
      *
-     * @post Viene visualizzata la schermata classifiche con i dati caricati
+     * Quando l'utente clicca sul pulsante Classifiche, il metodo carica 
+     * e mostra la schermata corrispondente, con le informazioni aggiornate
+     * sulla posizione degli utenti in classifica.
+     *
+     * @param event Evento generato dal click sul pulsante Classifiche.
      */
     @FXML
     private void classificheOnAction(ActionEvent event) {
@@ -635,11 +619,12 @@ public class AppViewController implements Initializable {
     }
 
     /**
-     * @brief Toggle della visibilità del menu dashboard utente
+     * Alterna la visibilità del menu dashboard dell'utente.
      *
-     * @param event Evento del mouse
+     * Quando l'utente muove il mouse sopra il menu, il metodo cambia il 
+     * suo stato di visibilità, mostrando o nascondendo l'interfaccia.
      *
-     * @post Il menu dashboard cambia stato di visibilità
+     * @param event Evento del mouse che attiva la modifica della visibilità del menu.
      */
     @FXML
     private void toggleDashboard(MouseEvent event) {
@@ -647,19 +632,18 @@ public class AppViewController implements Initializable {
     }
 
     /**
-     * Gestisce l'evento di logout dell'utente.
-     * <p>
-     * Quando questo metodo viene invocato, esegue le seguenti operazioni:
-     * <ul>
-     *   <li>Rimuove l'utente corrente impostando l'oggetto utente in AppState a {@code null}.</li>
-     *   <li>Chiude tutte le finestre o pannelli aperti tramite il metodo {@code chiudiTutto()}.</li>
-     *   <li>Pulisce lo stato dell'interfaccia chiamando il metodo {@code pulisciTutto()}.</li>
-     *   <li>Imposta l'immagine del profilo a un placeholder predefinito utilizzando {@code getPlaceholderImage()}.</li>
-     *   <li>Rende visibile la schermata di login impostando {@code schermataDiLogin.setVisible(true)}.</li>
-     * </ul>
-     * </p>
+     * Gestisce il logout dell'utente, terminando la sessione e reimpostando l'interfaccia grafica.
      *
-     * @param event l'evento generato dall'interazione dell'utente (ad es. il clic sul pulsante di logout)
+     * Quando l'utente clicca sul pulsante di logout, il metodo esegue le seguenti operazioni:
+     * <ul>
+     *   <li>Rimuove l'utente corrente impostando {@code appstate.getUtente()} a {@code null}.</li>
+     *   <li>Chiude eventuali finestre aperte con {@code chiudiTutto()}.</li>
+     *   <li>Ripulisce lo stato dell'interfaccia tramite {@code pulisciTutto()}.</li>
+     *   <li>Reimposta l'immagine del profilo con un placeholder usando {@code getPlaceholderImage()}.</li>
+     *   <li>Mostra la schermata di login con {@code schermataDiLogin.setVisible(true)}.</li>
+     * </ul>
+     *
+     * @param event Evento generato dall'interazione dell'utente (ad esempio il clic sul pulsante di logout).
      */
     @FXML
     private void logout(ActionEvent event) {
@@ -671,20 +655,18 @@ public class AppViewController implements Initializable {
     }
 
 
-   /**
-    * Gestisce l'azione di chiusura delle classifiche.
-    * <p>
-    * Quando questo metodo viene invocato:
-    * <ul>
-    *   <li>Verifica se il servizio {@code pcs} è stato inizializzato e se è in esecuzione; in tal caso, lo interrompe
-    *       invocando {@code pcs.cancel()}.</li>
-    *   <li>Richiama il metodo {@code chiudiTutto()} per chiudere eventuali pannelli o finestre attive.</li>
-    *   <li>Rende visibile la schermata principale impostando la visibilità di {@code schermataHome} a {@code true}.</li>
-    * </ul>
-    * </p>
-    *
-    * @param event l'evento generato dall'interazione dell'utente (ad esempio il clic sul pulsante di chiusura delle classifiche)
-    */
+    /**
+     * Chiude la schermata delle classifiche e ripristina l'interfaccia utente.
+     *
+     * Quando l'utente chiude la schermata delle classifiche, il metodo esegue le seguenti operazioni:
+     * <ul>
+     *   <li>Interrompe il servizio {@code pcs} se attivo, tramite {@code pcs.cancel()}.</li>
+     *   <li>Chiude eventuali pannelli o finestre aperte con {@code chiudiTutto()}.</li>
+     *   <li>Rende visibile la schermata principale impostando {@code schermataHome.setVisible(true)}.</li>
+     * </ul>
+     *
+     * @param event Evento generato dall'interazione dell'utente (ad esempio il clic sul pulsante di chiusura delle classifiche).
+     */
     @FXML
     private void chiudiClassificheOnAction(ActionEvent event) {
         if (pcs != null && pcs.isRunning()) {
@@ -694,36 +676,36 @@ public class AppViewController implements Initializable {
         schermataHome.setVisible(true);
     }
 
-
     /**
-     * @brief Valida il formato di un indirizzo email
+     * Controlla se un indirizzo email ha un formato valido, basandosi su una regex.
      *
-     * Utilizza una regex per verificare che l'email abbia un formato valido
-     * secondo gli standard comuni.
+     * Il metodo verifica che l'email rispetti i criteri standard per un formato corretto:
+     * <ul>
+     *   <li>Il nome utente deve contenere solo caratteri alfanumerici e {@code +}, {@code _}, {@code .}, {@code -} prima della {@code @}.</li>
+     *   <li>Il dominio deve includere caratteri alfanumerici, {@code .} e {@code -}.</li>
+     *   <li>L'estensione finale deve avere almeno 2 caratteri.</li>
+     * </ul>
      *
-     * @param email Stringa contenente l'email da validare
-     * @return true se l'email ha un formato valido, false altrimenti
+     * Se uno di questi criteri non viene rispettato, il metodo restituirà {@code false}.
      *
-     * @details Pattern regex utilizzato: - Caratteri alfanumerici, +, _, ., -
-     * prima della @ - Dominio con caratteri alfanumerici, . e - - Estensione di
-     * almeno 2 caratteri
+     * @param email Stringa contenente l'email da validare.
+     * @return {@code true} se l'email ha un formato valido, {@code false} altrimenti.
      */
     private boolean isValidEmail(String email) {
         return email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$");
     }
 
     /**
-     * @brief Mostra una finestra di alert all'utente
+     * Mostra una finestra di alert all'utente.
      *
-     * Crea e visualizza una finestra di JavaFX con il messaggio specificato. Il
-     * tipo di alert determina l'icona e il colore del dialog.
+     * Crea e visualizza una finestra di dialogo in JavaFX con il messaggio specificato. 
+     * Il tipo di alert determina l'icona e il colore del dialog.
+     * Durante la visualizzazione, il dialog è modale e blocca l'interazione con la finestra principale 
+     * fino alla chiusura.
      *
-     * @param titolo Titolo della finestra di alert
-     * @param messaggio Testo del messaggio da mostrare
-     * @param tipo Tipo di alert (INFORMATION, WARNING, ERROR, CONFIRMATION)
-     *
-     * @post Viene mostrato un dialog modale che blocca l'interazione fino alla
-     * chiusura
+     * @param titolo Titolo della finestra di alert.
+     * @param messaggio Testo del messaggio da mostrare.
+     * @param tipo Tipo di alert (INFORMATION, WARNING, ERROR, CONFIRMATION).
      */
     private void mostraAlert(String titolo, String messaggio, Alert.AlertType tipo) {
         Alert alert = new Alert(tipo);
@@ -735,23 +717,20 @@ public class AppViewController implements Initializable {
     
     /**
      * Mostra una finestra di alert con il titolo, il messaggio e il tipo specificati.
-     * <p>
-     * Se il tipo specificato è {@code Alert.AlertType.CONFIRMATION}, vengono impostati due pulsanti:
-     * "OK" e "ANNULLA". Dopo che l'utente ha interagito con l'alert:
-     * <ul>
-     *   <li>Se l'utente seleziona "OK", viene eseguita l'azione definita dal {@code Consumer<T>}
-     *       passando il valore fornito nel parametro {@code valore}.</li>
-     *   <li>Se l'utente seleziona "ANNULLA", viene invocato il metodo {@code eliminaSalvataggi()}.</li>
-     * </ul>
-     * Per gli altri tipi di alert, l'alert viene semplicemente mostrato e atteso fino alla sua chiusura.
-     * </p>
      *
-     * @param <T> il tipo del valore da passare al Consumer
-     * @param titolo il titolo della finestra di alert
-     * @param messaggio il messaggio da visualizzare nell'alert
-     * @param tipo il tipo di alert (ad esempio, {@code Alert.AlertType.CONFIRMATION}, {@code Alert.AlertType.INFORMATION}, ecc.)
-     * @param azione il {@code Consumer<T>} da eseguire se l'utente conferma l'azione (premendo "OK")
-     * @param valore il valore da passare al {@code Consumer} nel caso di conferma
+     * Se l'alert è di tipo {@code Alert.AlertType.CONFIRMATION}, vengono impostati due pulsanti: "OK" e "ANNULLA".
+     * Dopo l'interazione dell'utente:
+     * <ul>
+     *   <li>Se seleziona "OK", viene eseguita l'azione definita da {@code azione}, passando il valore {@code valore}.</li>
+     *   <li>Se seleziona "ANNULLA", viene invocato il metodo {@code eliminaSalvataggi()}.</li>
+     * </ul>
+     * Per gli altri tipi di alert, il dialog viene semplicemente mostrato fino alla sua chiusura.
+     *
+     * @param titolo Titolo della finestra di alert.
+     * @param messaggio Testo del messaggio da visualizzare.
+     * @param tipo Tipo di alert (ad esempio {@code Alert.AlertType.CONFIRMATION}, {@code Alert.AlertType.INFORMATION}, ecc.).
+     * @param azione {@code Consumer<T>} da eseguire se l'utente conferma l'azione (premendo "OK").
+     * @param valore Valore da passare al {@code Consumer} in caso di conferma.
      */
     private <T> void mostraAlert(String titolo, String messaggio, Alert.AlertType tipo, Consumer<T> azione, T valore) {
 
@@ -777,61 +756,37 @@ public class AppViewController implements Initializable {
 
 
     /**
-     * Gestisce l'azione di registrazione dell'utente al clic del pulsante "Register".
-     * <p>
-     * Questo metodo esegue una serie di controlli e operazioni nell'ordine seguente:
-     * </p>
+     * Gestisce la registrazione dell'utente al clic sul pulsante "Register".
+     *
+     * Questo metodo verifica i dati inseriti e avvia il processo di registrazione eseguendo i seguenti passi:
      * <ol>
-     *   <li>
-     *     Verifica che tutti i campi obbligatori (username, email, password e repeatPassword) siano compilati.
-     *     Se uno di essi è vuoto, viene mostrato un alert di avviso e l'operazione viene interrotta.
-     *   </li>
-     *   <li>
-     *     Controlla la validità dell'email tramite il metodo {@code isValidEmail}.
-     *     Se l'email non rispetta il formato corretto, viene visualizzato un alert di errore e l'esecuzione termina.
-     *   </li>
-     *   <li>
-     *     Imposta l'email nel servizio di verifica (ad esempio, {@code pus}) e lo avvia per controllare se l'email
-     *     è già in uso. Se il servizio restituisce un valore non nullo, viene mostrato un alert che segnala che 
-     *     l'email è già utilizzata e il servizio viene resettato.
-     *   </li>
-     *   <li>
-     *     Verifica che i campi password e repeatPassword coincidano. In caso contrario, viene mostrato un alert
-     *     di errore e l'operazione si interrompe.
-     *   </li>
-     *   <li>
-     *     Gestisce il recupero dell'immagine presente nell' {@code imageView}:
+     *   <li>Verifica che tutti i campi obbligatori (username, email, password, repeatPassword) siano compilati. 
+     *       Se uno è vuoto, mostra un alert e interrompe l'operazione.</li>
+     *   <li>Controlla la validità dell'email con {@code isValidEmail}. Se non valida, mostra un alert e interrompe la registrazione.</li>
+     *   <li>Controlla se l'email è già in uso impostandola nel servizio {@code pus}. Se il servizio la trova, mostra un alert e la registrazione viene interrotta.</li>
+     *   <li>Verifica che password e repeatPassword coincidano. Se non corrispondono, mostra un alert e interrompe l'operazione.</li>
+     *   <li>Recupera l'immagine presente nell' {@code imageView}:
      *     <ul>
-     *       <li>
-     *         Se è presente un'immagine diversa da quella predefinita (indicata da "person.png"), tenta di leggerne i byte dal file.
-     *       </li>
-     *       <li>
-     *         Se si verifica un errore durante la lettura, viene mostrato un alert di errore e l'operazione viene annullata.
-     *       </li>
+     *       <li>Se è diversa da quella predefinita ("person.png"), tenta di leggerne i byte.</li>
+     *       <li>Se il recupero fallisce, mostra un alert e annulla la registrazione.</li>
      *     </ul>
      *   </li>
-     *   <li>
-     *     Configura il servizio di registrazione (ad esempio, {@code ius}) impostando i valori di email, username,
-     *     immagine (se presente) e password. Se il servizio fallisce, viene visualizzato un alert di errore e il servizio
-     *     viene resettato.
+     *   <li>Configura il servizio di registrazione ({@code ius}) con email, username, password e immagine, se presente. 
+     *       Se il servizio fallisce, mostra un alert e interrompe il processo.</li>
+     *   <li>Avvia il servizio di registrazione per creare l'account.</li>
+     *   <li>Se la registrazione è riuscita:
+     *     <ul>
+     *       <li>Crea un nuovo oggetto {@code Utente}.</li>
+     *       <li>Imposta l'utente nello stato globale tramite {@code AppState}.</li>
+     *       <li>Aggiorna l'immagine del profilo e configura eventuali pulsanti amministrativi.</li>
+     *       <li>Chiude eventuali finestre aperte e mostra la schermata principale.</li>
+     *       <li>Imposta il messaggio di benvenuto con lo username dell'utente.</li>
+     *     </ul>
      *   </li>
-     *   <li>
-     *     Avvia il servizio di registrazione per completare il processo di creazione dell'account.
-     *   </li>
-     *   <li>
-     *     In base alla presenza o meno dell'immagine, viene creato un nuovo oggetto {@code Utente} e l'immagine del
-     *     profilo viene aggiornata di conseguenza. L'utente creato viene impostato nello stato globale tramite {@code AppState}.
-     *   </li>
-     *   <li>
-     *     Aggiorna l'immagine del profilo, configura eventuali pulsanti amministrativi, chiude eventuali finestre aperte,
-     *     rende visibile la schermata principale e imposta il messaggio di benvenuto con lo username dell'utente.
-     *   </li>
-     *   <li>
-     *     Mostra infine un alert di informazione per comunicare il completamento della registrazione con successo.
-     *   </li>
+     *   <li>Mostra un alert di conferma per comunicare il successo della registrazione.</li>
      * </ol>
      *
-     * @param event l'evento generato dal clic sul pulsante di registrazione
+     * @param event Evento generato dal clic sul pulsante di registrazione.
      */
     @FXML
     private void registerButtonOnAction(ActionEvent event) {
@@ -917,14 +872,14 @@ public class AppViewController implements Initializable {
     }
 
     /**
-     * Converte un array di byte in un oggetto {@link Image}.
-     * <p>
-     * Se l'array di byte passato è {@code null}, viene restituita un'immagine di placeholder
-     * come fallback. Altrimenti, l'array viene convertito in un'immagine tramite un {@link ByteArrayInputStream}.
-     * </p>
+     * Converte un array di byte in un oggetto {@link Image}. Se l'array è {@code null}, 
+     * viene restituita un'immagine di placeholder come fallback.
      *
-     * @param img l'array di byte rappresentante l'immagine
-     * @return un oggetto {@link Image} creato dai byte oppure l'immagine di placeholder se {@code img} è {@code null}
+     * L'array di byte viene convertito in un'istanza di {@link Image} utilizzando {@link ByteArrayInputStream}.
+     * Se il valore di {@code img} è nullo, il metodo restituisce un'immagine predefinita per evitare errori di visualizzazione.
+     *
+     * @param img Array di byte rappresentante l'immagine.
+     * @return {@link Image} creata dai byte, oppure un'immagine di placeholder se {@code img} è {@code null}.
      */
     private Image getImageFromByte(byte[] img) {
         if (img == null) {
@@ -934,9 +889,9 @@ public class AppViewController implements Initializable {
     }
 
     /**
-     * Chiude (nasconde) tutte le schermate e pannelli dell'interfaccia utente.
-     * <p>
-     * Questo metodo imposta la visibilità a {@code false} per ogni pannello:
+     * Nasconde tutte le schermate e pannelli dell'interfaccia utente impostandone la visibilità a {@code false}.
+     *
+     * Questo metodo garantisce che nessuna delle seguenti schermate sia visibile:
      * <ul>
      *   <li>{@code schermataDiRegistrazione}</li>
      *   <li>{@code schermataDiLogin}</li>
@@ -948,8 +903,7 @@ public class AppViewController implements Initializable {
      *   <li>{@code schermataStopwords}</li>
      *   <li>{@code gestioneDocumentiView}</li>
      * </ul>
-     * In questo modo, viene garantito che nessuna di queste schermate venga visualizzata.
-     * </p>
+     * Una volta eseguito, tutte le schermate saranno completamente nascoste dall'interfaccia.
      */
     private void chiudiTutto() {
         schermataDiRegistrazione.setVisible(false);
@@ -964,20 +918,16 @@ public class AppViewController implements Initializable {
     }
 
     /**
-     * Resetta i campi di input e ripristina lo stato iniziale dell'interfaccia utente.
-     * <p>
-     * Le operazioni eseguite includono:
+     * Resetta tutti i campi di input e ripristina lo stato iniziale dell'interfaccia utente.
+     *
+     * Questo metodo pulisce i campi dell'interfaccia eseguendo le seguenti operazioni:
      * <ul>
      *   <li>Azzeramento del testo in tutti i {@link TextField} (email, password, username, ecc.).</li>
-     *   <li>Pulizia dei campi data negli {@link DatePicker} tramite il metodo {@code clear()} sugli editor e
-     *       reimpostazione dei valori a {@code null}.</li>
-     *   <li>Impostazione delle immagini di visualizzazione (come {@code immagineInfoUtente} e {@code imageView})
-     *       su un'immagine di placeholder di default.</li>
-     *   <li>Azzeramento del campo di ricerca relativo alla gestione dei documenti.</li>
+     *   <li>Pulizia dei campi data nei {@link DatePicker}, svuotando gli editor e reimpostando i valori a {@code null}.</li>
+     *   <li>Impostazione delle immagini di visualizzazione (es. {@code immagineInfoUtente}, {@code imageView}) su un placeholder di default.</li>
+     *   <li>Reset del campo di ricerca relativo alla gestione dei documenti.</li>
      * </ul>
-     * Questo metodo assicura che l'interfaccia torni ad uno stato "pulito" dopo operazioni di logout, registrazione,
-     * o quando necessario.
-     * </p>
+     * Questo metodo garantisce il ripristino dell'interfaccia dopo operazioni di logout, registrazione o reset manuale.
      */
     private void pulisciTutto() {
         emailTextField.textProperty().set("");
@@ -1011,13 +961,12 @@ public class AppViewController implements Initializable {
     }
 
     /**
-     * Passa alla schermata di login.
-     * <p>
-     * Questo metodo chiude tutte le schermate attualmente visibili, resetta i campi dell'interfaccia utente e
-     * rende la schermata di login visibile.
-     * </p>
+     * Chiude tutte le schermate aperte e mostra la schermata di login.
      *
-     * @param event l'evento generato dall'interazione dell'utente (ad es. clic sul pulsante di login)
+     * Il metodo nasconde le schermate attualmente visibili, ripristina i campi dell'interfaccia utente e 
+     * rende visibile la schermata di login, garantendo una transizione pulita.
+     *
+     * @param event Evento generato dall'interazione dell'utente (ad esempio clic sul pulsante di login).
      */
     @FXML
     private void passaALogin(ActionEvent event) {
@@ -1027,16 +976,18 @@ public class AppViewController implements Initializable {
     }
 
     /**
-     * Ritaglia l'immagine visualizzata in un {@link ImageView} in forma quadrata, centrando il contenuto.
-     * <p>
-     * Il metodo imposta le dimensioni dell'ImageView in base alla dimensione specificata, mantenendo il rapporto
-     * delle proporzioni. Viene quindi creato un clip rettangolare che definisce l'area di visualizzazione.
-     * Un listener sulla proprietà dell'immagine calcola e imposta un viewport centrato, in modo che
-     * venga visualizzata la porzione quadrata centrale dell'immagine.
-     * </p>
+     * Ritaglia e centra l'immagine visualizzata in un {@link ImageView} in formato quadrato.
      *
-     * @param imageView la vista che contiene l'immagine da ritagliare
-     * @param dimensione la dimensione (larghezza e altezza) desiderata per il ritaglio quadrato
+     * Il metodo imposta le dimensioni dell'ImageView in base alla dimensione specificata, mantenendo 
+     * il rapporto delle proporzioni. Per ottenere un ritaglio quadrato centrato:
+     * <ul>
+     *   <li>Viene creato un clip rettangolare che definisce l'area visibile.</li>
+     *   <li>Un listener sulla proprietà dell'immagine calcola e imposta un viewport centrato, 
+     *       mostrando solo la parte centrale della foto.</li>
+     * </ul>
+     *
+     * @param imageView La vista che contiene l'immagine da ritagliare.
+     * @param dimensione La dimensione (larghezza e altezza) desiderata per il ritaglio quadrato.
      */
     private void ritagliaQuadrato(ImageView imageView, double dimensione) {
         imageView.setFitWidth(dimensione);
@@ -1064,17 +1015,19 @@ public class AppViewController implements Initializable {
 
 
     /**
-     * Ritaglia l'immagine visualizzata in un {@link ImageView} in forma circolare.
-     * <p>
-     * Il metodo imposta le dimensioni dell'ImageView in base al parametro {@code dimensione} e
-     * mantiene il rapporto delle proporzioni. Viene creato un clip circolare centrato sull'immagine,
-     * in modo da visualizzare una porzione circolare. Inoltre, è stato aggiunto un listener sulla proprietà
-     * dell'immagine in modo da impostare un viewport centrato che ritaglia l'immagine in modo uniforme,
-     * considerando il lato minore dell'immagine.
-     * </p>
+     * Ritaglia l'immagine visualizzata in un {@link ImageView} in forma circolare, centrando il contenuto.
      *
-     * @param imageView il {@code ImageView} contenente l'immagine da ritagliare
-     * @param dimensione la dimensione (larghezza e altezza) da applicare all'ImageView per il ritaglio circolare.
+     * Il metodo imposta le dimensioni dell'ImageView in base al parametro {@code dimensione}, 
+     * mantenendo il rapporto delle proporzioni. Per ottenere un ritaglio perfetto:
+     * <ul>
+     *   <li>Viene applicato un clip circolare, centrato sull'immagine.</li>
+     *   <li>Un listener sulla proprietà dell'immagine regola dinamicamente il viewport 
+     *       per ritagliare l'area circolare in base al lato minore.</li>
+     * </ul>
+     * Questo assicura che l'immagine mantenga un aspetto bilanciato e armonioso.
+     *
+     * @param imageView Il {@code ImageView} contenente l'immagine da ritagliare.
+     * @param dimensione La dimensione (larghezza e altezza) da applicare per il ritaglio circolare.
      */
     private void ritagliaCerchio(ImageView imageView, double dimensione) {
         imageView.setFitWidth(dimensione);
@@ -1101,17 +1054,16 @@ public class AppViewController implements Initializable {
     }
 
     /**
-     * Inizializza le tabelle delle classifiche per le diverse difficoltà.
-     * <p>
-     * Il metodo crea degli ObservableList per ciascuna delle classifiche relative ai livelli:
+     * Inizializza le tabelle delle classifiche per i diversi livelli di difficoltà.
+     *
+     * Il metodo crea un {@code ObservableList} per ciascuna classifica:
      * <ul>
      *   <li>Facile</li>
      *   <li>Media</li>
      *   <li>Difficile</li>
      * </ul>
-     * Dopodiché, per ogni tabella viene invocato il metodo {@code setupTable(...)} per configurarla,
-     * associando le colonne della posizione, del nome e del punteggio con l'ObservableList corrispondente.
-     * </p>
+     * Successivamente, configura ogni tabella invocando {@code setupTable(...)} e associa le colonne 
+     * della posizione, del nome e del punteggio alla rispettiva {@code ObservableList}.
      */
     private void initializeClassifiche() {
         // Inizializza le liste per le classifiche
@@ -1127,27 +1079,22 @@ public class AppViewController implements Initializable {
 
 
     /**
-     * Configura una tabella per visualizzare la classifica degli utenti.
-     * <p>
-     * Questo metodo imposta le celle delle colonne della tabella in base alle proprietà
-     * dell'oggetto {@link Classifica} e configura un indice di posizione che viene rappresentato
-     * con emoji per le prime tre posizioni (🥇, 🥈, 🥉) oppure come numero per le posizioni successive.
-     * Le colonne "nome" e "punteggio" vengono configurate per mostrare rispettivamente le proprietà
-     * "username" e "punti" del modello {@code Classifica}.
-     * </p>
+     * Configura una tabella per visualizzare la classifica degli utenti, associando le colonne ai dati.
      *
-     * <p>
-     * Le informazioni sulla creazione di una colonna indice (row index column) sono state
-     * ispirate da: 
+     * Il metodo imposta le celle della tabella utilizzando le proprietà dell'oggetto {@link Classifica}.
+     * La colonna della posizione viene personalizzata: le prime tre posizioni sono rappresentate da emoji 
+     * (🥇, 🥈, 🥉), mentre le altre mostrano il numero corrispondente.  
+     * Le colonne "nome" e "punteggio" sono configurate per visualizzare le proprietà "username" e "punti" 
+     * del modello {@code Classifica}.
+     *
+     * Le informazioni sulla creazione della colonna indice (row index column) sono state ispirate da:
      * <a href="https://stackoverflow.com/questions/33353014/creating-a-row-index-column-in-javafx">StackOverflow</a>.
-     * </p>
      *
-     * @param table           la {@link TableView} in cui visualizzare la classifica
-     * @param posizioneCol    la {@link TableColumn} che mostrerà la posizione (indice) di ogni elemento;
-     *                        viene personalizzata per mostrare emoji per le prime tre posizioni
-     * @param nomeCol         la {@link TableColumn} per il nome utente, associata alla proprietà "username" di {@code Classifica}
-     * @param punteggioCol    la {@link TableColumn} per il punteggio, associata alla proprietà "punti" di {@code Classifica}
-     * @param data            l'{@link ObservableList} contenente i dati della classifica
+     * @param table           {@link TableView} in cui visualizzare la classifica.
+     * @param posizioneCol    {@link TableColumn} per la posizione degli utenti, con emoji per le prime tre posizioni.
+     * @param nomeCol         {@link TableColumn} per il nome utente, associata alla proprietà "username" di {@code Classifica}.
+     * @param punteggioCol    {@link TableColumn} per il punteggio, associata alla proprietà "punti" di {@code Classifica}.
+     * @param data            {@link ObservableList} contenente i dati della classifica.
      */
     private void setupTable(TableView<Classifica> table, 
                             TableColumn<Classifica, Integer> posizioneCol, 
@@ -1201,13 +1148,12 @@ public class AppViewController implements Initializable {
 
 
     /**
-     * @brief Configura la visibilità dei pulsanti amministratore
+     * Configura la visibilità dei pulsanti amministratore.
      *
-     * Mostra i pulsanti newDocument e stopwordList solo se l'utente corrente è
-     * di tipo amministratore.
-     *
-     * @pre L'oggetto utente deve essere inizializzato
-     * @post I pulsanti amministratore sono visibili solo agli admin
+     * Mostra i pulsanti {@code newDocument} e {@code stopwordList} solo se l'utente corrente 
+     * è di tipo amministratore.  
+     * Per garantire il corretto funzionamento, l'oggetto utente deve essere stato inizializzato 
+     * prima della chiamata al metodo.
      */
     private void configuraPulsantiAdmin() {
         Utente utente = appstate.getUtente();
@@ -1225,23 +1171,18 @@ public class AppViewController implements Initializable {
     }
     
     /**
-     * Mostra la gestione dei documenti.
-     * <p>
-     * Questo metodo esegue le seguenti operazioni:
+     * Mostra la schermata di gestione dei documenti e avvia il processo di recupero dati.
+     *
+     * Il metodo chiude tutte le schermate attualmente visibili tramite {@code chiudiTutto()}, 
+     * poi imposta la visibilità di {@code gestioneDocumentiView} su {@code true}.  
+     * Successivamente, avvia il servizio {@code ptds} per recuperare la lista dei documenti:
      * <ul>
-     *   <li>Chiude tutte le schermate attualmente visibili invocando {@code chiudiTutto()}.</li>
-     *   <li>Rende visibile la vista della gestione documenti impostando {@code gestioneDocumentiView} a {@code true}.</li>
-     *   <li>Avvia il servizio {@code ptds} per recuperare la lista dei documenti:
-     *     <ul>
-     *       <li>Quando il servizio termina con successo, viene pulita la lista dei documenti per evitare duplicati.</li>
-     *       <li>Vengono aggiunti tutti i documenti ottenuti dal servizio alla lista {@code listaDocumenti}.</li>
-     *       <li>Se la lista risulta vuota, viene mostrato un alert informativo che segnala l'assenza di documenti.</li>
-     *       <li>Al termine, il servizio viene resettato tramite {@code resetService(ptds)}.</li>
-     *     </ul>
-     *   </li>
-     *   <li>In caso di eccezione, viene visualizzato un alert di errore contenente il messaggio dell'eccezione.</li>
+     *   <li>Pulisce la lista {@code listaDocumenti} per evitare duplicati.</li>
+     *   <li>Aggiunge i documenti recuperati alla lista.</li>
+     *   <li>Se la lista risulta vuota, mostra un alert informativo.</li>
+     *   <li>Al termine, resetta il servizio con {@code resetService(ptds)}.</li>
      * </ul>
-     * </p>
+     * Se si verifica un'eccezione, il metodo visualizza un alert di errore con il messaggio corrispondente.
      */
     @FXML
     private void mostraGestioneDocumenti() {
@@ -1266,15 +1207,11 @@ public class AppViewController implements Initializable {
     }
 
     /**
-     * Mostra la gestione delle stopwords.
-     * <p>
-     * Il metodo esegue le seguenti operazioni:
-     * <ul>
-     *   <li>Chiude tutte le schermate attualmente visibili invocando {@code chiudiTutto()}.</li>
-     *   <li>Popola l'area di testo con le stopwords tramite il metodo {@code mettiStopwordInTextArea()}.</li>
-     *   <li>Rende visibile la schermata delle stopwords impostando {@code schermataStopwords} a {@code true}.</li>
-     * </ul>
-     * </p>
+     * Mostra la schermata di gestione delle stopwords e aggiorna il contenuto dell'area di testo.
+     *
+     * Il metodo chiude tutte le schermate attualmente visibili tramite {@code chiudiTutto()}, 
+     * popola l'area di testo con le stopwords usando {@code mettiStopwordInTextArea()} e 
+     * imposta la visibilità di {@code schermataStopwords} su {@code true}.
      */
     @FXML
     private void mostraGestioneStopwords() {
@@ -1284,11 +1221,10 @@ public class AppViewController implements Initializable {
     }
 
     /**
-     * Torna alla schermata principale (home).
-     * <p>
-     * Il metodo chiude tutte le schermate attualmente visibili tramite {@code chiudiTutto()}
-     * e rende visibile la schermata home impostando {@code schermataHome} a {@code true}.
-     * </p>
+     * Chiude tutte le schermate aperte e torna alla schermata principale.
+     *
+     * Il metodo invoca {@code chiudiTutto()} per nascondere le schermate attualmente visibili,
+     * quindi imposta {@code schermataHome} su {@code true} per renderla visibile.
      */
     @FXML
     private void tornaAllaHome() {
@@ -1299,29 +1235,23 @@ public class AppViewController implements Initializable {
     
     /**
      * Salva le stopwords presenti nell'area di testo.
-     * <p>
-     * Quando viene chiamato questo metodo, si eseguono le seguenti operazioni:
-     * <ul>
-     *   <li>Si recupera il testo corrente dall'area di testo {@code stopwordTextArea}.</li>
-     *   <li>Il testo viene convertito in un array di byte utilizzando {@code getBytes()}.</li>
-     *   <li>Viene creato un oggetto {@link CaricaStopWordsService} con i seguenti parametri:
-     *     <ul>
-     *       <li>"ListaStopwords" come nome del file o identificativo della lista di stopwords,</li>
-     *       <li>l'email dell'utente corrente ottenuta da {@code appstate.getUtente().getEmail()},</li>
-     *       <li>l'array di byte ottenuto dal testo.</li>
-     *     </ul>
-     *   </li>
-     *   <li>Si configurano i gestori per il completamento con successo e il fallimento del servizio:
-     *     <ul>
-     *       <li>Se il servizio termina con successo, viene mostrato un alert informativo che conferma il salvataggio.</li>
-     *       <li>Se il servizio fallisce, viene mostrato un alert che segnala l'errore nel salvataggio.</li>
-     *     </ul>
-     *   </li>
-     *   <li>Infine, si avvia il servizio con {@code cs.start()}.</li>
-     * </ul>
-     * </p>
      *
-     * @param event l'evento generato dall'interazione dell'utente (ad esempio, il clic sul pulsante di salvataggio stopwords)
+     * Il metodo recupera il testo da {@code stopwordTextArea} e lo converte in un array di byte 
+     * con {@code getBytes()}. Successivamente, crea un oggetto {@link CaricaStopWordsService} 
+     * con i seguenti parametri:
+     * <ul>
+     *   <li>"ListaStopwords" come nome del file o identificativo della lista.</li>
+     *   <li>L'email dell'utente corrente ottenuta da {@code appstate.getUtente().getEmail()}.</li>
+     *   <li>L'array di byte contenente il testo delle stopwords.</li>
+     * </ul>
+     * Configura i gestori per il completamento del servizio:
+     * <ul>
+     *   <li>Se il salvataggio è riuscito, mostra un alert di conferma.</li>
+     *   <li>Se il servizio fallisce, mostra un alert di errore.</li>
+     * </ul>
+     * Infine, avvia il servizio con {@code cs.start()}.
+     *
+     * @param event Evento generato dall'interazione dell'utente (ad esempio, il clic sul pulsante di salvataggio).
      */
     @FXML
     private void salvaStopwords(ActionEvent event) {
@@ -1345,13 +1275,12 @@ public class AppViewController implements Initializable {
 
     /**
      * Restituisce il valore del livello di difficoltà selezionato nell'interfaccia admin.
-     * <p>
-     * Il metodo controlla lo stato dei radio button relativi alle difficoltà (Facile, Medio, Difficile)
-     * e restituisce il valore ottenuto tramite {@code getDbValue()} dell'enum {@link LivelloPartita}
-     * corrispondente. Se nessun radio button è selezionato, il metodo restituisce {@code null}.
-     * </p>
      *
-     * @return il valore di difficoltà selezionato come {@code String}, oppure {@code null} se nessuna opzione è selezionata.
+     * Il metodo verifica quale radio button tra "Facile", "Medio" e "Difficile" è selezionato 
+     * e restituisce il valore corrispondente tramite {@code getDbValue()} dell'enum {@link LivelloPartita}.  
+     * Se nessuna opzione è selezionata, il metodo restituisce {@code null}.
+     *
+     * @return Il valore della difficoltà selezionata come {@code String}, oppure {@code null} se nessuna scelta è stata effettuata.
      */
     private String getDifficoltaSelezionataAdmin() {
         if (adminRadioFacile.isSelected()) return LivelloPartita.FACILE.getDbValue();
@@ -1362,13 +1291,11 @@ public class AppViewController implements Initializable {
 
     /**
      * Restituisce la lingua selezionata nell'interfaccia admin.
-     * <p>
-     * Il metodo verifica lo stato dei radio button relativi alle lingue (Italiano, Tedesco, Spagnolo, Inglese, Francese)
-     * e restituisce l'enum {@link Lingua} corrispondente all'opzione selezionata. Se nessun radio button è selezionato,
-     * il metodo restituisce {@code null}.
-     * </p>
      *
-     * @return la lingua selezionata come oggetto {@code Lingua}, oppure {@code null} se nessuna lingua è selezionata.
+     * Il metodo verifica quale radio button tra "Italiano", "Tedesco", "Spagnolo", "Inglese" e "Francese" è selezionato 
+     * e restituisce l'enum {@link Lingua} corrispondente. Se nessuna lingua è selezionata, restituisce {@code null}.
+     *
+     * @return La lingua selezionata come {@code Lingua}, oppure {@code null} se nessuna opzione è stata scelta.
      */
     private Lingua getLinguaSelezionataAdmin() {
         if (adminRadioIT.isSelected()) return Lingua.ITALIANO;
@@ -1380,14 +1307,12 @@ public class AppViewController implements Initializable {
     }
 
     /**
-     * Permette all'utente di scegliere un file di testo utilizzando un FileChooser.
-     * <p>
-     * Il file chooser viene configurato per mostrare solo file con estensione ".txt". Se l'utente seleziona un file,
-     * il file viene assegnato alla variabile {@code fileSelezionato} e il nome del file viene visualizzato in {@code pathTextField}.
-     * Se nessun file viene selezionato, viene mostrato un alert di avviso.
-     * </p>
+     * Restituisce la lingua selezionata nell'interfaccia admin.
      *
-     * @param event l'evento generato dall'interazione dell'utente (ad esempio, clic sul pulsante per scegliere il file)
+     * Il metodo verifica quale radio button tra "Italiano", "Tedesco", "Spagnolo", "Inglese" e "Francese" è selezionato 
+     * e restituisce l'enum {@link Lingua} corrispondente. Se nessuna lingua è selezionata, restituisce {@code null}.
+     *
+     * @return La lingua selezionata come {@code Lingua}, oppure {@code null} se nessuna opzione è stata scelta.
      */
     @FXML
     private void scegliFileTesto(ActionEvent event) {
@@ -1411,28 +1336,25 @@ public class AppViewController implements Initializable {
     
     /**
      * Carica il contenuto di un file di testo e lo invia al servizio di caricamento documento.
-     * <p>
-     * Il metodo esegue le seguenti operazioni:
+     *
+     * Il metodo verifica che siano stati selezionati un file, un livello di difficoltà e una lingua.
+     * Se uno di questi controlli fallisce, mostra un alert di warning e interrompe l'operazione.
+     * 
+     * Procede con il caricamento eseguendo le seguenti operazioni:
      * <ul>
-     *   <li>Verifica che sia stato selezionato un file, che sia stato scelto un livello di difficoltà e che sia stata selezionata una lingua.
-     *       Se uno di questi controlli fallisce, viene mostrato un alert di warning e il metodo termina.</li>
-     *   <li>Imposta il livello di difficoltà nel servizio di caricamento documento (cts) utilizzando il valore ottenuto da {@link #getDifficoltaSelezionataAdmin()}.</li>
-     *   <li>Legge il contenuto del file selezionato in un array di byte e lo imposta nel servizio. In caso di errore durante la lettura,
-     *       l'eccezione viene loggata.</li>
-     *   <li>Imposta nel servizio anche l'email dell'utente, il nome del file e la lingua selezionata.</li>
-     *   <li>Configura i gestori per il completamento:
+     *   <li>Imposta la difficoltà nel servizio ({@code cts}) tramite {@link #getDifficoltaSelezionataAdmin()}.</li>
+     *   <li>Legge il contenuto del file in un array di byte e lo assegna al servizio. Se la lettura fallisce, l'errore viene loggato.</li>
+     *   <li>Configura nel servizio l'email dell'utente, il nome del file e la lingua selezionata.</li>
+     *   <li>Gestisce il completamento del servizio:
      *     <ul>
-     *       <li>Se il servizio termina con successo, viene mostrato un alert di successo, il campo di testo del percorso
-     *           viene pulito, il file selezionato viene resettato e il servizio viene resettato tramite {@code resetService(cts)}.</li>
-     *       <li>Se il servizio termina con un fallimento, viene mostrato un alert d'errore, il campo di testo del percorso
-     *           viene pulito, il file selezionato viene resettato e il servizio viene resettato.</li>
+     *       <li>Se il servizio ha successo, mostra un alert di conferma, pulisce il campo di testo e resetta il file e il servizio.</li>
+     *       <li>Se il servizio fallisce, mostra un alert di errore, pulisce il campo di testo e resetta il file e il servizio.</li>
      *     </ul>
      *   </li>
-     *   <li>Avvia il servizio di caricamento documento (cts) per eseguire l'operazione in background.</li>
+     *   <li>Avvia il servizio per eseguire l'operazione in background.</li>
      * </ul>
-     * </p>
      *
-     * @param event l'evento generato dall'interazione dell'utente (ad esempio, il clic sul pulsante per caricare il documento)
+     * @param event Evento generato dall'interazione dell'utente (ad esempio, clic sul pulsante di caricamento).
      */
     @FXML
     private void caricaTesto(ActionEvent event) {
@@ -1473,18 +1395,15 @@ public class AppViewController implements Initializable {
 
     
     /**
-     * Carica le stopwords nell'area di testo dedicata.
-     * <p>
-     * Questo metodo utilizza il servizio {@code PrendiStopWordsService} per recuperare la lista 
-     * delle stopwords associate all'identificativo "ListaStopwords". In particolare:
+     * Carica le stopwords nell'area di testo dedicata utilizzando {@code PrendiStopWordsService}.
+     *
+     * Il metodo recupera la lista delle stopwords associate all'identificativo "ListaStopwords" ed esegue le seguenti operazioni:
      * <ul>
-     *   <li>Se il servizio termina con successo, il contenuto (in byte) viene convertito in una stringa e 
-     *       impostato in {@code stopwordTextArea}. Viene inoltre stampato in console il testo caricato.</li>
-     *   <li>Se il servizio fallisce, viene mostrato un alert informativo del tipo 
-     *       {@code Alert.AlertType.INFORMATION} con il messaggio "Non risultano stopwords."</li>
+     *   <li>Se il servizio termina con successo, converte il contenuto in byte in una stringa e la imposta in {@code stopwordTextArea}. 
+     *       Inoltre, stampa il testo caricato nella console.</li>
+     *   <li>Se il servizio fallisce, mostra un alert informativo ({@code Alert.AlertType.INFORMATION}) con il messaggio "Non risultano stopwords."</li>
      * </ul>
-     * Infine, il servizio viene avviato.
-     * </p>
+     * Infine, avvia il servizio.
      */
     private void mettiStopwordInTextArea() {
         PrendiStopWordsService ps = new PrendiStopWordsService("ListaStopwords");
@@ -1502,45 +1421,31 @@ public class AppViewController implements Initializable {
     }
 
     /**
-     * Mostra le informazioni del profilo dell'utente autenticato.
-     * <p>
-     * Il metodo esegue le seguenti operazioni:
-     * <ul>
-     *   <li>Recupera l'utente corrente da {@code appstate}. Se l'utente risulta {@code null}, 
-     *       viene mostrato un alert di errore ("Utente non autenticato.") e l'esecuzione viene interrotta.</li>
-     *   <li>Imposta l'email dell'utente nel servizio {@code pius} e, se necessario, cancella eventuali 
-     *       esecuzioni precedenti del servizio.</li>
-     *   <li>Chiude tutte le schermate attive (tramite {@code chiudiTutto()}) e rende visibile la schermata 
-     *       dedicata alle informazioni utente ({@code schermataInfoUtente}).</li>
-     *   <li>Visualizza immediatamente le informazioni base dell'utente (username ed email) nelle relative etichette.</li>
-     *   <li>Configura il servizio informativo {@code pius}:
-     *     <ul>
-     *       <li>Se il servizio termina con successo, vengono popolati:
-     *         <ul>
-     *           <li>La lista della cronologia delle partite nell'apposita vista.</li>
-     *           <li>I contatori delle partite giocate per le difficoltà facile, media e difficile.</li>
-     *           <li>I migliori punteggi per ciascuna difficoltà, formattati opportunamente.</li>
-     *         </ul>
-     *         Infine, il servizio viene resettato tramite {@code resetService(pius)}.</li>
-     *       <li>Se il servizio fallisce, l'errore viene loggato e, tramite {@code Platform.runLater()},
-     *           viene mostrato un alert di errore ("Impossibile caricare i dati del profilo"). Il servizio
-     *           viene quindi resettato.</li>
-     *     </ul>
-     *   </li>
-     *   <li>Avvia il servizio informativo {@code pius} per ottenere i dettagli dell'utente e aggiornare l'interfaccia.</li>
-     *   <li>In parallelo, viene eseguito un task separato per caricare l'immagine del profilo:
-     *     <ul>
-     *       <li>Il task converte i byte dell'immagine del profilo (ottenuti da {@code utente.getFotoProfilo()})
-     *           in un oggetto {@link Image} utilizzando il metodo {@code getImageFromByte()}.</li>
-     *       <li>Se il task ha successo, l'immagine viene impostata in {@code immagineInfoUtente}; in caso di fallimento,
-     *           l'errore viene loggato.</li>
-     *       <li>Il task viene avviato su un nuovo thread.</li>
-     *     </ul>
-     *   </li>
-     * </ul>
-     * </p>
+     * Mostra le informazioni del profilo dell'utente autenticato e aggiorna l'interfaccia.
      *
-     * @param event l'evento generato dall'interazione dell'utente per visualizzare le informazioni del profilo
+     * Il metodo recupera l'utente corrente da {@code appstate} e, se non autenticato, mostra un alert 
+     * di errore e interrompe l'operazione.  
+     * Successivamente, imposta l'email dell'utente nel servizio informativo {@code pius}, chiude le schermate attive
+     * tramite {@code chiudiTutto()} e rende visibile {@code schermataInfoUtente}.  
+     * Visualizza immediatamente le informazioni di base (username ed email) e avvia il servizio {@code pius} per recuperare i dati dettagliati:
+     * <ul>
+     *   <li>Se il servizio ha successo, aggiorna:
+     *     <ul>
+     *       <li>La cronologia delle partite.</li>
+     *       <li>I contatori delle partite giocate per ogni difficoltà.</li>
+     *       <li>I migliori punteggi.</li>
+     *     </ul>
+     *     Infine, resetta il servizio con {@code resetService(pius)}.</li>
+     *   <li>Se il servizio fallisce, logga l'errore e mostra un alert tramite {@code Platform.runLater()}.</li>
+     * </ul>
+     * Parallelamente, esegue un task separato per caricare l'immagine del profilo:
+     * <ul>
+     *   <li>Converte i byte dell'immagine ({@code utente.getFotoProfilo()}) in un oggetto {@link Image} con {@code getImageFromByte()}.</li>
+     *   <li>Se il task ha successo, aggiorna {@code immagineInfoUtente}; in caso di errore, lo logga.</li>
+     * </ul>
+     * Il task viene avviato su un nuovo thread per garantire fluidità nell'aggiornamento dell'interfaccia.
+     *
+     * @param event Evento generato dall'interazione dell'utente per visualizzare le informazioni del profilo.
      */
     @FXML
     private void passaAInfoProfilo(ActionEvent event) {
@@ -1606,12 +1511,11 @@ public class AppViewController implements Initializable {
     
 
     /**
-     * Inizializza la tabella della cronologia delle partite.
-     * <p>
-     * Il metodo configura le colonne della tabella utilizzando il {@code PropertyValueFactory} per mappare 
-     * le proprietà dell'oggetto cronologia (data, difficoltà e punteggio). Inoltre, richiama il metodo 
-     * {@code initializeCronologiaFiltro()} per impostare eventuali filtri sulla cronologia.
-     * </p>
+     * Inizializza la tabella della cronologia delle partite, configurando le colonne e i filtri.
+     *
+     * Il metodo associa le colonne della tabella alle proprietà dell'oggetto cronologia (data, difficoltà e punteggio) 
+     * tramite {@code PropertyValueFactory}.  
+     * Inoltre, richiama {@code initializeCronologiaFiltro()} per applicare eventuali filtri alla visualizzazione dei dati.
      */
     @SuppressWarnings("unchecked")
     private void initializeCronologiaPartite() {
@@ -1624,12 +1528,11 @@ public class AppViewController implements Initializable {
 
     /**
      * Chiude la schermata delle informazioni utente e torna alla schermata home.
-     * <p>
-     * Viene invocato {@code chiudiTutto()} per nascondere tutte le schermate, seguito da {@code pulisciTutto()}
-     * per resettare i campi dell'interfaccia. Infine, la schermata home viene resa visibile.
-     * </p>
      *
-     * @param event l'evento generato dall'interazione dell'utente (ad esempio, il clic sul pulsante di chiusura)
+     * Il metodo nasconde tutte le schermate visibili con {@code chiudiTutto()}, 
+     * resetta i campi dell'interfaccia con {@code pulisciTutto()} e rende visibile la schermata home.
+     *
+     * @param event Evento generato dall'interazione dell'utente (ad esempio, clic sul pulsante di chiusura).
      */
     @FXML
     private void chiudiInfoUtente(ActionEvent event) {
@@ -1639,15 +1542,14 @@ public class AppViewController implements Initializable {
     }
 
     /**
-     * Gestisce il cambiamento dell'immagine del profilo dall'interfaccia utente.
-     * <p>
-     * Quando l'utente clicca per cambiare l'immagine (evento di MouseEvent), il metodo apre un FileChooser 
-     * tramite {@link #scegliImmagine(ImageView)} per selezionare una nuova immagine. Se l'immagine viene 
-     * selezionata correttamente (cioè, se il byte array restituito non è {@code null}), viene invocato 
-     * {@link #aggiornaFotoProfilo(byte[])} per aggiornare la foto del profilo.
-     * </p>
+     * Gestisce la modifica dell'immagine del profilo tramite un {@link FileChooser}.
      *
-     * @param event l'evento generato dal clic sul componente per cambiare immagine
+     * Quando l'utente clicca sul componente per cambiare l'immagine ({@code MouseEvent}), 
+     * il metodo apre un file chooser con {@link #scegliImmagine(ImageView)} per selezionare una nuova immagine.  
+     * Se l'immagine viene correttamente selezionata (ovvero, il byte array restituito non è {@code null}), 
+     * il metodo aggiorna la foto profilo invocando {@link #aggiornaFotoProfilo(byte[])}.
+     *
+     * @param event Evento generato dal clic sul componente per cambiare immagine.
      */
     @FXML
     private void cambiaIMG(MouseEvent event) {
@@ -1656,77 +1558,74 @@ public class AppViewController implements Initializable {
             aggiornaFotoProfilo(nuovaImmagine);
     }
 
-   /**
-    * Permette all'utente di scegliere un'immagine tramite un FileChooser e restituisce il contenuto del file come array di byte.
-    * <p>
-    * Vengono applicati dei filtri per mostrare solamente file immagine (estensioni .png, .jpg, .jpeg, .gif). 
-    * Se l'utente non seleziona alcun file, viene mostrato un alert di avviso e il metodo restituisce {@code null}.<br>
-    * Se il file selezionato non supera la validazione (tramite {@code validaImmagine(file)}), viene restituito 
-    * {@code null} (dato che il metodo {@code validaImmagine} si occupa già di mostrare un alert appropriato).<br>
-    * Se il file viene letto correttamente, il metodo aggiorna l'immagine visualizzata nell' {@code ImageView} passato 
-    * come parametro e mostra un alert di successo.
-    * </p>
-    * <p>
-    * In caso di eccezioni (IOException, SecurityException o altre), il metodo mostra un alert d'errore e restituisce {@code null}.
-    * </p>
-    *
-    * @param imgv l' {@link ImageView} da aggiornare con l'immagine selezionata
-    * @return un array di byte rappresentante il contenuto dell'immagine, oppure {@code null} se l'operazione fallisce
-    */
-   private byte[] scegliImmagine(ImageView imgv) {
-       FileChooser fileChooser = new FileChooser();
-       fileChooser.getExtensionFilters().addAll(
-           new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg", "*.gif")
-       );
+    /**
+     * Permette all'utente di selezionare un'immagine tramite un {@link FileChooser} e ne restituisce i byte.
+     *
+     * Il file chooser applica filtri per mostrare solo immagini con estensione ".png", ".jpg", ".jpeg" e ".gif".
+     * Se l'utente non seleziona alcun file, mostra un alert di avviso e restituisce {@code null}.  
+     * Se il file non supera la validazione ({@code validaImmagine(file)}), il metodo restituisce {@code null}, 
+     * evitando ulteriori elaborazioni.  
+     * Se il file viene letto correttamente, aggiorna l'{@code ImageView} passato come parametro e mostra un alert di conferma.
+     *
+     * In caso di errore ({@code IOException}, {@code SecurityException} o altre eccezioni), il metodo mostra un alert 
+     * di errore e restituisce {@code null}.
+     *
+     * @param imgv {@link ImageView} da aggiornare con l'immagine selezionata.
+     * @return Array di byte rappresentante l'immagine, oppure {@code null} se l'operazione fallisce.
+     */
+    private byte[] scegliImmagine(ImageView imgv) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.getExtensionFilters().addAll(
+            new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg", "*.gif")
+        );
 
-       try {
-           File file = fileChooser.showOpenDialog(null);
-           if (file == null) {
-               mostraAlert("Attenzione", "Nessun file selezionato.", Alert.AlertType.WARNING);
-               return null;
-           }
+        try {
+            File file = fileChooser.showOpenDialog(null);
+            if (file == null) {
+                mostraAlert("Attenzione", "Nessun file selezionato.", Alert.AlertType.WARNING);
+                return null;
+            }
 
-           if (!validaImmagine(file)) {
-               // Il metodo validaImmagine mostra già un alert in caso di errore.
-               return null;
-           }
+            if (!validaImmagine(file)) {
+                // Il metodo validaImmagine mostra già un alert in caso di errore.
+                return null;
+            }
 
-           byte[] imageBytes = Files.readAllBytes(file.toPath());
-           Image image = new Image(file.toURI().toString());
+            byte[] imageBytes = Files.readAllBytes(file.toPath());
+            Image image = new Image(file.toURI().toString());
 
-           Platform.runLater(() -> {
-               imgv.setImage(image);
-               mostraAlert("Successo", "Immagine caricata correttamente", Alert.AlertType.INFORMATION);
-           });
+            Platform.runLater(() -> {
+                imgv.setImage(image);
+                mostraAlert("Successo", "Immagine caricata correttamente", Alert.AlertType.INFORMATION);
+            });
 
-           return imageBytes;
-       } catch (IOException e) {
-           Platform.runLater(() ->
-               mostraAlert("Errore", "Errore di lettura: " + e.getMessage(), Alert.AlertType.ERROR));
-           return null;
-       } catch (SecurityException e) {
-           Platform.runLater(() ->
-               mostraAlert("Errore", "Permessi insufficienti per leggere il file", Alert.AlertType.ERROR));
-           return null;
-       } catch (Exception e) {
-           Platform.runLater(() ->
-               mostraAlert("Errore", "Errore inaspettato: " + e.getMessage(), Alert.AlertType.ERROR));
-           return null;
-       }
-   }
+            return imageBytes;
+        } catch (IOException e) {
+            Platform.runLater(() ->
+                mostraAlert("Errore", "Errore di lettura: " + e.getMessage(), Alert.AlertType.ERROR));
+            return null;
+        } catch (SecurityException e) {
+            Platform.runLater(() ->
+                mostraAlert("Errore", "Permessi insufficienti per leggere il file", Alert.AlertType.ERROR));
+            return null;
+        } catch (Exception e) {
+            Platform.runLater(() ->
+                mostraAlert("Errore", "Errore inaspettato: " + e.getMessage(), Alert.AlertType.ERROR));
+            return null;
+        }
+    }
 
 
     /**
-     * Inizializza le informazioni dell'utente per la visualizzazione della cronologia delle partite.
-     * <p>
-     * In particolare:
+     * Inizializza i dati dell'utente per la visualizzazione della cronologia delle partite.
+     *
+     * Il metodo esegue le seguenti operazioni:
      * <ul>
      *   <li>Crea un {@code ObservableList} vuoto per la cronologia delle partite.</li>
-     *   <li>Imposta dei filtri di validazione per i campi di punteggio (minimo e massimo) utilizzando un {@code TextFormatter}
-     *       che accetta soltanto numeri (in formato float, compresi eventuali segni negativi e decimali).</li>
-     *   <li>Richiama il metodo {@code initializeCronologiaPartite()} per configurare le colonne della tabella della cronologia.</li>
+     *   <li>Imposta filtri di validazione per i campi di punteggio (minimo e massimo) con {@code TextFormatter}, 
+     *       accettando solo numeri float, inclusi segni negativi e decimali.</li>
+     *   <li>Richiama {@code initializeCronologiaPartite()} per configurare le colonne della tabella della cronologia.</li>
      * </ul>
-     * </p>
      */
     private void initializeInfoUtente() {
         listaCronologiaPartite = FXCollections.observableArrayList();
@@ -1742,17 +1641,16 @@ public class AppViewController implements Initializable {
     }
 
     /**
-     * Inizializza il filtro per la cronologia delle partite.
-     * <p>
-     * La lista filtrata (FilteredList) viene costruita a partire dalla lista delle partite
-     * e il predicato viene definito sulla base di:
+     * Inizializza il filtro per la cronologia delle partite, aggiornandolo dinamicamente con i parametri selezionati.
+     *
+     * Il metodo costruisce una {@code FilteredList} basata sulla lista delle partite e definisce il predicato 
+     * in base ai seguenti filtri:
      * <ul>
-     *   <li>Il filtro per il livello di difficoltà, basato sui radio button (checkFacile, checkMedio, checkDifficile).</li>
-     *   <li>Il filtro per la data, confrontando le date della partita con i valori nei {@code DatePicker} (dataInizio, dataFine).</li>
-     *   <li>Il filtro per il punteggio, confrontando il punteggio della partita con i valori inseriti nei campi punteggioMinimo e punteggioMassimo.</li>
+     *   <li>Difficoltà, in base ai radio button ({@code checkFacile}, {@code checkMedio}, {@code checkDifficile}).</li>
+     *   <li>Data, confrontando le date della partita con i valori dei {@code DatePicker} ({@code dataInizio}, {@code dataFine}).</li>
+     *   <li>Punteggio, confrontando il valore della partita con quelli nei campi {@code punteggioMinimo} e {@code punteggioMassimo}.</li>
      * </ul>
-     * Il metodo aggiunge inoltre listener a ciascuna proprietà in modo da aggiornare dinamicamente il predicato.
-     * </p>
+     * Il metodo aggiunge listener a ciascuna proprietà per aggiornare dinamicamente il filtro quando i parametri cambiano.
      */
     private void initializeCronologiaFiltro() {
         FilteredList<Classifica> filteredList = new FilteredList<>(listaCronologiaPartite, p -> true);
@@ -1798,14 +1696,13 @@ public class AppViewController implements Initializable {
     }
 
     /**
-     * Cerca di convertire una stringa in un valore di tipo float.
-     * <p>
-     * Se la conversione fallisce, viene restituito un valore di fallback specificato.
-     * </p>
+     * Converte una stringa in un valore di tipo float, restituendo un valore di fallback in caso di errore.
      *
-     * @param text il testo da convertire
-     * @param fallback il valore di fallback da restituire in caso di conversione fallita
-     * @return il valore float ottenuto dalla conversione, oppure il fallback in caso di errore
+     * Se la conversione della stringa fallisce, il metodo restituisce il valore specificato come fallback.
+     *
+     * @param text Testo da convertire.
+     * @param fallback Valore di fallback da restituire in caso di conversione fallita.
+     * @return Valore float ottenuto dalla conversione oppure il fallback in caso di errore.
      */
     private float parseSafeFloat(String text, float fallback) {
         try {
@@ -1816,24 +1713,22 @@ public class AppViewController implements Initializable {
     }
 
     /**
-     * Aggiorna la foto del profilo dell'utente.
-     * <p>
-     * Il metodo:
+     * Aggiorna la foto del profilo dell'utente tramite il servizio {@code mfps}.
+     *
+     * Il metodo esegue le seguenti operazioni:
      * <ul>
-     *   <li>Recupera l'utente corrente e imposta l'email nel servizio {@code mfps}.</li>
-     *   <li>Imposta l'immagine da aggiornare (passata come array di byte) nel servizio.</li>
+     *   <li>Recupera l'utente corrente e imposta la sua email nel servizio.</li>
+     *   <li>Passa al servizio l'immagine da aggiornare (come array di byte).</li>
      *   <li>Configura i gestori per il completamento:
      *     <ul>
-     *       <li>In caso di successo, crea un oggetto {@link Image} (o usa un placeholder se {@code immagineBytes} è null), 
-     *           aggiorna la foto del profilo nell'utente e nelle relative viste, poi resettando il servizio e nascondendo il loading overlay.</li>
-     *       <li>In caso di fallimento, mostra un alert d'errore e ripristina la vecchia immagine.</li>
+     *       <li>Se l'aggiornamento ha successo, crea un oggetto {@link Image}, aggiorna la foto profilo e resetta il servizio.</li>
+     *       <li>Se l'aggiornamento fallisce, mostra un alert di errore e ripristina la vecchia immagine.</li>
      *     </ul>
      *   </li>
      *   <li>Mostra il loading overlay e avvia il servizio {@code mfps}.</li>
      * </ul>
-     * </p>
      *
-     * @param immagineBytes l'array di byte della nuova immagine da impostare come foto profilo
+     * @param immagineBytes Array di byte della nuova immagine da impostare come foto profilo.
      */
     private void aggiornaFotoProfilo(byte[] immagineBytes) {
         Utente utente = appstate.getUtente();
@@ -1865,18 +1760,17 @@ public class AppViewController implements Initializable {
     }
 
     /**
-     * Valida se un file passato è un'immagine corretta e non troppo grande.
-     * <p>
-     * Il metodo controlla:
-     * <ul>
-     *   <li>Che la dimensione del file non superi 5MB.</li>
-     *   <li>Che il file, se caricato in una scala ridotta, non generi errori (verifica tramite l'oggetto {@link Image}).</li>
-     * </ul>
-     * Se uno di questi controlli fallisce, viene mostrato un alert d'errore e il metodo ritorna {@code false}.
-     * </p>
+     * Verifica se un file è un'immagine valida e conforme alle dimensioni richieste.
      *
-     * @param file il file da validare
-     * @return {@code true} se il file è un'immagine valida e conforme alle dimensioni richieste, {@code false} altrimenti
+     * Il metodo esegue i seguenti controlli:
+     * <ul>
+     *   <li>La dimensione del file non deve superare 5MB.</li>
+     *   <li>Il file, se caricato in scala ridotta, non deve generare errori (verifica tramite {@link Image}).</li>
+     * </ul>
+     * Se uno dei controlli fallisce, mostra un alert di errore e restituisce {@code false}.
+     *
+     * @param file File da validare.
+     * @return {@code true} se il file è un'immagine valida, {@code false} altrimenti.
      */
     private boolean validaImmagine(File file) {
         try {
@@ -1901,36 +1795,35 @@ public class AppViewController implements Initializable {
 
     /**
      * Gestisce l'evento del pulsante "Nuovo Documento" nella sezione di gestione documenti.
-     * <p>
-     * Il metodo chiude tutte le schermate attive invocando {@code chiudiTutto()} e rende visibile
-     * la schermata dedicata agli amministratori per la gestione dei documenti.
-     * </p *
-     * @param event l'evento generato dal clic sul pulsante
+     *
+     * Il metodo chiude tutte le schermate attive tramite {@code chiudiTutto()} 
+     * e rende visibile la schermata dedicata agli amministratori per la gestione dei documenti.
+     *
+     * @param event Evento generato dal clic sul pulsante.
      */
     @FXML
     private void gestDocNuovoButtonOnAction(ActionEvent event) {
         chiudiTutto();
         schermataDocumentiAdmin.setVisible(true);
     }
-
+    
     /**
-     * Inizializza la tabella dei documenti.
-     * <p>
-     * Il metodo:
+     * Inizializza la tabella dei documenti, configurando le colonne e il pulsante di download.
+     *
+     * Il metodo esegue le seguenti operazioni:
      * <ul>
      *   <li>Crea un {@code ObservableList} vuoto per contenere i documenti.</li>
-     *   <li>Configura le colonne della tabella mappando ciascuna proprietà del modello {@code DocumentoDiTesto}
-     *       (difficoltà, emailAmministratore, nomeFile, lingua) tramite {@code PropertyValueFactory}.</li>
-     *   <li>Per la colonna dedicata al download del documento, imposta una {@code CellFactory} che crea un pulsante 
-     *       (con emoji "🗎") per scaricare il file. Quando il pulsante viene premuto:
+     *   <li>Mappa le proprietà del modello {@code DocumentoDiTesto} (difficoltà, email amministratore, nome file, lingua) 
+     *       alle colonne della tabella tramite {@code PropertyValueFactory}.</li>
+     *   <li>Configura la colonna dedicata al download con una {@code CellFactory} che genera un pulsante "🗎".  
+     *       Quando il pulsante viene premuto:
      *     <ul>
      *       <li>Il servizio {@code pts} viene configurato con il nome del file.</li>
-     *       <li>Se il download ha successo, viene aperto un {@code FileChooser} per salvare il documento e viene scritto su disco.</li>
-     *       <li>Se il download fallisce, viene mostrato un alert d'errore.</li>
+     *       <li>Se il download ha successo, apre un {@code FileChooser} per salvare il documento e lo scrive su disco.</li>
+     *       <li>Se il download fallisce, mostra un alert di errore.</li>
      *     </ul>
      *   </li>
      * </ul>
-     * </p>
      */
     private void inizializzaTabellaDocumenti() {
         listaDocumenti = FXCollections.observableArrayList();
@@ -2001,14 +1894,12 @@ public class AppViewController implements Initializable {
 
 
     /**
-     * Crea una lista filtrata dei documenti a partire dalla lista completa di documenti.
-     * <p>
-     * Viene creata una {@link FilteredList} inizializzata con un predicato che accetta tutti gli
-     * elementi (ossia, <code>p -&gt; true</code>), la quale viene poi impostata come items della
-     * tabella dei documenti (<code>gestDocTabella</code>).
-     * </p>
+     * Crea una lista filtrata dei documenti a partire dalla lista completa.
      *
-     * @return la {@link FilteredList} di {@link DocumentoDiTesto} contenente tutti gli elementi di {@code listaDocumenti}
+     * Il metodo genera una {@link FilteredList} inizializzata con un predicato che accetta tutti gli 
+     * elementi ({@code p -> true}) e la imposta come items della tabella {@code gestDocTabella}.
+     *
+     * @return {@link FilteredList} di {@link DocumentoDiTesto} contenente tutti gli elementi di {@code listaDocumenti}.
      */
     private FilteredList<DocumentoDiTesto> creaListaFiltrata() {
         FilteredList<DocumentoDiTesto> filteredList = new FilteredList<>(listaDocumenti, p -> true);
@@ -2017,34 +1908,28 @@ public class AppViewController implements Initializable {
     }
 
     /**
-     * Crea un filtro dinamico per la lista dei documenti.
-     * <p>
-     * Il filtro, restituito come un {@link Runnable}, imposta un predicato sulla
-     * {@link FilteredList} passata che esamina ciascun documento e applica i seguenti criteri:
-     * <ul>
-     *   <li>
-     *     <strong>Difficoltà:</strong> Se uno dei checkbox relativi alla difficoltà
-     *     (<code>gestDocCheckFacile</code>, <code>gestDocCheckMedia</code>, <code>gestDocCheckDifficile</code>) è selezionato,
-     *     il documento deve avere il valore corrispondente ("facile", "medio" o "difficile"). Se nessuno
-     *     di questi checkbox è selezionato, il criterio di difficoltà non filtra alcun documento.
-     *   </li>
-     *   <li>
-     *     <strong>Lingua:</strong> Il documento passa il filtro se la lingua (ottenuta tramite {@code doc.lingua()})
-     *     corrisponde a quella selezionata nei controlli (<code>gestDocIT</code>, <code>gestDocCheckEN</code>,
-     *     <code>gestDocCheckES</code>, <code>gestDocCheckFR</code>, <code>gestDocCheckDE</code>). Se nessun checkbox di lingua
-     *     è selezionato, si considera che il documento soddisfi questo criterio.
-     *   </li>
-     *   <li>
-     *     <strong>Ricerca testuale:</strong> Se il testo inserito nella barra di ricerca (<code>gestDocBarraDiRicerca</code>)
-     *     non è vuoto, il documento deve contenere tale query (ignorando la differenza tra maiuscole e minuscole) nel nome del file
-     *     o nell'email dell'amministratore.
-     *   </li>
-     * </ul>
-     * Il documento verrà incluso nella lista filtrata solo se soddisfa tutti e tre i criteri.<br>
-     * </p>
+     * Crea un filtro dinamico per la lista dei documenti, basato su difficoltà, lingua e ricerca testuale.
      *
-     * @param filteredList la lista filtrata su cui impostare il predicato
-     * @return un {@link Runnable} che, quando eseguito, applica il predicato di filtraggio alla lista
+     * Il metodo restituisce un {@link Runnable} che imposta un predicato sulla {@link FilteredList} 
+     * e applica i seguenti criteri:
+     * <ul>
+     *   <li><strong>Difficoltà:</strong> Se uno dei checkbox (<code>gestDocCheckFacile</code>, 
+     *       <code>gestDocCheckMedia</code>, <code>gestDocCheckDifficile</code>) è selezionato, 
+     *       il documento deve avere il valore corrispondente. Se nessun checkbox è selezionato, 
+     *       non viene applicato alcun filtro.</li>
+     *   <li><strong>Lingua:</strong> Il documento passa il filtro se la lingua (ottenuta tramite 
+     *       {@code doc.lingua()}) corrisponde a quella selezionata nei controlli 
+     *       (<code>gestDocIT</code>, <code>gestDocCheckEN</code>, <code>gestDocCheckES</code>, 
+     *       <code>gestDocCheckFR</code>, <code>gestDocCheckDE</code>). Se nessun checkbox è selezionato, 
+     *       il documento soddisfa comunque il criterio.</li>
+     *   <li><strong>Ricerca testuale:</strong> Se il campo di ricerca ({@code gestDocBarraDiRicerca}) 
+     *       contiene testo, il documento deve avere una corrispondenza nel nome del file o nell'email 
+     *       dell'amministratore (ignorando maiuscole/minuscole).</li>
+     * </ul>
+     * Il documento viene incluso nella lista filtrata solo se soddisfa tutti i criteri.
+     *
+     * @param filteredList Lista filtrata su cui impostare il predicato.
+     * @return {@link Runnable} che, quando eseguito, applica il predicato di filtraggio alla lista.
      */
     private Runnable creaFiltro(FilteredList<DocumentoDiTesto> filteredList) {
         return () -> filteredList.setPredicate(doc -> {
@@ -2080,21 +1965,18 @@ public class AppViewController implements Initializable {
     }
 
     /**
-     * Aggiunge listener ai controlli di filtro per aggiornare la lista dei documenti in tempo reale.
-     * <p>
-     * Vengono aggiunti listener alle seguenti proprietà:
-     * <ul>
-     *   <li>Checkbox relative alla lingua: <code>gestDocIT</code>, <code>gestDocCheckEN</code>, 
-     *       <code>gestDocCheckES</code>, <code>gestDocCheckFR</code>, <code>gestDocCheckDE</code></li>
-     *   <li>La barra di ricerca testuale: <code>gestDocBarraDiRicerca</code></li>
-     *   <li>Checkbox relative alla difficoltà: <code>gestDocCheckFacile</code>, <code>gestDocCheckMedia</code>, 
-     *       <code>gestDocCheckDifficile</code></li>
-     * </ul>
-     * Ogni volta che uno di questi controlli cambia valore, viene eseguito il {@link Runnable} passato come parametro,
-     * aggiornando così il predicato della lista filtrata.
-     * </p>
+     * Aggiunge listener ai controlli di filtro per aggiornare dinamicamente la lista dei documenti.
      *
-     * @param filtro il filtro (come {@link Runnable}) da eseguire quando uno dei controlli cambia
+     * Il metodo registra listener per i seguenti elementi:
+     * <ul>
+     *   <li>Checkbox di selezione lingua: {@code gestDocIT}, {@code gestDocCheckEN}, {@code gestDocCheckES}, {@code gestDocCheckFR}, {@code gestDocCheckDE}.</li>
+     *   <li>Barra di ricerca testuale: {@code gestDocBarraDiRicerca}.</li>
+     *   <li>Checkbox di selezione difficoltà: {@code gestDocCheckFacile}, {@code gestDocCheckMedia}, {@code gestDocCheckDifficile}.</li>
+     * </ul>
+     * Quando uno di questi controlli cambia valore, il {@link Runnable} passato come parametro viene eseguito,
+     * aggiornando il predicato della lista filtrata.
+     *
+     * @param filtro Filtro ({@link Runnable}) da eseguire quando uno dei controlli cambia.
      */
     private void aggiungiListenerFiltri(Runnable filtro) {
         gestDocIT.selectedProperty().addListener((obs, o, n) -> filtro.run());
@@ -2110,17 +1992,16 @@ public class AppViewController implements Initializable {
 
 
     /**
-     * Inizializza la gestione dei documenti.
-     * <p>
-     * Questo metodo esegue le seguenti operazioni:
+     * Inizializza la gestione dei documenti, configurando la tabella e il filtro dinamico.
+     *
+     * Il metodo esegue le seguenti operazioni:
      * <ul>
-     *   <li>Inizializza la tabella dei documenti tramite {@code inizializzaTabellaDocumenti()}.</li>
-     *   <li>Crea una {@link FilteredList} filtrata dalla lista completa dei documenti usando {@code creaListaFiltrata()}.</li>
-     *   <li>Configura il filtro dinamico chiamando {@code creaFiltro(filteredList)} e aggiunge i listener per aggiornare 
-     *       automaticamente il filtro tramite {@code aggiungiListenerFiltri(filtro)}.</li>
+     *   <li>Inizializza la tabella dei documenti con {@code inizializzaTabellaDocumenti()}.</li>
+     *   <li>Genera una lista filtrata dalla lista completa usando {@link FilteredList} con {@code creaListaFiltrata()}.</li>
+     *   <li>Configura il filtro dinamico tramite {@code creaFiltro(filteredList)} e aggiunge listener con {@code aggiungiListenerFiltri(filtro)} 
+     *       per l'aggiornamento automatico.</li>
      *   <li>Imposta il modello di selezione della tabella su modalità MULTIPLE.</li>
      * </ul>
-     * </p>
      */
     private void initializeGestioneDocumenti() {
         inizializzaTabellaDocumenti();
@@ -2132,12 +2013,11 @@ public class AppViewController implements Initializable {
 
     /**
      * Torna alla schermata home dalla gestione documenti.
-     * <p>
-     * Chiude tutte le schermate attive e pulisce l'interfaccia utente, svuotando anche la lista dei documenti.
-     * Infine, rende visibile la schermata home.
-     * </p>
      *
-     * @param event l'evento generato dall'interazione dell'utente (ad es., clic sul pulsante "Torna alla Home")
+     * Il metodo chiude tutte le schermate attive, pulisce l'interfaccia utente svuotando la lista dei documenti 
+     * e rende visibile la schermata home.
+     *
+     * @param event Evento generato dall'interazione dell'utente (ad esempio, clic sul pulsante "Torna alla Home").
      */
     @FXML
     private void tornaAllaHomeFromGestDoc(ActionEvent event) {
@@ -2148,14 +2028,12 @@ public class AppViewController implements Initializable {
     }
 
     /**
-     * Torna alla vista di gestione documenti.
-     * <p>
-     * Questo metodo chiude tutte le schermate attualmente attive, pulisce l'interfaccia e svuota la lista
-     * dei documenti per evitare duplicati. Avvia poi il servizio {@code ptds} per aggiornare la lista dei documenti
-     * e rende visibile la vista di gestione documenti.
-     * </p>
+     * Torna alla vista di gestione documenti, chiudendo le schermate attive e aggiornando l'interfaccia.
      *
-     * @param event l'evento generato dall'interazione dell'utente (ad es., clic sul pulsante "Back to Gestione Documenti")
+     * Il metodo chiude tutte le schermate attive, pulisce l'interfaccia e svuota la lista dei documenti 
+     * per evitare duplicati. Avvia poi il servizio {@code ptds} per aggiornare la lista e rende visibile la vista di gestione documenti.
+     *
+     * @param event Evento generato dall'interazione dell'utente (ad esempio, clic sul pulsante "Back to Gestione Documenti").
      */
     @FXML
     private void backToGestDoc(ActionEvent event) {
@@ -2173,20 +2051,18 @@ public class AppViewController implements Initializable {
     }
 
     /**
-     * Elimina i documenti selezionati.
-     * <p>
-     * Questo metodo recupera i documenti selezionati nella tabella dei documenti e, se la lista è vuota,
-     * mostra un alert informativo. Altrimenti, mostra un overlay di caricamento e avvia il servizio
-     * {@code EliminaTestoService} per eliminare i documenti selezionati.
-     * <ul>
-     *   <li>In caso di successo, il servizio rimuove i documenti eliminati dalla lista e nasconde l'overlay,
-     *       mostrando un alert di successo.</li>
-     *   <li>In caso di fallimento, l'overlay viene nascosto e viene mostrato un alert d'errore.</li>
-     *   <li>In caso di cancellazione, l'overlay viene semplicemente nascosto e il servizio viene resettato.</li>
-     * </ul>
-     * </p>
+     * Elimina i documenti selezionati dalla tabella e aggiorna l'interfaccia.
      *
-     * @param event l'evento generato dall'interazione dell'utente (ad es., clic sul pulsante "Elimina Documento")
+     * Il metodo recupera i documenti selezionati e, se la lista è vuota, mostra un alert informativo.  
+     * Altrimenti, visualizza un overlay di caricamento e avvia il servizio {@code EliminaTestoService} 
+     * per eliminare i documenti.
+     * <ul>
+     *   <li>Se l'operazione ha successo, rimuove i documenti dalla lista, nasconde l'overlay e mostra un alert di conferma.</li>
+     *   <li>Se l'operazione fallisce, nasconde l'overlay e mostra un alert di errore.</li>
+     *   <li>Se viene annullata, l'overlay viene nascosto e il servizio viene resettato.</li>
+     * </ul>
+     *
+     * @param event Evento generato dall'interazione dell'utente (ad esempio, clic sul pulsante "Elimina Documento").
      */
     @FXML
     private void eliminaDoc(ActionEvent event) {
@@ -2226,21 +2102,17 @@ public class AppViewController implements Initializable {
 
 
     /**
-     * Gestisce l’avvio della partita.
-     * <p>
-     * Questo metodo viene invocato quando l’utente clicca sul pulsante per iniziare la partita e si occupa di:
-     * <ul>
-     *   <li>Verificare che sia stata selezionata una difficoltà (FACILE, MEDIO o DIFFICILE). Se nessuna difficoltà
-     *       è selezionata, viene mostrato un alert di avviso e l’operazione viene interrotta.</li>
-     *   <li>Verificare che sia stata selezionata almeno una lingua (tra Italiano, Inglese, Francese, Tedesco e Spagnolo).
-     *       Se la lista risultante è vuota, viene mostrato un alert e l’operazione viene interrotta.</li>
-     *   <li>Aggiornare lo stato globale dell’applicazione (tramite il Singleton {@link AppState}) impostando i valori
-     *       di difficoltà e lingue.</li>
-     *   <li>Cambiare la visualizzazione passando alla scena della sessione di gioco (con {@code App.setRoot("SessionView")}).</li>
-     * </ul>
-     * </p>
+     * Gestisce l'avvio della partita, verificando i parametri e cambiando la visualizzazione.
      *
-     * @param event l’evento generato dal clic sull’interfaccia (ad esempio, il pulsante "Inizia Partita")
+     * Il metodo esegue i seguenti controlli:
+     * <ul>
+     *   <li>Verifica che sia stata selezionata una difficoltà (FACILE, MEDIO, DIFFICILE); in caso contrario, mostra un alert di avviso.</li>
+     *   <li>Controlla che almeno una lingua tra Italiano, Inglese, Francese, Tedesco e Spagnolo sia stata scelta; se nessuna è selezionata, mostra un alert e interrompe l'operazione.</li>
+     *   <li>Aggiorna lo stato globale dell'app tramite il Singleton {@link AppState}, impostando difficoltà e lingue.</li>
+     *   <li>Passa alla schermata della sessione di gioco con {@code App.setRoot("SessionView")}.</li>
+     * </ul>
+     *
+     * @param event Evento generato dal clic sull'interfaccia (es. pulsante "Inizia Partita").
      */
     @FXML
     private void iniziaPartitaOnAction(ActionEvent event) {
@@ -2283,17 +2155,16 @@ public class AppViewController implements Initializable {
     }
 
     /**
-     * Inizializza la schermata di selezione delle difficoltà.
-     * <p>
-     * Il metodo crea un {@link BooleanBinding} denominato {@code nessunaLinguaSelezionata} che risulta {@code true}
-     * se nessuno dei checkbox relativi alle lingue (Italiano, Inglese, Francese, Tedesco, Spagnolo) è selezionato.
-     * Successivamente, il pulsante per iniziare la partita ({@code iniziaPartita}) viene disabilitato se:
+     * Inizializza la schermata di selezione delle difficoltà, gestendo la logica di abilitazione del pulsante di avvio.
+     *
+     * Il metodo crea un {@link BooleanBinding} {@code nessunaLinguaSelezionata}, che risulta {@code true} 
+     * se nessuno dei checkbox relativi alle lingue (Italiano, Inglese, Francese, Tedesco, Spagnolo) è selezionato.  
+     * Il pulsante {@code iniziaPartita} viene disabilitato se:
      * <ul>
-     *   <li>Nessun radio button relativo alla difficoltà è selezionato</li>
-     *   <li>oppure nessuna lingua è selezionata</li>
+     *   <li>Non è selezionata alcuna difficoltà.</li>
+     *   <li>Oppure nessuna lingua è stata scelta.</li>
      * </ul>
-     * In questo modo, l’utente non potrà avviare la partita finché non completa tutte le selezioni obbligatorie.
-     * </p>
+     * In questo modo, l'utente deve completare tutte le selezioni obbligatorie prima di poter avviare la partita.
      */
     private void initializeSchermataDifficoltà() {
         BooleanBinding nessunaLinguaSelezionata = Bindings.createBooleanBinding(() ->
@@ -2319,13 +2190,12 @@ public class AppViewController implements Initializable {
     }
 
     /**
-     * Resetta il servizio specificato se il suo stato terminale (SUCCEEDED, FAILED o CANCELLED) è stato raggiunto.
-     * <p>
-     * Questo metodo verifica lo stato del {@link Service} passato come parametro e, se risulta terminato, invoca
-     * il metodo {@code reset()} per riportarlo allo stato READY, consentendone un eventuale riutilizzo.
-     * </p>
+     * Resetta il servizio specificato se ha raggiunto uno stato terminale (SUCCEEDED, FAILED o CANCELLED).
      *
-     * @param service il servizio da resettare
+     * Il metodo verifica lo stato del {@link Service} e, se terminato, invoca {@code reset()} 
+     * per riportarlo allo stato READY, consentendone un nuovo utilizzo.
+     *
+     * @param service Servizio da resettare.
      */
     private void resetService(Service<?> service) {
         if (service.getState() == Worker.State.SUCCEEDED ||
@@ -2335,5 +2205,14 @@ public class AppViewController implements Initializable {
             service.reset();  // Resetta lo stato a READY
         }
     }
-
+    
+    /**
+     * Costruttore di default.
+     * <p>
+     * Inizializza una nuova istanza di {@code AppViewController}.
+     * </p>
+     */
+    public AppViewController() {
+        // eventuali inizializzazioni se necessarie
+    }
 }  

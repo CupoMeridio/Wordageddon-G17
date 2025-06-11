@@ -20,10 +20,20 @@ package it.unisa.diem.wordageddong17.model;
  *
  */
 public enum Lingua {
+
+    /** Lingua italiana. */
     ITALIANO("it"),
+
+    /** Lingua inglese. */
     INGLESE("en"),
+
+    /** Lingua spagnola. */
     SPAGNOLO("es"),
+
+    /** Lingua francese. */
     FRANCESE("fr"),
+
+    /** Lingua tedesca. */
     TEDESCO("de");
 
     private final String codice;

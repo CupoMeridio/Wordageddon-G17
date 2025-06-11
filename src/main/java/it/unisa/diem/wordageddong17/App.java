@@ -92,4 +92,11 @@ public class App extends Application {
     public static void main(String[] args) {
         launch();
     }
+    
+    /**
+     * Costruttore di default per la classe App.
+     */
+    public App() {
+        super();
+    }
 }

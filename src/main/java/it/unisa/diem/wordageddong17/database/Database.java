@@ -9,63 +9,38 @@ import io.github.cdimascio.dotenv.Dotenv;
 
 
 /**
- * La classe {@code Database} gestisce la connessione al database PostgreSQL utilizzando il pattern Singleton
- * con l'idioma Lazy Holder (informazioni reperite dalla seguente pagina: https://www.javaboss.it/singleton-design-pattern/).
- * Le credenziali di accesso sono ottenute da variabili d'ambiente per garantire la sicurezza delle informazioni sensibili.
- * (informazioni reperite dalla seguente pagina: https://stackoverflow.com/questions/11823233/how-to-set-environment-variable-in-netbeans)
- * <p>
- * La connessione viene inizializzata al primo accesso e chiusa automaticamente alla terminazione del programma
- * tramite una shutdown hook.
- * </p>
+ * La classe {@code Database} gestisce la connessione al database PostgreSQL 
+ * utilizzando il pattern Singleton con il Lazy Holder idiom.
+ * 
+ * Le credenziali di accesso sono ottenute da variabili d'ambiente per garantire la sicurezza delle informazioni sensibili.  
+ * La connessione viene inizializzata al primo accesso e chiusa automaticamente alla terminazione del programma.
  */
 public class Database {
 
-    /**
-     * Connessione attiva al database.
-     */
     private Connection connection;
-    
-    /**
-     * Recupero delle credenziali per la connessione al database dal file .env escluso dal git.
-     */
-    Dotenv dotenv = Dotenv.load();
-    
-    /**
-     * Nome del database, ottenuto dalla variabile d'ambiente {@code DBNAME}.
-     */
+    private static final Logger LOGGER = Logger.getLogger(Database.class.getName());
+    private final Dotenv dotenv = Dotenv.load();
     private final String dbname = dotenv.get("DBNAME");
-
-    /**
-     * Nome utente per l'accesso al database, ottenuto dalla variabile d'ambiente {@code USERNAME}.
-     */
     private final String username = dotenv.get("USER");
-
-    /**
-     * Password per l'accesso al database, ottenuta dalla variabile d'ambiente {@code PASSWORD}.
-     */
     private final String password = dotenv.get("PASSWORD");
 
     /**
      * Costruttore privato che inizializza la connessione al database.
-     * <p>
-     * Verifica la presenza delle variabili d'ambiente necessarie e stabilisce la connessione utilizzando link DriverManager}.
-     * Inoltre viene impostato un sistema di terminazione della connessione alla chiusura del programma.
-     * </p>
      *
-     * @throws IllegalStateException se una delle variabili d'ambiente {@code DBNAME}, {@code USERNAME} o {@code PASSWORD} non è impostata.
-     * @throws RuntimeException se si verifica un errore durante la connessione al database.
+     * @throws IllegalStateException Se una delle variabili d'ambiente {@code DBNAME}, {@code USERNAME} o {@code PASSWORD} non è impostata.
+     * @throws RuntimeException Se si verifica un errore durante la connessione al database.
      */
     private Database() {
         if (dbname == null || username == null || password == null) {
-            throw new IllegalStateException("Variabili d'ambiente DBNAME, USERNAME o PASSWORD non sono impostate.");
+            throw new IllegalStateException("Variabili d'ambiente DBNAME, USERNAME o PASSWORD non impostate.");
         }
 
         try {
-            String url ="jdbc:postgresql://wordageddon-cupomeridio.i.aivencloud.com:17446/"+dbname+"?ssl=require&user="+username+"&password="+password;
-            connection= DriverManager.getConnection(url);
-            System.out.println("Connessione al database riuscita.");
+            String url = "jdbc:postgresql://wordageddon-cupomeridio.i.aivencloud.com:17446/" + dbname + "?ssl=require&user=" + username + "&password=" + password;
+            connection = DriverManager.getConnection(url);
+            LOGGER.info("Connessione al database riuscita.");
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, "Errore nella connessione al database.", e);
             throw new RuntimeException("Errore nella connessione al database.", e);
         }
 
@@ -74,19 +49,17 @@ public class Database {
             try {
                 if (connection != null && !connection.isClosed()) {
                     connection.close();
-                    System.out.println("Connessione al database chiusa.");
+                    LOGGER.info("Connessione al database chiusa.");
                 }
             } catch (SQLException ex) {
-                Logger.getLogger(Database.class.getName()).log(Level.SEVERE, null, ex);
+                LOGGER.log(Level.SEVERE, "Errore durante la chiusura della connessione al database.", ex);
             }
         }));
     }
 
     /**
      * Classe statica interna che contiene l'istanza Singleton della classe {@code Database}.
-     * <p>
      * L'istanza viene creata solo quando la classe {@code Holder} viene caricata, garantendo la thread safety.
-     * </p>
      */
     private static class Holder {
         private static final Database INSTANCE = new Database();
@@ -94,12 +67,8 @@ public class Database {
 
     /**
      * Restituisce l'istanza Singleton della classe {@code Database}.
-     * <p>
-     * Utilizza il pattern del Lazy Holder per garantire l'inizializzazione pigra e la thread safety
-     * senza la necessità di sincronizzazione esplicita.
-     * </p>
      *
-     * @return l'istanza Singleton della classe {@code Database}.
+     * @return Istanza Singleton della classe {@code Database}.
      */
     public static Database getInstance() {
         return Holder.INSTANCE;
@@ -108,7 +77,7 @@ public class Database {
     /**
      * Restituisce la connessione attiva al database.
      *
-     * @return la connessione {@link Connection} attiva al database.
+     * @return Connessione {@link Connection} attiva al database.
      */
     public Connection getConnection() {
         return connection;

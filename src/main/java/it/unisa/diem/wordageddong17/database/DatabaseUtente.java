@@ -3,7 +3,6 @@ package it.unisa.diem.wordageddong17.database;
 import it.unisa.diem.wordageddong17.interfaccia.DAOUtente;
 import it.unisa.diem.wordageddong17.model.TipoUtente;
 import it.unisa.diem.wordageddong17.model.Utente;
-import java.io.ByteArrayInputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -23,7 +22,14 @@ public class DatabaseUtente implements DAOUtente {
     private DatabaseUtente() {
         db = Database.getInstance();
     }
-
+    
+    /**
+     * Modifica il nome utente associato a una determinata email.
+     *
+     * @param email l'email dell'utente da modificare
+     * @param username il nuovo nome utente da impostare
+     * @return true se l'aggiornamento ha avuto successo, false altrimenti
+     */
     @Override
     public boolean modificaUsername(String email, String username) {
         String query = "UPDATE utente SET username=? WHERE email=?";
@@ -40,7 +46,16 @@ public class DatabaseUtente implements DAOUtente {
 
         return risultato;
     }
-
+    
+    /**
+     * Modifica la foto profilo dell'utente specificato dall'email.
+     * Se {@code fotoProfilo} è null, la foto profilo viene rimossa.
+     * L'operazione è eseguita in una transazione.
+     *
+     * @param email l'email dell'utente da aggiornare
+     * @param fotoProfilo un array di byte contenente la nuova foto profilo, oppure null per rimuoverla
+     * @return true se l'aggiornamento ha avuto successo, false altrimenti
+     */
     @Override
     public boolean modificaFotoProfilo(String email, byte[] fotoProfilo) {
         Connection conn = db.getConnection();
@@ -84,7 +99,15 @@ public class DatabaseUtente implements DAOUtente {
             }
         }
     }
-
+    
+    /**
+     * Recupera la foto profilo di un utente tramite la sua email.
+     *
+     * @param email l'email dell'utente
+     * @param conn la connessione al database da usare per la query
+     * @return un array di byte contenente la foto profilo, oppure null se non presente
+     * @throws SQLException in caso di errori durante l'accesso al database
+     */
     private byte[] getFotoProfilo(String email, Connection conn) throws SQLException {
         String sql = "SELECT foto_profilo FROM utente WHERE email = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -212,36 +235,28 @@ public class DatabaseUtente implements DAOUtente {
 
     
     /**
-    * 
-    * @brief Verifica corrispondenza tra password criptata e password in chiaro
-    * 
-    * @pre  la password!= null
-    * @post restituisce il risultato del confronto tra le 2 stringhe
-    * 
-    * 
-    * @param password è la password non criptata passata alla funzione 
-    * @param hashed è la password criptata passata alla funzione 
-    * @return  true se la password è uguale a hashed, se sono diverse false
-    */
-
+     * Verifica la corrispondenza tra una password in chiaro e una password criptata.
+     * La password non deve essere null.
+     * Restituisce true se la password in chiaro corrisponde alla password criptata, altrimenti false.
+     *
+     * @param password la password non criptata da verificare; non deve essere null
+     * @param hashed la password criptata con cui confrontare
+     * @return true se la password corrisponde a hashed, false altrimenti
+     */
     private boolean checkPassword(String password, String hashed) {
         return BCrypt.checkpw(password, hashed);
     }
     
     /**
      * Recupera un utente dal database in base all'email specificata.
-     * <p>
      * Esegue una query sulla tabella "utente" per recuperare le informazioni relative a:
-     * <ul>
-     *   <li><strong>username</strong> – il nome utente;</li>
-     *   <li><strong>email</strong> – l'indirizzo email;</li>
-     *   <li><strong>foto_profilo</strong> – i byte dell'immagine del profilo (possono essere {@code null});</li>
-     *   <li><strong>tipo</strong> – il tipo dell'utente, che verrà convertito in un oggetto {@link TipoUtente}.</li>
-     * </ul>
+     * - username: il nome utente;
+     * - email: l'indirizzo email;
+     * - foto_profilo: i byte dell'immagine del profilo (possono essere {@code null});
+     * - tipo: il tipo dell'utente, che verrà convertito in un oggetto {@link TipoUtente}.
      * Se il campo {@code foto_profilo} risulta {@code null}, verrà creato un oggetto {@code Utente} senza immagine.
      * Altrimenti, l'oggetto {@code Utente} verrà creato includendo l'immagine.
      * Se nessun record viene trovato, il metodo restituisce {@code null}.
-     * </p>
      *
      * @param email l'indirizzo email dell'utente da recuperare
      * @return un oggetto {@code Utente} contenente i dati dell'utente, oppure {@code null} se l'utente non viene trovato
@@ -286,8 +301,19 @@ public class DatabaseUtente implements DAOUtente {
         private static final DatabaseUtente INSTANCE = new DatabaseUtente();
     }
 
+    /**
+     * Restituisce l'unica istanza di {@code DatabaseUtente} secondo il pattern Singleton.
+     * <p>
+     * Il metodo garantisce che venga creata una sola istanza di {@code DatabaseUtente} durante 
+     * l'intera esecuzione dell'applicazione. L'istanza viene gestita tramite una classe interna statica,
+     * garantendo inizializzazione lazy e thread-safe.
+     * </p>
+     *
+     * @return l'istanza singleton di {@code DatabaseUtente}
+     */
     public static DatabaseUtente getInstance() {
         return Holder.INSTANCE;
     }
+
     
 }

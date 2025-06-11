@@ -12,17 +12,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Implementazione dell'interfaccia {@code DAOClassifica} per la gestione delle operazioni
- * di classifica nel database.
- * <p>
+ * Implementazione dell'interfaccia {@code DAOClassifica} per la gestione delle classifiche dei giocatori nel database.
+ *
  * Questa classe fornisce metodi per recuperare e gestire le classifiche dei giocatori
  * raggruppate per livello di difficoltà. Implementa il pattern Singleton per garantire
- * una sola istanza della classe e utilizza query SQL per calcolare
- * i migliori punteggi per ogni utente.
- * </p>
- * 
+ * una sola istanza della classe e utilizza query SQL per calcolare i migliori punteggi per ogni utente.
  */
-
 public class DatabaseClassifica implements DAOClassifica {
     
     /**
@@ -30,35 +25,25 @@ public class DatabaseClassifica implements DAOClassifica {
      */
     private Database db;  
     
-    
     /**
      * Costruttore privato della classe DatabaseClassifica.
-     * <p>
      * Inizializza l'istanza del database utilizzando il pattern Singleton.
      * Il costruttore è privato per garantire l'implementazione del pattern Singleton.
-     * </p>
      */
-    
     private DatabaseClassifica(){
         db= Database.getInstance();
     }
     
-    
     /**
      * Recupera la classifica dei giocatori per un determinato livello di difficoltà.
-     * <p>
      * Questo metodo esegue una query SQL che raggruppa i punteggi per utente
      * e difficoltà, selezionando il miglior punteggio e la data più recente per ogni giocatore.
      * La classifica viene ordinata in ordine decrescente per punteggio.
-     * </p>
-     * 
-     * @param difficolta il livello di difficoltà per cui recuperare la classifica.
-     *                 
+     *
+     * @param difficolta il livello di difficoltà per cui recuperare la classifica
      * @return una lista di oggetti {@code Classifica} ordinata per punteggio decrescente.
      *         Restituisce una lista vuota se non ci sono punteggi per la difficoltà specificata
      */
-
-    
     @Override
     public List<Classifica> prendiClassifica(LivelloPartita difficolta) {
         List<Classifica> L = new ArrayList<>();
@@ -89,9 +74,7 @@ public class DatabaseClassifica implements DAOClassifica {
     
     /**
      * Classe statica interna che contiene l'istanza Singleton della classe {@code Database}.
-     * <p>
      * L'istanza viene creata solo quando la classe {@code Holder} viene caricata, garantendo la thread safety.
-     * </p>
      */
     private static class Holder {
         private static final DatabaseClassifica INSTANCE = new DatabaseClassifica();
@@ -99,10 +82,8 @@ public class DatabaseClassifica implements DAOClassifica {
     
     /**
      * Restituisce l'istanza Singleton della classe {@code Database}.
-     * <p>
      * Utilizza il pattern del Lazy Holder per garantire l'inizializzazione pigra e la thread safety
      * senza la necessità di sincronizzazione esplicita.
-     * </p>
      *
      * @return l'istanza Singleton della classe {@code Database}.
      */
@@ -112,12 +93,11 @@ public class DatabaseClassifica implements DAOClassifica {
     
     /**
      * Recupera la cronologia delle partite per l'utente specificato.
-     * <p>
+     * 
      * Esegue una query sul database per ottenere i record relativi alle partite giocate dall'utente identificato dall'email.
      * La query effettua un JOIN tra le tabelle "punteggio" e "utente" per recuperare l'username, la data, il punteggio ed
      * la difficoltà della partita, ordinando i record in ordine decrescente per data.
      * Ogni risultato viene mappato in un oggetto {@link Classifica} e aggiunto a una lista.
-     * </p>
      *
      * @param email l'email dell'utente per cui si vuole recuperare la cronologia delle partite
      * @return una lista di oggetti {@link Classifica} contenente i dati della cronologia delle partite;
@@ -152,10 +132,8 @@ public class DatabaseClassifica implements DAOClassifica {
 
     /**
      * Recupera il numero di partite giocate da un utente per una determinata difficoltà.
-     * <p>
      * Esegue una query sul database che conta il numero di record nella tabella "punteggio"
      * per l'utente identificato dall'email e per il livello di difficoltà specificato.
-     * </p>
      *
      * @param email l'email dell'utente
      * @param difficoltà la difficoltà per cui contare le partite (ad esempio, "facile", "medio", "difficile")
@@ -183,10 +161,8 @@ public class DatabaseClassifica implements DAOClassifica {
 
     /**
      * Recupera il miglior punteggio ottenuto da un utente per una specifica difficoltà.
-     * <p>
      * Esegue una query che seleziona il massimo punteggio (usando la funzione aggregate MAX)
      * dalla tabella "punteggio" per l'utente identificato dall'email e in base al livello di difficoltà.
-     * </p>
      *
      * @param email l'email dell'utente
      * @param difficoltà la difficoltà per cui recuperare il miglior punteggio (ad esempio, "facile", "medio", "difficile")
@@ -214,11 +190,9 @@ public class DatabaseClassifica implements DAOClassifica {
 
     /**
      * Inserisce un nuovo punteggio nel database per un determinato utente.
-     * <p>
      * Esegue una query di inserimento (INSERT) nella tabella "punteggio" utilizzando i parametri:
      * l'email dell'utente, il punteggio ottenuto e il livello di difficoltà della partita.
      * Il livello di difficoltà viene convertito nel suo valore di database tramite {@code getDbValue()}.
-     * </p>
      *
      * @param email l'email dell'utente che ha ottenuto il punteggio
      * @param punteggio il punteggio da inserire nel database

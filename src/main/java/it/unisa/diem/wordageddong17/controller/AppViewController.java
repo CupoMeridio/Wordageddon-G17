@@ -901,6 +901,7 @@ public class AppViewController implements Initializable {
      *   <li>{@code dashboardMenu}</li>
      *   <li>{@code schermataInfoUtente}</li>
      *   <li>{@code schermataStopwords}</li>
+     * <li>{@code schermataDocumentiAdmin}</li>
      *   <li>{@code gestioneDocumentiView}</li>
      * </ul>
      * Una volta eseguito, tutte le schermate saranno completamente nascoste dall'interfaccia.
@@ -914,6 +915,7 @@ public class AppViewController implements Initializable {
         dashboardMenu.setVisible(false);
         schermataInfoUtente.setVisible(false);
         schermataStopwords.setVisible(false);
+        schermataDocumentiAdmin.setVisible(false);
         gestioneDocumentiView.setVisible(false);
     }
 

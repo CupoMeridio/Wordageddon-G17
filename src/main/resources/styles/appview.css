@@ -97,8 +97,6 @@
     -fx-padding: 32px;
     -fx-background-radius: 22px;
     -fx-effect: dropshadow(gaussian, #b6ccfe, 16, 0.15, 0, 2);
-    /* Glass effect (opzionale): */
-    /* -fx-background-color: rgba(255,255,255,0.6); */
 }
 
 .anchor-pane {

@@ -317,7 +317,6 @@ public class AppViewController implements Initializable {
     private Button saveButton;
     @FXML
     private Button backToGestDoc;
-
     
     // ========== ATTRIBUTI PRIVATI ==========
 

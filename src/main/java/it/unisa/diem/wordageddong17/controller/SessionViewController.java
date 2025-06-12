@@ -28,6 +28,7 @@ import javafx.util.Duration;
 import it.unisa.diem.wordageddong17.model.SessioneDiGioco;
 import it.unisa.diem.wordageddong17.service.CaricaPunteggioService;
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -114,9 +115,18 @@ public class SessionViewController implements Initializable {
      */
     @Override
    public void initialize(URL url, ResourceBundle rb) {
+    this.resocontoDomande.setEditable(false);
+    this.resocontoDomande.setFocusTraversable(false);
+    this.resocontoDomande.setOnKeyPressed(e -> e.consume());
+    this.resocontoDomande.setOnKeyTyped(e -> e.consume());
+    this.resocontoDomande.setOnKeyReleased(e -> e.consume());
+    
     this.TestoDaLeggere.setEditable(false);
-    this.TestoDaLeggere.setMouseTransparent(true);
     this.TestoDaLeggere.setFocusTraversable(false);
+    
+    // Impedisce la modifica ma mantiene lo scroll
+    this.TestoDaLeggere.setStyle("-fx-text-input-disabled: true;");
+    
     this.FaseRisposte.setVisible(false);
     this.schermataGameOver.setVisible(false);
     this.FaseLettura.setVisible(true);
@@ -182,8 +192,9 @@ public class SessionViewController implements Initializable {
     private void cambioTesto() {
         this.NomiDocumenti = this.sessione.getDocumenti().keySet().toArray(new String[0]);
         System.out.println("MappaDocumenti: " + MappaDocumenti);
-        this.TestoDaLeggere.textProperty().setValue(new String(MappaDocumenti.get(NomiDocumenti[this.NumeroDiTesto])));
-        //this.NumeroDiTesto++;
+        this.TestoDaLeggere.textProperty().setValue(
+            new String(MappaDocumenti.get(NomiDocumenti[this.NumeroDiTesto]), StandardCharsets.UTF_8)
+        );
         System.out.println("NumeroDiTesto :" + NumeroDiTesto + " this.NomiDocumenti.length: " + this.NomiDocumenti.length);
         this.contatoreLettura.setText(this.NumeroDiTesto + 1 + "/" + this.NomiDocumenti.length);
     }

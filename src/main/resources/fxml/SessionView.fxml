@@ -15,7 +15,10 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<StackPane xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unisa.diem.wordageddong17.controller.SessionViewController">
+<StackPane xmlns="http://javafx.com/javafx/23.0.1"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="it.unisa.diem.wordageddong17.controller.SessionViewController"
+           stylesheets="@../styles/appview.css">
    <children>
       <HBox fx:id="FaseRisposte" alignment="CENTER" visible="false">
          <children>
@@ -48,7 +51,16 @@
       </HBox>
       <VBox fx:id="FaseLettura" alignment="CENTER" visible="false">
          <children>
-            <TextArea fx:id="TestoDaLeggere" editable="false" prefHeight="314.0" prefWidth="564.0" promptText="testo" wrapText="true" />
+            <TextArea fx:id="TestoDaLeggere"
+                      editable="false"
+                      wrapText="true"
+                      prefHeight="300"
+                      maxHeight="400"
+                      minHeight="150"
+                      prefWidth="800"
+                      maxWidth="900"
+                      minWidth="300"
+                      VBox.vgrow="NEVER"/>
             <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
                <children>
                   <Button fx:id="TestoPrecedentebutton" mnemonicParsing="false" onAction="#TestoPrecedente" text="Testo Precedente" />
@@ -76,7 +88,7 @@
                   <Insets top="10.0" />
                </VBox.margin>
                <image>
-                  <Image url="@../imgs/highScore.jpg" />
+                  <Image url="@../imgs/highScore.png" />
                </image>
             </ImageView>
             <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
@@ -96,7 +108,7 @@
                   </Label>
                </children>
             </HBox>
-            <TextArea fx:id="resocontoDomande" prefHeight="200.0" prefWidth="200.0" wrapText="true" />
+            <TextArea fx:id="resocontoDomande" wrapText="true" VBox.vgrow="ALWAYS"/>
             <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
                <children>
                   <Button fx:id="continuaGiocoButton" mnemonicParsing="false" onAction="#continuaGioco" text="Continua a giocare">
@@ -113,19 +125,19 @@
             </HBox>
          </children>
       </VBox>
-      <AnchorPane fx:id="loadingOverlay" style="-fx-background-color: rgba(0, 0, 0, 0.7);" visible="false">
-         <children>
+      <AnchorPane fx:id="loadingOverlay" visible="false" mouseTransparent="true" style="-fx-background-color: rgba(0,0,0,0.7);">
+        <children>
             <VBox alignment="CENTER" spacing="10.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-               <children>
-                  <Label style="-fx-text-fill: white;" text="Caricamento in corso...">
-                     <font>
-                        <Font size="24.0" />
-                     </font>
-                  </Label>
-                  <ProgressBar fx:id="progessBar" prefWidth="200.0" progress="0.0" />
-               </children>
+                <children>
+                    <Label style="-fx-text-fill: white; -fx-font-size: 28px; -fx-font-weight: bold; -fx-effect: dropshadow(gaussian, #22223b88, 4, 0.4, 0, 2);" text="Caricamento in corso...">
+                        <font>
+                            <Font size="28.0" />
+                        </font>
+                    </Label>
+                    <ProgressBar fx:id="progessBar" prefWidth="200.0" progress="0.0" />
+                </children>
             </VBox>
-         </children>
+        </children>
       </AnchorPane>
    </children>
 </StackPane>

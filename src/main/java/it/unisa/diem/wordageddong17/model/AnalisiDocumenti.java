@@ -43,7 +43,7 @@ public class AnalisiDocumenti implements Serializable {
      * Struttura: NomeDocumento -> (Parola -> Frequenza)
      */
     private Map<String, Map<String, Integer>> Matrice;
-
+    
     /** Array di byte contenente le stop words da escludere nell'analisi */
     private byte[] stopWords;
 
@@ -125,7 +125,7 @@ public class AnalisiDocumenti implements Serializable {
      * @return {@code true} se la parola è una stop word, {@code false} altrimenti
      */
     public boolean appartenenzaStopWords(String parola) {
-        System.out.println("this.stopWords: " + this.stopWords);
+        //System.out.println("this.stopWords: " + this.stopWords);
 
         if (this.stopWords != null) {
             String stringheStopWords = new String(this.stopWords);
@@ -217,10 +217,11 @@ public class AnalisiDocumenti implements Serializable {
      * 
      * In caso di errori durante il caricamento, viene registrato un log di errore.
      */
+    @SuppressWarnings("unchecked")
     public void mergeTraMatriceeSalvataggio(){
     
          try( ObjectInputStream o = new ObjectInputStream(new FileInputStream("salvaMatrice.ser"))){
-           @SuppressWarnings("unchecked")
+
            HashMap<String, Map<String, Integer>> MatriceDiAppoggio= (HashMap<String, Map<String, Integer>>) o.readObject();
            
            MatriceDiAppoggio.entrySet().stream().forEach(e-> this.aggiungiDocumento(e.getKey(), e.getValue()));

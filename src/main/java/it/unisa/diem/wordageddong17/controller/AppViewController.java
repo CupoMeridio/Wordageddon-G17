@@ -72,6 +72,10 @@ import it.unisa.diem.wordageddong17.service.PrendiStopWordsService;
 import it.unisa.diem.wordageddong17.service.PrendiTestoService;
 import it.unisa.diem.wordageddong17.service.PrendiTuttiIDocumentiService;
 import it.unisa.diem.wordageddong17.service.PrendiUtenteService;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -318,6 +322,8 @@ public class AppViewController implements Initializable {
     private Button saveButton;
     @FXML
     private Button backToGestDoc;
+    @FXML
+    private Button indietroSelezione;
     
     // ========== ATTRIBUTI PRIVATI ==========
 
@@ -339,8 +345,7 @@ public class AppViewController implements Initializable {
     private CaricaTestoService cts = new CaricaTestoService();
     private PrendiTestoService pts = new PrendiTestoService();
     private ModificaFotoProfiloService mfps = new ModificaFotoProfiloService();
-    @FXML
-    private Button indietroSelezione;
+
 
     
     
@@ -792,73 +797,95 @@ public class AppViewController implements Initializable {
      */
     @FXML
     private void registerButtonOnAction(ActionEvent event) {
-       if  (username.getText().isEmpty() || email.getText().isEmpty() || password.getText().isEmpty() || repeatPassword.getText().isEmpty()) {
-           mostraAlert("Errore", "Tutti i campi sono obbligatori.", Alert.AlertType.WARNING);
-           return;
-       }
-       if (!isValidEmail(email.getText())) {
-           mostraAlert("Email non valida", "L'email inserita non è valida.", Alert.AlertType.ERROR);
-           return;
-       }
-       this.pus.setEmail(email.getText());
-       pus.start();
-
-       pus.setOnSucceeded(e -> {
-           if (pus.getValue() != null) {
-               mostraAlert("Email già utilizzata", "Questa email è già associata a un altro account.", Alert.AlertType.ERROR);
-               this.resetService(pus);
-               return;
-           }
-       });
-
-       if (!password.getText().equals(repeatPassword.getText())) {
-           mostraAlert("Password non corrispondenti", "Le due password inserite non corrispondono", Alert.AlertType.ERROR);
-           return;
-       }
-
-       byte[] immagineBytes = null;
-       Image immagine = imageView.getImage();
-       if (immagine != null && immagine.getUrl() != null && !immagine.getUrl().contains("person.png")) {
-           try {
-               String url = immagine.getUrl().replace("file:", "");
-               immagineBytes = Files.readAllBytes(new File(url).toPath());
-           } catch (IOException e) {
-               mostraAlert("Errore", "Errore nella lettura dell'immagine", Alert.AlertType.ERROR);
-               return;
-           }
-       }
-
-       this.ius.setEmail(email.getText());
-       this.ius.setUsername(username.getText());
-       this.ius.setImmagineBytes(immagineBytes);
-       this.ius.setPassword(password.getText());
-
-       ius.setOnFailed(e -> {
-            mostraAlert("Errore", "Errore durante la registrazione. ", Alert.AlertType.ERROR);
-            this.resetService(ius);
+        if  (username.getText().isEmpty() || email.getText().isEmpty() || password.getText().isEmpty() || repeatPassword.getText().isEmpty()) {
+            mostraAlert("Errore", "Tutti i campi sono obbligatori.", Alert.AlertType.WARNING);
             return;
-       });
-       ius.start();
+        }
+        if (!isValidEmail(email.getText())) {
+            mostraAlert("Email non valida", "L'email inserita non è valida.", Alert.AlertType.ERROR);
+            return;
+        }
+        this.pus.setEmail(email.getText());
+        pus.start();
 
-       // Crea l'utente una sola volta, a seconda che ci sia immagine o meno
-       Utente nuovoUtente;
-       if (immagineBytes == null) {
-           nuovoUtente = new Utente(username.getText(), email.getText(), TipoUtente.giocatore);
-           fotoProfilo.setImage(getPlaceholderImage());
-       } else {
-           nuovoUtente = new Utente(username.getText(), email.getText(), immagineBytes, TipoUtente.giocatore);
-           fotoProfilo.setImage(new Image(new ByteArrayInputStream(immagineBytes)));
-       }
-       appstate.setUtente(nuovoUtente);
+        pus.setOnSucceeded(e -> {
+            if (pus.getValue() != null) {
+                mostraAlert("Email già utilizzata", "Questa email è già associata a un altro account.", Alert.AlertType.ERROR);
+                this.resetService(pus);
+                return;
+            }
+        });
 
-       aggiornaFotoProfilo(immagineBytes);
-       configuraPulsantiAdmin();
+        if (!password.getText().equals(repeatPassword.getText())) {
+            mostraAlert("Password non corrispondenti", "Le due password inserite non corrispondono", Alert.AlertType.ERROR);
+            return;
+        }
 
-       chiudiTutto();
-       schermataHome.setVisible(true);
-       benvenutoLabel.setText("Benvenuto " + username.getText());
-       pulisciTutto();
-       mostraAlert("Registrazione completata", "Registrazione avvenuta con successo!", Alert.AlertType.INFORMATION);
+        byte[] immagineBytes = null;
+        Image immagine = imageView.getImage();
+        if (immagine != null && immagine.getUrl() != null && !immagine.getUrl().contains("person.png")) {
+        try {
+            String url = immagine.getUrl();
+
+            // Pattern per estrarre il percorso pulito
+            String path = url.replaceAll("^file:(/+)?", "");
+
+            // Decodifica caratteri speciali
+            path = URLDecoder.decode(path, StandardCharsets.UTF_8);
+
+            // Normalizza separatori su Windows
+            if (System.getProperty("os.name").toLowerCase().contains("win")) {
+                path = path.replace("/", "\\");
+            }
+
+            File file = new File(path);
+
+            if (!file.exists()) {
+                throw new IOException("File non trovato: " + file.getAbsolutePath());
+            }
+
+            if (!file.canRead()) {
+                throw new IOException("Permessi insufficienti per leggere il file");
+            }
+
+            immagineBytes = Files.readAllBytes(file.toPath());
+        } catch (IOException e) {
+            mostraAlert("Errore", e.getMessage(), Alert.AlertType.ERROR);
+            this.resetService(pus);
+            return;
+        }
+        this.ius.setEmail(email.getText());
+        this.ius.setUsername(username.getText());
+        this.ius.setImmagineBytes(immagineBytes);
+        this.ius.setPassword(password.getText());
+
+        ius.setOnFailed(e -> {
+             mostraAlert("Errore", "Errore durante la registrazione. ", Alert.AlertType.ERROR);
+             this.resetService(ius);
+             return;
+        });
+        ius.start();
+
+        // Crea l'utente una sola volta, a seconda che ci sia immagine o meno
+        Utente nuovoUtente;
+        if (immagineBytes == null) {
+            nuovoUtente = new Utente(username.getText(), email.getText(), TipoUtente.giocatore);
+            fotoProfilo.setImage(getPlaceholderImage());
+        } else {
+            nuovoUtente = new Utente(username.getText(), email.getText(), immagineBytes, TipoUtente.giocatore);
+            fotoProfilo.setImage(new Image(new ByteArrayInputStream(immagineBytes)));
+        }
+        appstate.setUtente(nuovoUtente);
+
+        aggiornaFotoProfilo(immagineBytes);
+        configuraPulsantiAdmin();
+
+        chiudiTutto();
+        schermataHome.setVisible(true);
+        benvenutoLabel.setText("Benvenuto " + username.getText());
+        pulisciTutto();
+        mostraAlert("Registrazione completata", "Registrazione avvenuta con successo!", Alert.AlertType.INFORMATION);
+        }
     }
 
 
@@ -1521,12 +1548,12 @@ public class AppViewController implements Initializable {
      * tramite {@code PropertyValueFactory}.  
      * Inoltre, richiama {@code initializeCronologiaFiltro()} per applicare eventuali filtri alla visualizzazione dei dati.
      */
-    @SuppressWarnings("unchecked")
+
     private void initializeCronologiaPartite() {
         Utente utente = appstate.getUtente();
         dataCronologiaPartite.setCellValueFactory(new PropertyValueFactory<>("data"));
         difficoltàCronologiaPartite.setCellValueFactory(new PropertyValueFactory<>("difficolta"));
-        punteggioCronologiaPartite.setCellValueFactory(new PropertyValueFactory("punti"));
+        punteggioCronologiaPartite.setCellValueFactory(new PropertyValueFactory<>("punti"));
         initializeCronologiaFiltro();
     }
 
@@ -1857,6 +1884,9 @@ public class AppViewController implements Initializable {
                         FileChooser fileChooser = new FileChooser();
                         fileChooser.setTitle("Salva documento");
                         fileChooser.setInitialFileName(doc.getNomeFile());
+                        fileChooser.getExtensionFilters().addAll(
+                                new FileChooser.ExtensionFilter("File di testo","*.txt")
+                        );
                         File fileDest = fileChooser.showSaveDialog(getTableView().getScene().getWindow());
 
                         if (fileDest != null) {

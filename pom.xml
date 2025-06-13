@@ -10,10 +10,6 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <javafx.version>17.0.2</javafx.version>
         <maven.compiler.release>17</maven.compiler.release>
-        <!-- Aggiunto per evitare warning Jansi -->
-        <jansi.version>2.4.1</jansi.version>
-        <!-- Aggiunto per evitare warning Guava -->
-        <guava.version>33.2.1-jre</guava.version>
     </properties>
     
     <dependencies>
@@ -56,12 +52,7 @@
             <version>3.2.0</version>
         </dependency>
         
-        <!-- Jansi esplicito per evitare warning -->
-        <dependency>
-            <groupId>org.fusesource.jansi</groupId>
-            <artifactId>jansi</artifactId>
-            <version>${jansi.version}</version>
-        </dependency>
+
         
 
     </dependencies>
@@ -111,14 +102,6 @@
                         </configuration>
                     </execution>
                 </executions>
-                <dependencies>
-                    <!-- Aggiorna Guava per evitare warning Unsafe -->
-                    <dependency>
-                        <groupId>com.google.guava</groupId>
-                        <artifactId>guava</artifactId>
-                        <version>${guava.version}</version>
-                    </dependency>
-                </dependencies>
             </plugin>
             
             <!-- Configurazione del compilatore Maven -->

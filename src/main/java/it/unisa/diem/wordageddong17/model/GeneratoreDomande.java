@@ -1,6 +1,7 @@
 package it.unisa.diem.wordageddong17.model;
 
 import java.io.Serializable;
+import java.sql.Array;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -124,10 +125,17 @@ public class GeneratoreDomande {
         return new Domanda(testo, opzioni, idx);
     }
 
-    /**
-     * Dizionario necessario per l'implementazione di domandaParolaMaiComparsa
-     */
-    private static final List<String> DIZIONARIO_PAROLE = Arrays.asList(
+   /**
+    * Dizionario multilingua per domandaParolaMaiComparsa
+    * (Parole convertite in minuscolo per coerenza)
+    */
+    private static final Map<Lingua, List<String>> DIZIONARIO_PAROLE = new EnumMap<>(Lingua.class);
+    static {
+        // Dizionario italiano (convertito in minuscolo)
+
+
+        // Italiano
+        List<String> italiano = Arrays.asList(
             "CASA", "LIBRO", "TAVOLO", "SEDIA", "FINESTRA", "PORTA", "GIARDINO", "ALBERO",
             "FIORE", "SOLE", "LUNA", "STELLA", "MARE", "MONTAGNA", "FIUME", "LAGO",
             "CANE", "GATTO", "UCCELLO", "PESCE", "CAVALLO", "MUCCA", "PECORA", "MAIALE",
@@ -141,61 +149,144 @@ public class GeneratoreDomande {
             "PARLARE", "SENTIRE", "VEDERE", "TOCCARE", "ANNUSARE", "PENSARE", "RICORDARE", "DIMENTICARE",
             "AMORE", "ODIO", "FELICITÀ", "TRISTEZZA", "PAURA", "CORAGGIO", "SPERANZA", "DISPERAZIONE",
             "AMICO", "NEMICO", "FAMIGLIA", "MADRE", "PADRE", "FIGLIO", "FIGLIA", "FRATELLO", "SORELLA",
-            "TEMPO", "SPAZIO", "VITA", "MORTE", "NASCITA", "CRESCITA", "CAMBIAMENTO", "STABILITÀ"
-    );
+            "TEMPO", "SPAZIO", "VITA", "MORTE", "NASCITA", "CRESCITA", "CAMBIO", "STABILITÀ"
+        );
+        DIZIONARIO_PAROLE.put(Lingua.ITALIANO, italiano);
 
-    /**
-     * Genera una domanda su una parola che NON compare nel documento. Esempio:
-     * "Quale di queste parole NON è presente nel documento?"
-     *
-     * @param nomeDocumento Nome del documento su cui basare la domanda
-     * @return Oggetto Domanda, oppure null se non riesce a trovare parole non
-     * presenti
-     */
-    private Domanda domandaParolaMaiComparsa(String nomeDocumento) {
-        Map<String, Integer> parole = analisi.restituisciDocumento(nomeDocumento);
-        if (parole == null || parole.isEmpty()) {
-            return null;
-        }
+        // Inglese
+        List<String> inglese = Arrays.asList(
+            "HOUSE", "BOOK", "COMPUTER", "CHAIR", "WINDOW", "DOOR", "GARDEN", "TREE",
+            "FLOWER", "SUN", "MOON", "STAR", "OCEAN", "MOUNTAIN", "RIVER", "LAKE",
+            "DOG", "CAT", "BIRD", "FISH", "HORSE", "COW", "SHEEP", "PIG",
+            "CAR", "TRAIN", "AIRPLANE", "BICYCLE", "MOTORCYCLE", "SHIP", "BUS", "SUBWAY",
+            "SCHOOL", "UNIVERSITY", "HOSPITAL", "CINEMA", "THEATER", "MUSEUM", "LIBRARY",
+            "RESTAURANT", "CAFE", "STORE", "MARKET", "BANK", "OFFICE", "FACTORY",
+            "RED", "BLUE", "GREEN", "YELLOW", "BLACK", "WHITE", "GRAY", "PURPLE",
+            "BIG", "SMALL", "TALL", "SHORT", "LONG", "BRIEF", "FAST", "SLOW",
+            "BEAUTIFUL", "UGLY", "GOOD", "BAD", "EASY", "HARD", "NEW", "OLD",
+            "EAT", "DRINK", "SLEEP", "WALK", "RUN", "JUMP", "FLY", "SWIM",
+            "TALK", "HEAR", "SEE", "TOUCH", "SMELL", "THINK", "REMEMBER", "FORGET",
+            "LOVE", "HATE", "HAPPINESS", "SADNESS", "FEAR", "COURAGE", "HOPE", "DESPAIR",
+            "FRIEND", "ENEMY", "FAMILY", "MOTHER", "FATHER", "SON", "DAUGHTER", "BROTHER", "SISTER",
+            "TIME", "SPACE", "LIFE", "DEATH", "BIRTH", "GROWTH", "CHANGE", "STABILITY"
+        );
+        DIZIONARIO_PAROLE.put(Lingua.INGLESE, inglese);
 
-        List<String> paroleNonPresenti = DIZIONARIO_PAROLE.stream()
-                .filter(parola -> !parole.containsKey(parola.toLowerCase()))
-                .collect(Collectors.toList());
+        // Francese
+        List<String> francese = Arrays.asList(
+            "MAISON", "LIVRE", "TABLE", "CHAISE", "FENÊTRE", "PORTE", "JARDIN", "ARBRE",
+            "FLEUR", "SOLEIL", "LUNE", "ÉTOILE", "MER", "MONTAGNE", "RIVIÈRE", "LAC",
+            "CHIEN", "CHAT", "OISEAU", "POISSON", "CHEVAL", "VACHE", "MOUTON", "COCHON",
+            "VOITURE", "TRAIN", "AVION", "VÉLO", "MOTO", "BATEAU", "BUS", "MÉTRO",
+            "ÉCOLE", "UNIVERSITÉ", "HÔPITAL", "CINÉMA", "THÉÂTRE", "MUSÉE", "BIBLIOTHÈQUE",
+            "RESTAURANT", "CAFÉ", "MAGASIN", "MARCHÉ", "BANQUE", "BUREAU", "USINE",
+            "ROUGE", "BLEU", "VERT", "JAUNE", "NOIR", "BLANC", "GRIS", "VIOLET",
+            "GRAND", "PETIT", "HAUT", "BAS", "LONG", "COURT", "RAPIDE", "LENT",
+            "BEAU", "LAID", "BON", "MAUVAIS", "FACILE", "DIFFICILE", "NOUVEAU", "VIEUX",
+            "MANGER", "BOIRE", "DORMIR", "MARCHER", "COURIR", "SAUTER", "VOLER", "NAGER",
+            "PARLER", "ENTENDRE", "VOIR", "TOUCHER", "SENTIR", "PENSER", "SOUVENIR", "OUBLIER",
+            "AMOUR", "HAINE", "BONHEUR", "TRISTESSE", "PEUR", "COURAGE", "ESPOIR", "DÉSESPOIR",
+            "AMI", "ENNEMI", "FAMILLE", "MÈRE", "PÈRE", "FILS", "FILLE", "FRÈRE", "SŒUR",
+            "TEMPS", "ESPACE", "VIE", "MORT", "NAISSANCE", "CROISSANCE", "CHANGEMENT", "STABILITÉ"
+        );
+        DIZIONARIO_PAROLE.put(Lingua.FRANCESE, francese);
 
-        if (paroleNonPresenti.isEmpty()) {
-            return null;
-        }
+        // Tedesco
+        List<String> tedesco = Arrays.asList(
+            "HAUS", "BUCH", "TISCH", "STUHL", "FENSTER", "TÜR", "GARTEN", "BAUM",
+            "BLUME", "SONNE", "MOND", "STERN", "MEER", "BERG", "FLUSS", "SEE",
+            "HUND", "KATZE", "VOGEL", "FISCH", "PFERD", "KUH", "SCHAF", "SCHWEIN",
+            "AUTO", "ZUG", "FLUGZEUG", "FAHRRAD", "MOTORRAD", "SCHIFF", "BUS", "BAHN",
+            "SCHULE", "UNIVERSITÄT", "KRANKENHAUS", "KINO", "THEATER", "MUSEUM", "BIBLIOTHEK",
+            "RESTAURANT", "CAFÉ", "GESCHÄFT", "MARKT", "BANK", "BÜRO", "FABRIK",
+            "ROT", "BLAU", "GRÜN", "GELB", "SCHWARZ", "WEIß", "GRAU", "LILA",
+            "GROß", "KLEIN", "HOCH", "NIEDRIG", "LANG", "KURZ", "SCHNELL", "LANGSAM",
+            "SCHÖN", "HÄSSLICH", "GUT", "SCHLECHT", "EINFACH", "SCHWIERIG", "NEU", "ALT",
+            "ESSEN", "TRINKEN", "SCHLAFEN", "GEHEN", "LAUFEN", "SPRINGEN", "FLIEGEN", "SCHWIMMEN",
+            "SPRECHEN", "HÖREN", "SEHEN", "BERÜHREN", "RIECHEN", "DENKEN", "ERINNERN", "VERGESSEN",
+            "LIEBE", "HASS", "GLÜCK", "TRAURIGKEIT", "ANGST", "MUT", "HOFFNUNG", "VERZWEIFLUNG",
+            "FREUND", "FEIND", "FAMILIE", "MUTTER", "VATER", "SOHN", "TOCHTER", "BRUDER", "SCHWESTER",
+            "ZEIT", "RAUM", "LEBEN", "TOD", "GEBURT", "WACHSTUM", "ÄNDERUNG", "STABILITÄT"
+        );
+        DIZIONARIO_PAROLE.put(Lingua.TEDESCO, tedesco);
 
-        String parolaNonPresente = paroleNonPresenti.get(rnd.nextInt(paroleNonPresenti.size()));
-
-        List<String> opzioni = new ArrayList<>();
-        opzioni.add(parolaNonPresente);
-
-        List<String> parolePresenti = new ArrayList<>(parole.keySet());
-        Collections.shuffle(parolePresenti);
-
-        for (int i = 0; i < 3 && i < parolePresenti.size(); i++) {
-            opzioni.add(parolePresenti.get(i));
-        }
-
-        while (opzioni.size() < 4 && paroleNonPresenti.size() > 1) {
-            String altraParola = paroleNonPresenti.get(rnd.nextInt(paroleNonPresenti.size()));
-            if (!opzioni.contains(altraParola)) {
-                opzioni.add(altraParola);
-            }
-        }
-
-        if (opzioni.size() < 4) {
-            return null;
-        }
-
-        Collections.shuffle(opzioni);
-        int idx = opzioni.indexOf(parolaNonPresente);
-        
-        String nomeSenzaEstensione = nomeDocumento.endsWith(".txt") ? nomeDocumento.substring(0, nomeDocumento.lastIndexOf(".txt")) : nomeDocumento;
-        String testo = String.format("Quale di queste parole NON è presente nel documento \"%s\"?", nomeSenzaEstensione);
-        return new Domanda(testo, opzioni, idx);
+        // Spagnolo
+        List<String> spagnolo = Arrays.asList(
+            "CASA", "LIBRO", "MESA", "SILLA", "VENTANA", "PUERTA", "JARDÍN", "ÁRBOL",
+            "FLOR", "SOL", "LUNA", "ESTRELLA", "MAR", "MONTAÑA", "RÍO", "LAGO",
+            "PERRO", "GATO", "PÁJARO", "PEZ", "CABALLO", "VACA", "OVEJA", "CERDO",
+            "COCHE", "TREN", "AVIÓN", "BICICLETA", "MOTO", "BARCO", "AUTOBÚS", "TRANVÍA",
+            "ESCUELA", "UNIVERSIDAD", "HOSPITAL", "CINE", "TEATRO", "MUSEO", "BIBLIOTECA",
+            "RESTAURANTE", "CAFETERÍA", "TIENDA", "MERCADO", "BANCO", "OFICINA", "FÁBRICA",
+            "ROJO", "AZUL", "VERDE", "AMARILLO", "NEGRO", "BLANCO", "GRIS", "MORADO",
+            "GRANDE", "PEQUEÑO", "ALTO", "BAJO", "LARGO", "CORTO", "RÁPIDO", "LENTO",
+            "HERMOSO", "FEO", "BUENO", "MALO", "FÁCIL", "DIFÍCIL", "NUEVO", "VIEJO",
+            "COMER", "BEBER", "DORMIR", "CAMINAR", "CORRER", "SALTAR", "VOLAR", "NADAR",
+            "HABLAR", "OÍR", "VER", "TOCAR", "OLER", "PENSAR", "RECORDAR", "OLVIDAR",
+            "AMOR", "ODIO", "FELICIDAD", "TRISTEZA", "MIEDO", "CORAGE", "ESPERANZA", "DESESPERACIÓN",
+            "AMIGO", "ENEMIGO", "FAMILIA", "MADRE", "PADRE", "HIJO", "HIJA", "HERMANO", "HERMANA",
+            "TIEMPO", "ESPACIO", "VIDA", "MUERTE", "NACIMIENTO", "CRECIMIENTO", "CAMBIO", "ESTABILIDAD"
+        );
+        DIZIONARIO_PAROLE.put(Lingua.SPAGNOLO, spagnolo);
     }
+
+    
+    /**
+    * Genera una domanda su una parola assente nel documento.
+    * 
+    * @param nomeDocumento Nome del documento da analizzare
+    * @param l Lingua del documento
+    * @return Oggetto Domanda o null se non possibile generare
+    */
+   private Domanda domandaParolaMaiComparsa(String nomeDocumento, Lingua l) {
+       Map<String, Integer> parole = analisi.restituisciDocumento(nomeDocumento);
+       if (parole == null || parole.isEmpty()) {
+           return null;
+       }
+
+       // Controlla se la lingua è supportata
+       if (!DIZIONARIO_PAROLE.containsKey(l)) {
+           return null;
+       }
+       List<String> dizionario = DIZIONARIO_PAROLE.get(l);
+
+       // Trova parole del dizionario non presenti nel documento
+       List<String> paroleAssenti = dizionario.stream()
+               .filter(parola -> !parole.containsKey(parola))
+               .collect(Collectors.toList());
+
+       if (paroleAssenti.isEmpty()) {
+           return null;
+       }
+
+       // Seleziona una parola assente casuale
+       String parolaCorretta = paroleAssenti.get(rnd.nextInt(paroleAssenti.size()));
+
+       // Prepara le opzioni (1 assente + 3 presenti)
+       List<String> opzioni = new ArrayList<>();
+       opzioni.add(parolaCorretta); // Parola assente
+
+       // Seleziona 3 parole presenti dal documento
+       List<String> parolePresenti = new ArrayList<>(parole.keySet());
+       if (parolePresenti.size() < 3) {
+           return null; // Non abbastanza parole presenti
+       }
+       Collections.shuffle(parolePresenti);
+       opzioni.addAll(parolePresenti.subList(0, 3));
+
+       // Mescola le opzioni e trova l'indice della risposta corretta
+       Collections.shuffle(opzioni);
+       int indiceCorretto = opzioni.indexOf(parolaCorretta);
+
+       // Costruisci il testo della domanda
+       String nomeDoc = nomeDocumento.replace(".txt", "");
+       String testoDomanda = String.format(
+           "Quale di queste parole NON è presente nel documento \"%s\"?",
+           nomeDoc
+       );
+
+       return new Domanda(testoDomanda, opzioni, indiceCorretto);
+   }
 
     /**
      * Genera una domanda di confronto tra frequenze di parole. "Quale tra
@@ -262,7 +353,7 @@ public class GeneratoreDomande {
      * @param nomeDocumento il nome del documento da cui estrarre le domande
      * @return una lista di oggetti {@link Domanda}
      */
-    public List<Domanda> getRaccoltaDiDomande(int num, String nomeDocumento) {
+    public List<Domanda> getRaccoltaDiDomande(int num, String nomeDocumento, Lingua l) {
         List<Domanda> lista = new ArrayList<>();
         for (int i = 0; i < num; i++) {
             switch (this.rnd.nextInt(5)) {
@@ -277,7 +368,7 @@ public class GeneratoreDomande {
                     lista.add(this.domandaParolaMenoFrequente(nomeDocumento));
                     break;
                 case 3:
-                    lista.add(this.domandaParolaMaiComparsa(nomeDocumento));
+                    lista.add(this.domandaParolaMaiComparsa(nomeDocumento, l));
                     break;
 
                 default:

@@ -133,7 +133,7 @@ public class CaricaSessioneDiGiocoService extends Service<List<GeneratoreDomande
      * @return Una lista di domande generate.
      * @throws MancanzaDiDocumenti Se non ci sono documenti disponibili.
      */
-    public List<GeneratoreDomande.Domanda> generaDomande(Map<String, byte[]> Documenti, AnalisiDocumenti analisi, int numeroDomande) throws MancanzaDiDocumenti {
+    public List<GeneratoreDomande.Domanda> generaDomande(Map<String, byte[]> Documenti, AnalisiDocumenti analisi, int numeroDomande,Map<String, Lingua> docFiltrati) throws MancanzaDiDocumenti {
         GeneratoreDomande gen = new GeneratoreDomande(analisi);
         String[] nomiDocumenti = Documenti.keySet().toArray(new String[0]);
         
@@ -146,7 +146,7 @@ public class CaricaSessioneDiGiocoService extends Service<List<GeneratoreDomande
         int documentiExtra = numeroDomande % nomiDocumenti.length;
         
         for (int i = 0; i < nomiDocumenti.length; i++) {
-            Domande.addAll(gen.getRaccoltaDiDomande(domandePerDocumento + (i < documentiExtra ? 1 : 0), nomiDocumenti[i]));
+            Domande.addAll(gen.getRaccoltaDiDomande(domandePerDocumento + (i < documentiExtra ? 1 : 0), nomiDocumenti[i],docFiltrati.get(nomiDocumenti[i])));
         }
         return Domande;
     }
@@ -167,16 +167,19 @@ public class CaricaSessioneDiGiocoService extends Service<List<GeneratoreDomande
                 updateProgress(30, 100);
                 analisi.setStopWords(dbSW.PrendiStopwords("ListaStopwords"));
                 updateProgress(40, 100);
-                Map<String, byte[]> Documenti = prendiDocumentiCasuali(dbDT.prendiNomiDocumentiFiltrati(livello, lingua), livello);
+                Map<String, Lingua> docFiltrati = dbDT.prendiNomiDocumentiFiltrati(livello, lingua);
+                ArrayList<String> nomiDoc = new ArrayList<>(docFiltrati.keySet());
+                Map<String, byte[]> Documenti = prendiDocumentiCasuali(nomiDoc, livello);
                 sessione.setDocumenti(Documenti);
                 updateProgress(65, 100);
-                List<GeneratoreDomande.Domanda> Domande = generaDomande(sessione.getDocumenti(), analisi, sessione.getNumeroDomande());
+                List<GeneratoreDomande.Domanda> Domande = generaDomande(sessione.getDocumenti(), analisi, sessione.getNumeroDomande(),docFiltrati);
                 sessione.setDomande(Domande);
                 updateProgress(70, 100);
                 sessione.setDurata(calcolaDurata(livello));
                 updateProgress(80, 100);
                 sessione.salvaSessioneDiGioco();
                 updateProgress(100, 100);
+                System.out.println("Matrice: "+ analisi.getMatrice());
                 return sessione.getDomande();
             }
         };

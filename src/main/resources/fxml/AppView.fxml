@@ -101,13 +101,13 @@
                        <VBox fx:id="dashboardMenu" alignment="CENTER" spacing="10.0" style="-fx-background-color: white; -fx-padding: 15; -fx-border-color: gray; -fx-border-width: 1;" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="55.0">
                            <children>
                                <Button fx:id="infoProfiloButton" onAction="#passaAInfoProfilo" prefHeight="35" prefWidth="200" text="Info profilo" />
-                               <Button prefHeight="35" prefWidth="200" text="Impostazioni" />
+                               <Button prefHeight="35" prefWidth="200" text="Impostazioni" managed="false" />
                                <Button fx:id="newDocument" onAction="#mostraGestioneDocumenti" prefHeight="35" prefWidth="260" text="Gestione documenti" />
                                <Button fx:id="stopwordList" onAction="#mostraGestioneStopwords" prefHeight="35" prefWidth="200" text="Stopwords" />
                                <Button onAction="#logout" prefHeight="35" prefWidth="200" styleClass="logout-button" text="Logout" />
                            </children>
                        </VBox>
-                   </children>
+                   </children>cupom
                </AnchorPane>
    
                <!-- Schermata Classifiche -->

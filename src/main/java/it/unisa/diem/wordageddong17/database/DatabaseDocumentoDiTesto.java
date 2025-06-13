@@ -8,6 +8,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import it.unisa.diem.wordageddong17.interfaccia.DAODocumentoDiTesto;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Implementazione del DAO (Data Access Object) per la gestione dei documenti di testo.
@@ -160,8 +162,8 @@ public class DatabaseDocumentoDiTesto implements DAODocumentoDiTesto{
      */
 
     @Override
-    public ArrayList<String> prendiNomiDocumentiFiltrati(LivelloPartita livello, ArrayList<Lingua> lingue) {
-        ArrayList<String> nomiDocumenti = new ArrayList<>();
+    public Map<String,Lingua> prendiNomiDocumentiFiltrati(LivelloPartita livello, ArrayList<Lingua> lingue) {
+        Map<String,Lingua> nomiDocumenti = new HashMap<>();
 
         // Costruisce i segnaposto per la clausola IN (?, ?, ...)
         StringBuilder placeholdersBuilder = new StringBuilder();
@@ -172,7 +174,7 @@ public class DatabaseDocumentoDiTesto implements DAODocumentoDiTesto{
             }
         }
         String placeholdersPerLingue = placeholdersBuilder.toString();
-        String query = "SELECT nome_file FROM testo WHERE difficolta = ? AND lingua IN (" + placeholdersPerLingue + ")";
+        String query = "SELECT nome_file,lingua FROM testo WHERE difficolta = ? AND lingua IN (" + placeholdersPerLingue + ")";
 
         try (PreparedStatement pstmt = db.getConnection().prepareStatement(query)) {
             // Imposta il parametro relativo al livello
@@ -185,7 +187,9 @@ public class DatabaseDocumentoDiTesto implements DAODocumentoDiTesto{
 
             try (ResultSet r = pstmt.executeQuery()) {
                 while (r.next()) {
-                    nomiDocumenti.add(r.getString("nome_file"));
+                   String codiceLingua = r.getString("lingua");
+                   Lingua lingua = Lingua.fromCodice(codiceLingua);
+                   nomiDocumenti.put(r.getString("nome_file"), lingua);
                 }
             }
         } catch (SQLException ex) {

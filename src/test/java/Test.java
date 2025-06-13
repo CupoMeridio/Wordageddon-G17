@@ -1,14 +1,6 @@
-
-import it.unisa.diem.wordageddong17.model.SessioneDiGioco;
-import it.unisa.diem.wordageddong17.model.TipoUtente;
-import it.unisa.diem.wordageddong17.model.Utente;
 import java.io.File;
 import java.util.Arrays;
 
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Main.java to edit this template
- */
 
 /**
  *

@@ -1,11 +1,4 @@
-
 import it.unisa.diem.wordageddong17.model.AnalisiDocumenti;
-import it.unisa.diem.wordageddong17.service.CaricaSessioneDiGiocoService;
-
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Main.java to edit this template
- */
 
 /**
  *

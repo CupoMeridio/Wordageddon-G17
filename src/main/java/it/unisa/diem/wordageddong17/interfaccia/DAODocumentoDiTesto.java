@@ -4,6 +4,7 @@ import it.unisa.diem.wordageddong17.model.DocumentoDiTesto;
 import it.unisa.diem.wordageddong17.model.Lingua;
 import it.unisa.diem.wordageddong17.model.LivelloPartita;
 import java.util.ArrayList;
+import java.util.Map;
 
 /**
  * Interfaccia DAODocumentoDiTesto
@@ -63,5 +64,5 @@ public interface DAODocumentoDiTesto {
      * @param lingue  una lista di oggetti {@link Lingua} che specifica le lingue da includere nel filtro
      * @return un {@link ArrayList} di {@link String} contenente i nomi dei documenti filtrati
      */
-    public ArrayList<String> prendiNomiDocumentiFiltrati(LivelloPartita livello, ArrayList<Lingua> lingue);
+    public  Map<String,Lingua> prendiNomiDocumentiFiltrati(LivelloPartita livello, ArrayList<Lingua> lingue);
 }

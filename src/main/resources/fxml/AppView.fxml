@@ -107,7 +107,7 @@
                                <Button onAction="#logout" prefHeight="35" prefWidth="200" styleClass="logout-button" text="Logout" />
                            </children>
                        </VBox>
-                   </children>cupom
+                   </children>
                </AnchorPane>
    
                <!-- Schermata Classifiche -->

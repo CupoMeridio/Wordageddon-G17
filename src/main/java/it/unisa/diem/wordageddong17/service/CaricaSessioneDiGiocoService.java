@@ -130,6 +130,7 @@ public class CaricaSessioneDiGiocoService extends Service<List<GeneratoreDomande
      * @param Documenti Mappa contenente i documenti.
      * @param analisi Istanza dell'analisi documenti.
      * @param numeroDomande Numero totale di domande da generare.
+     * @param docFiltrati Mappa dei documenti filtrati per difficoltà e per lingua in base alle scelte del giocatore
      * @return Una lista di domande generate.
      * @throws MancanzaDiDocumenti Se non ci sono documenti disponibili.
      */

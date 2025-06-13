@@ -351,6 +351,7 @@ public class GeneratoreDomande {
      *
      * @param num il numero massimo di domande da generare
      * @param nomeDocumento il nome del documento da cui estrarre le domande
+     * @param l
      * @return una lista di oggetti {@link Domanda}
      */
     public List<Domanda> getRaccoltaDiDomande(int num, String nomeDocumento, Lingua l) {

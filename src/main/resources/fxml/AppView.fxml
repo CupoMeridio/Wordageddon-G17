@@ -101,7 +101,7 @@
                        <VBox fx:id="dashboardMenu" alignment="CENTER" spacing="10.0" style="-fx-background-color: white; -fx-padding: 15; -fx-border-color: gray; -fx-border-width: 1;" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="55.0">
                            <children>
                                <Button fx:id="infoProfiloButton" onAction="#passaAInfoProfilo" prefHeight="35" prefWidth="200" text="Info profilo" />
-                               <Button prefHeight="35" prefWidth="200" text="Impostazioni" managed="false" />
+                               <Button managed="false" prefHeight="35" prefWidth="200" text="Impostazioni" />
                                <Button fx:id="newDocument" onAction="#mostraGestioneDocumenti" prefHeight="35" prefWidth="260" text="Gestione documenti" />
                                <Button fx:id="stopwordList" onAction="#mostraGestioneStopwords" prefHeight="35" prefWidth="200" text="Stopwords" />
                                <Button onAction="#logout" prefHeight="35" prefWidth="200" styleClass="logout-button" text="Logout" />
@@ -185,7 +185,7 @@
                                    <VBox alignment="TOP_CENTER" spacing="15.0" HBox.hgrow="ALWAYS">
                                        <children>
                                            <Label style="-fx-font-size: 20px; -fx-font-weight: bold;" text="Facile" />
-                                           <TextArea editable="false" prefHeight="240" prefWidth="270" text="Numero di documenti: 1&#10;&#10;Lunghezza del testo: 80-100 parole&#10;&#10;Tempo di lettura: ~100-120 secondi&#10;(~1 parola al secondo con margine)" wrapText="true" HBox.hgrow="ALWAYS" />
+                                           <TextArea editable="false" prefHeight="240" prefWidth="270" text="Numero di documenti: 2&#10;&#10;Lunghezza del testo: 80-100 parole&#10;&#10;Tempo di lettura: ~200-240 secondi&#10;(~1 parola al secondo con margine)" wrapText="true" HBox.hgrow="ALWAYS" />
                                            <RadioButton fx:id="radioFacile" mnemonicParsing="false" text="Facile">
                                                <toggleGroup>
                                                    <ToggleGroup fx:id="difficoltà" />
@@ -198,7 +198,7 @@
                                    <VBox alignment="TOP_CENTER" spacing="15.0" HBox.hgrow="ALWAYS">
                                        <children>
                                            <Label style="-fx-font-size: 20px; -fx-font-weight: bold;" text="Medio" />
-                                           <TextArea editable="false" prefHeight="240" prefWidth="270" text="Numero di documenti: 2&#10;&#10;Lunghezza per testo: 200-250 parole&#10;&#10;Tempo di lettura totale: ~150 secondi &#10;(~1.5 parole/secondo)&#10;&#10;" wrapText="true" HBox.hgrow="ALWAYS" />
+                                           <TextArea editable="false" prefHeight="240" prefWidth="270" text="Numero di documenti: 2&#10;&#10;Lunghezza per testo: 200-250 parole&#10;&#10;Tempo di lettura totale: ~300 secondi &#10;(~1.5 parole/secondo)&#10;&#10;" wrapText="true" HBox.hgrow="ALWAYS" />
                                            <RadioButton fx:id="radioMedio" mnemonicParsing="false" text="Medio" toggleGroup="$difficoltà" />
                                        </children>
                                    </VBox>
@@ -207,7 +207,7 @@
                                    <VBox alignment="TOP_CENTER" spacing="15.0" HBox.hgrow="ALWAYS">
                                        <children>
                                            <Label style="-fx-font-size: 20px; -fx-font-weight: bold;" text="Difficile" />
-                                           <TextArea editable="false" prefHeight="240" prefWidth="270" text="Numero di documenti: 2&#10;&#10;Lunghezza per testo: 200-250 parole&#10;&#10;Tempo di lettura totale: ~125 secondi &#10;(~2 parole/secondo)&#10;&#10;" wrapText="true" HBox.hgrow="ALWAYS" />
+                                           <TextArea editable="false" prefHeight="240" prefWidth="270" text="Numero di documenti: 3&#10;&#10;Lunghezza per testo: 200-250 parole&#10;&#10;Tempo di lettura totale: ~340 secondi &#10;(~2 parole/secondo)&#10;&#10;" wrapText="true" HBox.hgrow="ALWAYS" />
                                            <RadioButton fx:id="radioDifficile" mnemonicParsing="false" text="Difficile" toggleGroup="$difficoltà" />
                                        </children>
                                    </VBox>

@@ -345,6 +345,18 @@ public class SessioneDiGioco implements Serializable {
         this.risposte.put(this.Domande.get(numeroDomanda), indiceRisposta);
     }
     
+    //PARAMETRI REGOLABILI (possono essere modificati per bilanciare il gioco)
+    /** Punteggio attribuito ad ogni risposta corretta */
+    private static final float PUNTI_BASE_PER_DOMANDA = 1000.0f;
+    /** Punteggio detratto per ogni risposta errata */
+    private static final float PENALITA_PER_ERRORE = 0.5f; // 0 = no penalty, 1 = full penalty
+    /** Limite superiore per il bonus attributo al tempo rimanente */
+    private static final float BONUS_TEMPO_MAX_PERC = 0.15f; // % del punteggio massimo
+    /** Andamento del bonus per il tempo rimanente */
+    private static final float ESPONENTE_BONUS_TEMPO = 0.5f; // 0.5=sqrt, 1=lineare, 2=quadratico
+    /** Limite inferiore per l'attribuzione del bonus basato sulla precisione */
+    private static final float SOGLIA_MINIMA_PRECISIONE = 0.01f; // Precisione minima per avere bonus
+    
     /**
      * Aggiorna il punteggio fatto dall'utente in base alle risposte corrette e al tempo rimanente.
      * 
@@ -355,30 +367,41 @@ public class SessioneDiGioco implements Serializable {
      * @param tempoRimasto il tempo rimasto (in secondi) al termine della sessione
      */
     public void aggiornaPuntiFatti(int tempoRimasto) {
-        Domanda[] dom = this.Domande.toArray(new Domanda[0]);
+        int numDomande = this.Domande.size();
+        if (numDomande == 0) {
+            this.punteggioFatto = 0;
+            return;
+        }
+
+        // Calcolo risposte corrette/errate (tutte le domande hanno risposta)
         int numRisposteCorrette = 0;
-        for (Domanda d : dom)
-            System.out.println("dom " + d);
-        for (Domanda d : dom) {
-            if (d.rispostaCorretta == this.risposte.get(d)) {
+        for (Domanda d : this.Domande) {
+            if (this.risposte.get(d) == d.rispostaCorretta) {
                 numRisposteCorrette++;
-            } else {
-                // Eventuale penalizzazione: ad esempio, sottrazione di 5 punti
-                // this.punteggioFatto = this.punteggioFatto - 5;
             }
         }
-        if (numRisposteCorrette != 0) {
-            float puntiMassimi = 142;
-            float precisione = this.punteggioFatto / dom.length;
-            float puntBase = puntiMassimi * precisione;
-            System.out.println("Durata iniziale " + this.durataIniziale);
-            float bonusTempo = (float) ((tempoRimasto / this.durataIniziale + 1) * (puntiMassimi * 0.3));
-            this.punteggioFatto = puntBase + bonusTempo;
-        } else {
-            this.punteggioFatto = 0;
+        int numRisposteSbagliate = numDomande - numRisposteCorrette;
+
+        // 1. CALCOLO PRECISIONE CON PENALITÀ REGOLABILE
+        float precisioneLorda = (float) numRisposteCorrette / numDomande;
+        float penalizzazione = (float) numRisposteSbagliate / numDomande * PENALITA_PER_ERRORE;
+        float punteggioNetto = Math.max(0f, precisioneLorda - penalizzazione);
+
+        // 2. PUNTEGGIO BASE SCALABILE
+        float puntiMassimi = PUNTI_BASE_PER_DOMANDA * numDomande;
+        float puntBase = puntiMassimi * punteggioNetto;
+
+        // 3. BONUS TEMPO CON PARAMETRI REGOLABILI
+        float bonusTempo = 0;
+        if (this.durataIniziale > 0 && punteggioNetto >= SOGLIA_MINIMA_PRECISIONE) {
+            float tempoRatio = (float) tempoRimasto / this.durataIniziale;
+            float fattoreTempo = (float) Math.pow(tempoRatio, ESPONENTE_BONUS_TEMPO);
+            bonusTempo = puntiMassimi * BONUS_TEMPO_MAX_PERC * fattoreTempo * punteggioNetto;
         }
+
+        this.punteggioFatto = Math.round(puntBase + bonusTempo);
     }
-    
+
     /**
      * Carica la sessione di gioco da un file serializzato.
      *

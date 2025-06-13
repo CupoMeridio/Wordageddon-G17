@@ -81,11 +81,10 @@ public enum LivelloPartita {
      * @return il numero di documenti richiesti
      */
     public int getNumeroDocumenti() {  
-        return switch(this.getDbValue()) {
-            case "facile" -> 1;
-            case "medio" -> 2;
-            case "difficile" -> 3;
-            default -> 1;
+        return switch(this) {
+            case FACILE -> 2;
+            case MEDIO -> 3;
+            case DIFFICILE -> 3;
         };
     }
     
@@ -99,11 +98,10 @@ public enum LivelloPartita {
      * @return il numero di domande da proporre durante la partita
      */
     public int getNumeroDomande() {  
-        return switch(this.getDbValue()) {
-            case "facile" -> 4;
-            case "medio" -> 6;
-            case "difficile" -> 8;
-            default -> 5;
+        return switch(this) {
+            case FACILE -> 4;
+            case MEDIO -> 6;
+            case DIFFICILE -> 8;
         };
     }
     
@@ -117,11 +115,10 @@ public enum LivelloPartita {
      * @return il moltiplicatore come valore double
      */
     public double getMoltiplicatorePerLivello() {  
-        return switch(this.getDbValue()) {
-            case "facile" -> 1.0;
-            case "medio" -> 0.70;
-            case "difficile" -> 0.2;
-            default -> 1.0;
+        return switch(this) {
+            case FACILE -> 0.5;
+            case MEDIO -> 1.0;
+            case DIFFICILE -> 1.5;
         };
     }
 }

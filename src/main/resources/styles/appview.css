@@ -45,11 +45,11 @@
     -fx-border-color: transparent;
     -fx-border-width: 0;
     -fx-cursor: hand;
-    -fx-transition: all 0.2s;
+
 }
 .button:hover {
     -fx-background-color: linear-gradient(from 0% 0% to 100% 0%, #38b6ff 0%, #4f8cff 100%);
-    -fx-effect: dropshadow(gaussian, #38b6ff, 16, 0.25, 0, 4);
+
 }
 
 .logout-button {
@@ -146,9 +146,14 @@
     -fx-background-radius: 14px;
 }
 
+
 .scroll-pane {
-    -fx-background: #f4f7fa;
-    -fx-background-color: #f4f7fa;
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+}
+
+.scroll-pane > .viewport {
+    -fx-background-color: transparent;
 }
 
 ::-fx-scroll-bar {
@@ -190,4 +195,12 @@
 .text-area, .text-area .content {
     -fx-font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
     -fx-font-size: 17px;
+}
+
+
+.date-picker .button {
+    -fx-background-color: transparent;
+    -fx-background-radius: 0;
+    -fx-padding: 0;
+    -fx-cursor: default;
 }

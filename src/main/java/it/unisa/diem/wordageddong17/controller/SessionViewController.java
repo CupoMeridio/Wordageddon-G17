@@ -34,7 +34,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedDeque;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import javafx.concurrent.Service;
 import javafx.concurrent.Worker;
@@ -208,7 +207,7 @@ public class SessionViewController implements Initializable {
             this.schermataGameOver.setVisible(true);
             this.sessione.aggiornaPuntiFatti(this.durata);
             System.out.println("this.sessione.getPunteggioFatto() "+ this.sessione.getPunteggioFatto());
-            this.highScoreLabel.setText("Punteggio:"+ this.sessione.getPunteggioFatto());
+            this.highScoreLabel.setText(String.valueOf(this.sessione.getPunteggioFatto()));
             System.out.println("\n Verifica "+ this.sessione.getRisposte());
             cps.setDifficoltà(this.sessione.getLivello());
             cps.setEmail(stato.getUtente().getEmail());

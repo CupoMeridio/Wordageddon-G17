@@ -10,6 +10,7 @@
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.ProgressIndicator?>
 <?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextArea?>
@@ -19,21 +20,18 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.ColumnConstraints?>
-<?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane prefHeight="700.0" prefWidth="1000.0" stylesheets="@../styles/appview.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unisa.diem.wordageddong17.controller.AppViewController">
+<BorderPane maxHeight="Infinity" maxWidth="Infinity" prefHeight="700.0" prefWidth="1000.0" stylesheets="@../styles/appview.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unisa.diem.wordageddong17.controller.AppViewController">
     <center>
-        <StackPane fx:id="root" alignment="CENTER">
+        <StackPane fx:id="root" alignment="CENTER" maxHeight="Infinity" maxWidth="Infinity">
             <children>
    
                <!-- Schermata di login -->
-               <VBox fx:id="schermataDiLogin" alignment="CENTER" spacing="25.0" visible="false" style="-fx-padding: 40;">
+               <VBox fx:id="schermataDiLogin" alignment="CENTER" maxHeight="Infinity" maxWidth="Infinity" spacing="25.0" style="-fx-padding: 40;" visible="false">
                    <children>
                        <ImageView fitHeight="150.0" fitWidth="300.0" pickOnBounds="true" preserveRatio="true">
                            <image>
@@ -41,34 +39,34 @@
                            </image>
                        </ImageView>
    
-                       <HBox alignment="CENTER" spacing="60.0">
+                       <HBox alignment="CENTER" maxWidth="Infinity" spacing="60.0">
                            <children>
                                <VBox alignment="CENTER" spacing="8.0">
                                    <children>
                                        <Label text="Email" />
-                                       <TextField fx:id="emailTextField" alignment="CENTER" promptText="Inserisci la tua email" prefWidth="250" minHeight="35" />
+                                       <TextField fx:id="emailTextField" alignment="CENTER" minHeight="35" prefWidth="250" promptText="Inserisci la tua email" />
                                    </children>
                                </VBox>
                                <VBox alignment="CENTER" spacing="8.0">
                                    <children>
                                        <Label text="Password" />
-                                       <PasswordField fx:id="passwordTextField" alignment="CENTER" promptText="Inserisci la tua password" prefWidth="250" minHeight="35" />
+                                       <PasswordField fx:id="passwordTextField" alignment="CENTER" minHeight="35" prefWidth="250" promptText="Inserisci la tua password" />
                                    </children>
                                </VBox>
                            </children>
                        </HBox>
    
-                       <VBox alignment="CENTER" spacing="20">
+                       <VBox alignment="CENTER" maxWidth="Infinity" spacing="20">
                            <children>
-                               <Button fx:id="accediButton" onAction="#accediOnAction" text="Accedi" prefWidth="200" prefHeight="45" />
-                               <Button fx:id="passaARegistratiButton" onAction="#passaARegistratiOnAction" text="Non hai ancora un account? Registrati!" wrapText="true" prefWidth="400" prefHeight="50" />
+                               <Button fx:id="accediButton" onAction="#accediOnAction" prefHeight="45" prefWidth="200" text="Accedi" />
+                               <Button fx:id="passaARegistratiButton" onAction="#passaARegistratiOnAction" prefHeight="50" prefWidth="400" text="Non hai ancora un account? Registrati!" wrapText="true" />
                            </children>
                        </VBox>
                    </children>
                </VBox>
    
                <!-- Schermata Home -->
-               <AnchorPane fx:id="schermataHome" prefHeight="400.0" prefWidth="600.0" visible="false">
+               <AnchorPane fx:id="schermataHome" maxHeight="Infinity" maxWidth="Infinity" prefHeight="400.0" prefWidth="600.0" visible="false">
                    <children>
                        <!-- Contenuto principale -->
                        <VBox fx:id="contenutoHome" alignment="CENTER" spacing="20.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
@@ -80,8 +78,8 @@
                                </ImageView>
                                <VBox alignment="CENTER" spacing="20">
                                    <children>
-                                       <Button fx:id="startButton" onAction="#startOnAction" text="Start" prefWidth="200" prefHeight="45" />
-                                       <Button fx:id="classificheButton" onAction="#classificheOnAction" text="Classifiche" prefWidth="200" prefHeight="45" />
+                                       <Button fx:id="startButton" onAction="#startOnAction" prefHeight="45" prefWidth="200" text="Start" />
+                                       <Button fx:id="classificheButton" onAction="#classificheOnAction" prefHeight="45" prefWidth="200" text="Classifiche" />
                                    </children>
                                </VBox>
                            </children>
@@ -99,31 +97,31 @@
                            </children>
                        </HBox>
    
-                       <!-- Dashboard Menu - Bottone Gestione documenti più largo -->
+                       <!-- Dashboard Menu -->
                        <VBox fx:id="dashboardMenu" alignment="CENTER" spacing="10.0" style="-fx-background-color: white; -fx-padding: 15; -fx-border-color: gray; -fx-border-width: 1;" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="55.0">
                            <children>
-                               <Button fx:id="infoProfiloButton" onAction="#passaAInfoProfilo" text="Info profilo" prefWidth="200" prefHeight="35" />
-                               <Button text="Impostazioni" prefWidth="200" prefHeight="35" />
-                               <Button fx:id="newDocument" onAction="#mostraGestioneDocumenti" text="Gestione documenti" prefWidth="260" prefHeight="35" />
-                               <Button fx:id="stopwordList" onAction="#mostraGestioneStopwords" text="Stopwords" prefWidth="200" prefHeight="35" />
-                               <Button onAction="#logout" text="Logout" styleClass="logout-button" prefWidth="200" prefHeight="35" />
+                               <Button fx:id="infoProfiloButton" onAction="#passaAInfoProfilo" prefHeight="35" prefWidth="200" text="Info profilo" />
+                               <Button prefHeight="35" prefWidth="200" text="Impostazioni" />
+                               <Button fx:id="newDocument" onAction="#mostraGestioneDocumenti" prefHeight="35" prefWidth="260" text="Gestione documenti" />
+                               <Button fx:id="stopwordList" onAction="#mostraGestioneStopwords" prefHeight="35" prefWidth="200" text="Stopwords" />
+                               <Button onAction="#logout" prefHeight="35" prefWidth="200" styleClass="logout-button" text="Logout" />
                            </children>
                        </VBox>
                    </children>
                </AnchorPane>
    
                <!-- Schermata Classifiche -->
-               <VBox fx:id="schermataClassifiche" alignment="CENTER" spacing="20.0" visible="false" style="-fx-padding: 30;">
+               <VBox fx:id="schermataClassifiche" alignment="CENTER" maxHeight="Infinity" maxWidth="Infinity" spacing="20.0" style="-fx-padding: 30;" visible="false">
                    <children>
-                       <Label text="Classifiche globali" style="-fx-font-size: 28px; -fx-font-weight: bold;" />
+                       <Label style="-fx-font-size: 28px; -fx-font-weight: bold;" text="Classifiche globali" />
                        
-                       <HBox alignment="CENTER" spacing="30.0">
+                       <HBox alignment="CENTER" maxWidth="Infinity" spacing="30.0">
                            <children>
                                <!-- Facile -->
-                               <VBox alignment="TOP_CENTER" spacing="15" prefWidth="350">
+                               <VBox alignment="TOP_CENTER" spacing="15" HBox.hgrow="ALWAYS">
                                    <children>
-                                       <Label text="Facile" style="-fx-font-size: 20px; -fx-font-weight: bold;" />
-                                       <TableView fx:id="facileTable" prefHeight="400" prefWidth="350">
+                                       <Label style="-fx-font-size: 20px; -fx-font-weight: bold;" text="Facile" />
+                                       <TableView fx:id="facileTable" prefHeight="400" VBox.vgrow="ALWAYS">
                                            <columns>
                                                <TableColumn fx:id="facilePosizione" editable="false" prefWidth="70.0" sortable="false" text="Posizione" />
                                                <TableColumn fx:id="facileNome" editable="false" prefWidth="180.0" sortable="false" text="Nome" />
@@ -137,10 +135,10 @@
                                </VBox>
    
                                <!-- Media -->
-                               <VBox alignment="TOP_CENTER" spacing="15" prefWidth="350">
+                               <VBox alignment="TOP_CENTER" spacing="15" HBox.hgrow="ALWAYS">
                                    <children>
-                                       <Label text="Media" style="-fx-font-size: 20px; -fx-font-weight: bold;" />
-                                       <TableView fx:id="mediaTable" prefHeight="400" prefWidth="350">
+                                       <Label style="-fx-font-size: 20px; -fx-font-weight: bold;" text="Media" />
+                                       <TableView fx:id="mediaTable" prefHeight="400" VBox.vgrow="ALWAYS">
                                            <columns>
                                                <TableColumn fx:id="mediaPosizione" editable="false" prefWidth="70.0" sortable="false" text="Posizione" />
                                                <TableColumn fx:id="mediaNome" editable="false" prefWidth="180.0" sortable="false" text="Nome" />
@@ -154,10 +152,10 @@
                                </VBox>
    
                                <!-- Difficile -->
-                               <VBox alignment="TOP_CENTER" spacing="15" prefWidth="350">
+                               <VBox alignment="TOP_CENTER" spacing="15" HBox.hgrow="ALWAYS">
                                    <children>
-                                       <Label text="Difficile" style="-fx-font-size: 20px; -fx-font-weight: bold;" />
-                                       <TableView fx:id="difficileTable" prefHeight="400" prefWidth="350">
+                                       <Label style="-fx-font-size: 20px; -fx-font-weight: bold;" text="Difficile" />
+                                       <TableView fx:id="difficileTable" prefHeight="400" VBox.vgrow="ALWAYS">
                                            <columns>
                                                <TableColumn fx:id="difficilePosizione" editable="false" prefWidth="70.0" sortable="false" text="Posizione" />
                                                <TableColumn fx:id="difficileNome" editable="false" prefWidth="180.0" sortable="false" text="Nome" />
@@ -172,371 +170,383 @@
                            </children>
                        </HBox>
                        
-                       <Button fx:id="chiudiClassificheButton" onAction="#chiudiClassificheOnAction" text="Chiudi classifiche" prefWidth="250" prefHeight="45" />
+                       <Button fx:id="chiudiClassificheButton" onAction="#chiudiClassificheOnAction" prefHeight="45" prefWidth="250" text="Chiudi classifiche" />
                    </children>
                </VBox>
    
                <!-- Schermata Selezione Difficoltà -->
-               <VBox fx:id="schermataSelezioneDifficoltà" alignment="CENTER" spacing="25.0" visible="false" style="-fx-padding: 30;">
-                   <children>
-                       <Label text="Seleziona livello di difficoltà" style="-fx-font-size: 28px; -fx-font-weight: bold;" />
-                       <HBox alignment="TOP_CENTER" spacing="20.0">
-                           <children>
-                               <!-- Facile -->
-                               <VBox alignment="TOP_CENTER" spacing="15.0" prefWidth="280">
-                                   <children>
-                                       <Label text="Facile" style="-fx-font-size: 20px; -fx-font-weight: bold;" />
-                                       <TextArea editable="false" text="Numero di documenti: 1&#10;&#10;Lunghezza del testo: 80-100 parole&#10;&#10;Tempo di lettura: ~100-120 secondi&#10;(~1 parola al secondo con margine)" wrapText="true" prefHeight="240" prefWidth="270" />
-                                       <RadioButton fx:id="radioFacile" mnemonicParsing="false" text="Facile">
-                                           <toggleGroup>
-                                               <ToggleGroup fx:id="difficoltà" />
-                                           </toggleGroup>
-                                       </RadioButton>
-                                   </children>
-                               </VBox>
+               <ScrollPane fx:id="schermataSelezioneDifficoltà" fitToHeight="true" fitToWidth="true" visible="false">
+                   <VBox alignment="CENTER" maxWidth="Infinity" spacing="25.0" style="-fx-padding: 30;">
+                       <children>
+                           <Label style="-fx-font-size: 28px; -fx-font-weight: bold;" text="Seleziona livello di difficoltà" />
+                           <HBox alignment="TOP_CENTER" maxWidth="Infinity" spacing="20.0">
+                               <children>
+                                   <!-- Facile -->
+                                   <VBox alignment="TOP_CENTER" spacing="15.0" HBox.hgrow="ALWAYS">
+                                       <children>
+                                           <Label style="-fx-font-size: 20px; -fx-font-weight: bold;" text="Facile" />
+                                           <TextArea editable="false" prefHeight="240" prefWidth="270" text="Numero di documenti: 1&#10;&#10;Lunghezza del testo: 80-100 parole&#10;&#10;Tempo di lettura: ~100-120 secondi&#10;(~1 parola al secondo con margine)" wrapText="true" HBox.hgrow="ALWAYS" />
+                                           <RadioButton fx:id="radioFacile" mnemonicParsing="false" text="Facile">
+                                               <toggleGroup>
+                                                   <ToggleGroup fx:id="difficoltà" />
+                                               </toggleGroup>
+                                           </RadioButton>
+                                       </children>
+                                   </VBox>
    
-                               <!-- Medio -->
-                               <VBox alignment="TOP_CENTER" spacing="15.0" prefWidth="280">
-                                   <children>
-                                       <Label text="Medio" style="-fx-font-size: 20px; -fx-font-weight: bold;" />
-                                       <TextArea editable="false" text="Numero di documenti: 2&#10;&#10;Lunghezza per testo: 200-250 parole&#10;&#10;Tempo di lettura totale: ~150 secondi &#10;(~1.5 parole/secondo)&#10;&#10;" wrapText="true" prefHeight="240" prefWidth="270" />
-                                       <RadioButton fx:id="radioMedio" mnemonicParsing="false" text="Medio" toggleGroup="$difficoltà" />
-                                   </children>
-                               </VBox>
+                                   <!-- Medio -->
+                                   <VBox alignment="TOP_CENTER" spacing="15.0" HBox.hgrow="ALWAYS">
+                                       <children>
+                                           <Label style="-fx-font-size: 20px; -fx-font-weight: bold;" text="Medio" />
+                                           <TextArea editable="false" prefHeight="240" prefWidth="270" text="Numero di documenti: 2&#10;&#10;Lunghezza per testo: 200-250 parole&#10;&#10;Tempo di lettura totale: ~150 secondi &#10;(~1.5 parole/secondo)&#10;&#10;" wrapText="true" HBox.hgrow="ALWAYS" />
+                                           <RadioButton fx:id="radioMedio" mnemonicParsing="false" text="Medio" toggleGroup="$difficoltà" />
+                                       </children>
+                                   </VBox>
    
-                               <!-- Difficile -->
-                               <VBox alignment="TOP_CENTER" spacing="15.0" prefWidth="280">
-                                   <children>
-                                       <Label text="Difficile" style="-fx-font-size: 20px; -fx-font-weight: bold;" />
-                                       <TextArea editable="false" text="Numero di documenti: 2&#10;&#10;Lunghezza per testo: 200-250 parole&#10;&#10;Tempo di lettura totale: ~125 secondi &#10;(~2 parole/secondo)&#10;&#10;" wrapText="true" prefHeight="240" prefWidth="270" />
-                                       <RadioButton fx:id="radioDifficile" mnemonicParsing="false" text="Difficile" toggleGroup="$difficoltà" />
-                                   </children>
-                               </VBox>
-                           </children>
-                       </HBox>
-                       <Label text="Seleziona le lingue dei documenti con cui vuoi giocare" style="-fx-font-size: 18px;" />
-                       <HBox alignment="CENTER" spacing="25.0">
-                           <children>
-                               <CheckBox fx:id="checkIT" mnemonicParsing="false" text="IT" />
-                               <CheckBox fx:id="checkEN" mnemonicParsing="false" text="EN" />
-                               <CheckBox fx:id="checkFR" mnemonicParsing="false" text="FR" />
-                               <CheckBox fx:id="checkDE" mnemonicParsing="false" text="DE" />
-                               <CheckBox fx:id="checkES" mnemonicParsing="false" text="ES" />
-                           </children>
-                       </HBox>
-                       <HBox alignment="CENTER" spacing="30.0">
-                            <children>
-                                <Button fx:id="indietroSelezione" mnemonicParsing="false" onAction="#tornaAllaHome" text="Indietro" prefWidth="150" prefHeight="50" />
-                                <Button fx:id="iniziaPartita" mnemonicParsing="false" onAction="#iniziaPartitaOnAction" text="Inizia!" prefWidth="250" prefHeight="50" />
-                            </children>
-                        </HBox>
-                   </children>
-               </VBox>
+                                   <!-- Difficile -->
+                                   <VBox alignment="TOP_CENTER" spacing="15.0" HBox.hgrow="ALWAYS">
+                                       <children>
+                                           <Label style="-fx-font-size: 20px; -fx-font-weight: bold;" text="Difficile" />
+                                           <TextArea editable="false" prefHeight="240" prefWidth="270" text="Numero di documenti: 2&#10;&#10;Lunghezza per testo: 200-250 parole&#10;&#10;Tempo di lettura totale: ~125 secondi &#10;(~2 parole/secondo)&#10;&#10;" wrapText="true" HBox.hgrow="ALWAYS" />
+                                           <RadioButton fx:id="radioDifficile" mnemonicParsing="false" text="Difficile" toggleGroup="$difficoltà" />
+                                       </children>
+                                   </VBox>
+                               </children>
+                           </HBox>
+                           <Label style="-fx-font-size: 18px;" text="Seleziona le lingue dei documenti con cui vuoi giocare" />
+                           <HBox alignment="CENTER" maxWidth="Infinity" spacing="25.0">
+                               <children>
+                                   <CheckBox fx:id="checkIT" mnemonicParsing="false" text="IT" />
+                                   <CheckBox fx:id="checkEN" mnemonicParsing="false" text="EN" />
+                                   <CheckBox fx:id="checkFR" mnemonicParsing="false" text="FR" />
+                                   <CheckBox fx:id="checkDE" mnemonicParsing="false" text="DE" />
+                                   <CheckBox fx:id="checkES" mnemonicParsing="false" text="ES" />
+                               </children>
+                           </HBox>
+                           <HBox alignment="CENTER" maxWidth="Infinity" spacing="30.0">
+                                <children>
+                                    <Button fx:id="indietroSelezione" mnemonicParsing="false" onAction="#tornaAllaHome" prefHeight="50" prefWidth="150" text="Indietro" />
+                                    <Button fx:id="iniziaPartita" mnemonicParsing="false" onAction="#iniziaPartitaOnAction" prefHeight="50" prefWidth="250" text="Inizia!" />
+                                </children>
+                            </HBox>
+                       </children>
+                   </VBox>
+               </ScrollPane>
 
-               <!-- Schermata Registrazione - Bottoni colorati -->
-               <HBox fx:id="schermataDiRegistrazione" alignment="CENTER" spacing="60" style="-fx-padding: 40;" visible="false">
-                   <children>
-                       <!-- Form di registrazione -->
-                       <VBox alignment="CENTER" spacing="20" HBox.hgrow="ALWAYS" maxWidth="450">
-                           <children>
-                               <Label text="Registrazione" style="-fx-font-size: 28px; -fx-font-weight: bold;" />
-                               
-                               <VBox spacing="8">
-                                   <children>
-                                       <Label fx:id="usernameLabel" text="Username" />
-                                       <TextField fx:id="username" promptText="Username..." prefWidth="350" minHeight="35" />
-                                   </children>
-                               </VBox>
+               <!-- Schermata Registrazione -->
+               <ScrollPane fx:id="schermataDiRegistrazione" fitToHeight="true" fitToWidth="true" visible="false">
+                   <HBox alignment="CENTER" maxWidth="Infinity" spacing="60" style="-fx-padding: 40;">
+                       <children>
+                           <!-- Form di registrazione -->
+                           <VBox alignment="CENTER" maxWidth="450" spacing="20" HBox.hgrow="ALWAYS">
+                               <children>
+                                   <Label style="-fx-font-size: 28px; -fx-font-weight: bold;" text="Registrazione" />
+                                   
+                                   <VBox spacing="8">
+                                       <children>
+                                           <Label fx:id="usernameLabel" text="Username" />
+                                           <TextField fx:id="username" minHeight="35" prefWidth="350" promptText="Username..." />
+                                       </children>
+                                   </VBox>
 
-                               <VBox spacing="8">
-                                   <children>
-                                       <Label fx:id="emailLabel" text="E-mail" />
-                                       <TextField fx:id="email" promptText="mariorossi@gmail.com" prefWidth="350" minHeight="35" />
-                                   </children>
-                               </VBox>
+                                   <VBox spacing="8">
+                                       <children>
+                                           <Label fx:id="emailLabel" text="E-mail" />
+                                           <TextField fx:id="email" minHeight="35" prefWidth="350" promptText="mariorossi@gmail.com" />
+                                       </children>
+                                   </VBox>
 
-                               <VBox spacing="8">
-                                   <children>
-                                       <Label fx:id="passwordLabel" text="Password" />
-                                       <PasswordField fx:id="password" promptText="Password" prefWidth="350" minHeight="35" />
-                                   </children>
-                               </VBox>
+                                   <VBox spacing="8">
+                                       <children>
+                                           <Label fx:id="passwordLabel" text="Password" />
+                                           <PasswordField fx:id="password" minHeight="35" prefWidth="350" promptText="Password" />
+                                       </children>
+                                   </VBox>
 
-                               <VBox spacing="8">
-                                   <children>
-                                       <Label fx:id="repeatLabel" text="Repeat password" />
-                                       <PasswordField fx:id="repeatPassword" promptText="Repeat password" prefWidth="350" minHeight="35" />
-                                   </children>
-                               </VBox>
+                                   <VBox spacing="8">
+                                       <children>
+                                           <Label fx:id="repeatLabel" text="Repeat password" />
+                                           <PasswordField fx:id="repeatPassword" minHeight="35" prefWidth="350" promptText="Repeat password" />
+                                       </children>
+                                   </VBox>
 
-                               <VBox spacing="15" alignment="CENTER">
-                                   <children>
-                                       <!-- Bottone verde per registrazione -->
-                                       <Button fx:id="registerButton" onAction="#registerButtonOnAction" text="Registrati" prefWidth="200" prefHeight="45" style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-weight: bold;" />
-                                       <!-- Bottone rosso per login -->
-                                       <Button fx:id="registerPageLogin" onAction="#passaALogin" text="Hai già un account? Effettua il login" prefWidth="420" prefHeight="40" style="-fx-background-color: #f44336; -fx-text-fill: white;" />
-                                   </children>
-                                   <VBox.margin>
-                                       <Insets top="15" />
-                                   </VBox.margin>
-                               </VBox>
-                           </children>
-                       </VBox>
+                                   <VBox alignment="CENTER" spacing="15">
+                                       <children>
+                                           <!-- Bottone verde per registrazione -->
+                                           <Button fx:id="registerButton" onAction="#registerButtonOnAction" prefHeight="45" prefWidth="200" style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-weight: bold;" text="Registrati" />
+                                           <!-- Bottone rosso per login -->
+                                           <Button fx:id="registerPageLogin" onAction="#passaALogin" prefHeight="40" prefWidth="420" style="-fx-background-color: #f44336; -fx-text-fill: white;" text="Hai già un account? Effettua il login" />
+                                       </children>
+                                       <VBox.margin>
+                                           <Insets top="15" />
+                                       </VBox.margin>
+                                   </VBox>
+                               </children>
+                           </VBox>
 
-                       <!-- Immagine profilo -->
-                       <VBox alignment="CENTER" maxWidth="350" HBox.hgrow="ALWAYS">
-                           <children>
-                               <Label text="Foto profilo" style="-fx-font-size: 18px; -fx-font-weight: bold;" />
-                               <ImageView fx:id="imageView" fitHeight="208" fitWidth="208" onMouseClicked="#caricaIMG" pickOnBounds="true" preserveRatio="true">
-                                   <image>
-                                       <Image url="@../imgs/Profile_avatar_placeholder_large.png" />
-                                   </image>
-                                   <VBox.margin>
-                                       <Insets top="15" />
-                                   </VBox.margin>
-                               </ImageView>
-                           </children>
-                       </VBox>
-                   </children>
-               </HBox>
+                           <!-- Immagine profilo -->
+                           <VBox alignment="CENTER" maxWidth="350" HBox.hgrow="ALWAYS">
+                               <children>
+                                   <Label style="-fx-font-size: 18px; -fx-font-weight: bold;" text="Foto profilo" />
+                                   <ImageView fx:id="imageView" fitHeight="208" fitWidth="208" onMouseClicked="#caricaIMG" pickOnBounds="true" preserveRatio="true">
+                                       <image>
+                                           <Image url="@../imgs/Profile_avatar_placeholder_large.png" />
+                                       </image>
+                                       <VBox.margin>
+                                           <Insets top="15" />
+                                       </VBox.margin>
+                                   </ImageView>
+                               </children>
+                           </VBox>
+                       </children>
+                   </HBox>
+               </ScrollPane>
 
                <!-- Schermata Info Utente -->
-               <VBox fx:id="schermataInfoUtente" alignment="TOP_CENTER" prefHeight="200.0" prefWidth="100.0" visible="false" spacing="25" style="-fx-padding: 30;">
-                   <children>
-                       <HBox alignment="CENTER" spacing="60">
-                           <children>
-                               <VBox alignment="CENTER_LEFT" maxWidth="450" spacing="15" HBox.hgrow="ALWAYS">
-                                   <children>
-                                       <Label text="Informazioni Utente" style="-fx-font-size: 24px; -fx-font-weight: bold;" />
-                                       <Label fx:id="usernameInfoUtente" text="Username: " />
-                                       <Label fx:id="emailInfoUtente" text="E-mail: " />
-                                       <Label fx:id="n_facile" text="N° partite difficoltà facile: " />
-                                       <Label fx:id="migliore_facile" text="Miglior punteggio in difficoltà facile: " />
-                                       <Label fx:id="n_medio" text="N° partite difficoltà media: " />
-                                       <Label fx:id="migliore_medio" text="Miglior punteggio in difficoltà media: " />
-                                       <Label fx:id="n_difficile" text="N° partite difficoltà difficile: " />
-                                       <Label fx:id="migliore_difficile" text="Miglior punteggio in difficoltà difficile: " />
-                                       
-                                       <Button fx:id="tornaAllaHomepage" mnemonicParsing="false" onAction="#chiudiInfoUtente" text="Torna alla homepage" prefWidth="280" prefHeight="45">
-                                           <VBox.margin>
-                                               <Insets top="20" />
-                                           </VBox.margin>
-                                       </Button>
-                                   </children>
-                               </VBox>
-                               <VBox alignment="CENTER" maxWidth="350" HBox.hgrow="ALWAYS">
-                                   <children>
-                                       <ImageView fx:id="immagineInfoUtente" fitHeight="208" fitWidth="208" onMouseClicked="#cambiaIMG" pickOnBounds="true" preserveRatio="true">
-                                           <image>
-                                               <Image url="@../imgs/Profile_avatar_placeholder_large.png" />
-                                           </image>
-                                       </ImageView>
-                                   </children>
-                               </VBox>
-                           </children>
-                       </HBox>
-                       
-                       <Label text="Cronologia partite" style="-fx-font-size: 20px; -fx-font-weight: bold;" />
-                       <HBox alignment="CENTER_LEFT" spacing="25.0" VBox.vgrow="ALWAYS">
-                           <children>
-                               <TableView fx:id="cronologiaPartite" prefHeight="350.0" prefWidth="550.0" HBox.hgrow="ALWAYS">
-                                   <columns>
-                                       <TableColumn fx:id="dataCronologiaPartite" minWidth="-1.0" prefWidth="150.0" text="Data" />
-                                       <TableColumn fx:id="difficoltàCronologiaPartite" prefWidth="120.0" text="Difficoltà" />
-                                       <TableColumn fx:id="punteggioCronologiaPartite" prefWidth="120.0" text="Punteggio" />
-                                   </columns>
-                                   <columnResizePolicy>
-                                       <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
-                                   </columnResizePolicy>
-                               </TableView>
-                               
-                               <VBox alignment="TOP_LEFT" prefHeight="350.0" prefWidth="300.0" spacing="15" style="-fx-padding: 20; -fx-background-color: rgba(255,255,255,0.1); -fx-background-radius: 10;">
-                                   <children>
-                                       <Label text="Filtri di ricerca" style="-fx-font-weight: bold; -fx-font-size: 16px;" />
-                                       
-                                       <VBox spacing="12">
-                                           <children>
-                                               <Label text="Data inizio" style="-fx-font-size: 12px;" />
-                                               <DatePicker fx:id="dataInizio" prefWidth="200" minHeight="30" />
-                                               
-                                               <Label text="Data fine" style="-fx-font-size: 12px;" />
-                                               <DatePicker fx:id="dataFine" prefWidth="200" minHeight="30" />
-                                               
-                                               <Label text="Punteggio minimo" style="-fx-font-size: 12px;" />
-                                               <TextField fx:id="punteggioMinimo" prefWidth="200" minHeight="30" />
-                                               
-                                               <Label text="Punteggio massimo" style="-fx-font-size: 12px;" />
-                                               <TextField fx:id="punteggioMassimo" prefWidth="200" minHeight="30" />
-                                           </children>
-                                       </VBox>
-                                       
-                                       <Label text="Difficoltà" style="-fx-font-weight: bold; -fx-font-size: 14px;">
-                                           <VBox.margin>
-                                               <Insets top="15" />
-                                           </VBox.margin>
-                                       </Label>
-                                       
-                                       <VBox alignment="CENTER_LEFT" spacing="8">
-                                           <children>
-                                               <CheckBox fx:id="checkFacile" mnemonicParsing="false" text="Facile" />
-                                               <CheckBox fx:id="checkMedio" mnemonicParsing="false" text="Medio" />
-                                               <CheckBox fx:id="checkDifficile" mnemonicParsing="false" text="Difficile" />
-                                           </children>
-                                       </VBox>
-                                   </children>
-                               </VBox>
-                           </children>
-                       </HBox>
-                   </children>
-               </VBox>
+               <ScrollPane fx:id="schermataInfoUtente" fitToHeight="true" fitToWidth="true" visible="false">
+                   <VBox alignment="TOP_CENTER" maxWidth="Infinity" spacing="25" style="-fx-padding: 30;">
+                       <children>
+                           <HBox alignment="CENTER" maxWidth="Infinity" spacing="60">
+                               <children>
+                                   <VBox alignment="CENTER_LEFT" maxWidth="450" spacing="15" HBox.hgrow="ALWAYS">
+                                       <children>
+                                           <Label style="-fx-font-size: 24px; -fx-font-weight: bold;" text="Informazioni Utente" />
+                                           <Label fx:id="usernameInfoUtente" text="Username: " />
+                                           <Label fx:id="emailInfoUtente" text="E-mail: " />
+                                           <Label fx:id="n_facile" text="N° partite difficoltà facile: " />
+                                           <Label fx:id="migliore_facile" text="Miglior punteggio in difficoltà facile: " />
+                                           <Label fx:id="n_medio" text="N° partite difficoltà media: " />
+                                           <Label fx:id="migliore_medio" text="Miglior punteggio in difficoltà media: " />
+                                           <Label fx:id="n_difficile" text="N° partite difficoltà difficile: " />
+                                           <Label fx:id="migliore_difficile" text="Miglior punteggio in difficoltà difficile: " />
+                                           
+                                           <Button fx:id="tornaAllaHomepage" mnemonicParsing="false" onAction="#chiudiInfoUtente" prefHeight="45" prefWidth="280" text="Torna alla homepage">
+                                               <VBox.margin>
+                                                   <Insets top="20" />
+                                               </VBox.margin>
+                                           </Button>
+                                       </children>
+                                   </VBox>
+                                   <VBox alignment="CENTER" maxWidth="350" HBox.hgrow="ALWAYS">
+                                       <children>
+                                           <ImageView fx:id="immagineInfoUtente" fitHeight="208" fitWidth="208" onMouseClicked="#cambiaIMG" pickOnBounds="true" preserveRatio="true">
+                                               <image>
+                                                   <Image url="@../imgs/Profile_avatar_placeholder_large.png" />
+                                               </image>
+                                           </ImageView>
+                                       </children>
+                                   </VBox>
+                               </children>
+                           </HBox>
+                           
+                           <Label style="-fx-font-size: 20px; -fx-font-weight: bold;" text="Cronologia partite" />
+                           <HBox alignment="CENTER_LEFT" maxWidth="Infinity" spacing="25.0" VBox.vgrow="ALWAYS">
+                               <children>
+                                   <TableView fx:id="cronologiaPartite" prefHeight="350.0" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS">
+                                       <columns>
+                                           <TableColumn fx:id="dataCronologiaPartite" minWidth="-1.0" prefWidth="150.0" text="Data" />
+                                           <TableColumn fx:id="difficoltàCronologiaPartite" prefWidth="120.0" text="Difficoltà" />
+                                           <TableColumn fx:id="punteggioCronologiaPartite" prefWidth="120.0" text="Punteggio" />
+                                       </columns>
+                                       <columnResizePolicy>
+                                           <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                                       </columnResizePolicy>
+                                   </TableView>
+                                   
+                                   <VBox alignment="TOP_LEFT" prefHeight="350.0" prefWidth="300.0" spacing="15" style="-fx-padding: 20; -fx-background-color: rgba(255,255,255,0.1); -fx-background-radius: 10;" HBox.hgrow="NEVER">
+                                       <children>
+                                           <Label style="-fx-font-weight: bold; -fx-font-size: 16px;" text="Filtri di ricerca" />
+                                           
+                                           <VBox spacing="12">
+                                               <children>
+                                                   <Label style="-fx-font-size: 12px;" text="Data inizio" />
+                                                   <DatePicker fx:id="dataInizio" minHeight="30" prefWidth="200" />
+                                                   
+                                                   <Label style="-fx-font-size: 12px;" text="Data fine" />
+                                                   <DatePicker fx:id="dataFine" minHeight="30" prefWidth="200" />
+                                                   
+                                                   <Label style="-fx-font-size: 12px;" text="Punteggio minimo" />
+                                                   <TextField fx:id="punteggioMinimo" minHeight="30" prefWidth="200" />
+                                                   
+                                                   <Label style="-fx-font-size: 12px;" text="Punteggio massimo" />
+                                                   <TextField fx:id="punteggioMassimo" minHeight="30" prefWidth="200" />
+                                               </children>
+                                           </VBox>
+                                           
+                                           <Label style="-fx-font-weight: bold; -fx-font-size: 14px;" text="Difficoltà">
+                                               <VBox.margin>
+                                                   <Insets top="15" />
+                                               </VBox.margin>
+                                           </Label>
+                                           
+                                           <VBox alignment="CENTER_LEFT" spacing="8">
+                                               <children>
+                                                   <CheckBox fx:id="checkFacile" mnemonicParsing="false" text="Facile" />
+                                                   <CheckBox fx:id="checkMedio" mnemonicParsing="false" text="Medio" />
+                                                   <CheckBox fx:id="checkDifficile" mnemonicParsing="false" text="Difficile" />
+                                               </children>
+                                           </VBox>
+                                       </children>
+                                   </VBox>
+                               </children>
+                           </HBox>
+                       </children>
+                   </VBox>
+               </ScrollPane>
             
                <!-- Schermata Documenti Admin -->
-               <VBox fx:id="schermataDocumentiAdmin" alignment="CENTER" prefHeight="200.0" prefWidth="100.0" spacing="25.0" visible="false" style="-fx-padding: 40;">
-                   <children>
-                       <Label alignment="CENTER" text="Inserisci documenti" style="-fx-font-size: 32px; -fx-font-weight: bold;" />
-                       
-                       <VBox spacing="25" alignment="CENTER" maxWidth="650">
-                           <children>
-                               <HBox alignment="CENTER" spacing="20">
-                                   <children>
-                                       <Label text="Nome documento:" />
-                                       <TextField fx:id="pathTextField" promptText="NomeFile.txt" prefWidth="350" minHeight="35" />
-                                   </children>
-                               </HBox>
-                               
-                               <VBox spacing="15" alignment="CENTER">
-                                   <children>
-                                       <Label text="Scegli lingua:" />
-                                       <HBox alignment="CENTER" spacing="20">
-                                           <children>
-                                               <RadioButton fx:id="adminRadioIT" mnemonicParsing="false" text="IT">
-                                                   <toggleGroup>
-                                                       <ToggleGroup fx:id="lingua" />
-                                                   </toggleGroup>
-                                               </RadioButton>
-                                               <RadioButton fx:id="adminRadioEN" mnemonicParsing="false" text="EN" toggleGroup="$lingua" />
-                                               <RadioButton fx:id="adminRadioES" mnemonicParsing="false" text="ES" toggleGroup="$lingua" />
-                                               <RadioButton fx:id="adminRadioDE" mnemonicParsing="false" text="DE" toggleGroup="$lingua" />
-                                               <RadioButton fx:id="adminRadioFR" mnemonicParsing="false" text="FR" toggleGroup="$lingua" />
-                                           </children>
-                                       </HBox>
-                                   </children>
-                               </VBox>
-                               
-                               <VBox spacing="15" alignment="CENTER">
-                                   <children>
-                                       <Label text="Scegli la difficoltà:" />
-                                       <HBox alignment="CENTER" spacing="20">
-                                           <children>
-                                               <RadioButton fx:id="adminRadioFacile" mnemonicParsing="false" text="Facile">
-                                                   <toggleGroup>
-                                                       <ToggleGroup fx:id="inserisciDifficoltà" />
-                                                   </toggleGroup>
-                                               </RadioButton>
-                                               <RadioButton fx:id="adminRadioMedio" mnemonicParsing="false" text="Medio" toggleGroup="$inserisciDifficoltà" />
-                                               <RadioButton fx:id="adminRadioDifficile" mnemonicParsing="false" text="Difficile" toggleGroup="$inserisciDifficoltà" />
-                                           </children>
-                                       </HBox>
-                                   </children>
-                               </VBox>
-                               
-                               <Button fx:id="browseButton" mnemonicParsing="false" onAction="#scegliFileTesto" text="Scegli file di testo" prefWidth="250" prefHeight="45" />
-                               
-                               <HBox alignment="CENTER" spacing="25">
-                                   <children>
-                                       <Button fx:id="saveButton" mnemonicParsing="false" onAction="#caricaTesto" text="Salva documento" prefWidth="220" prefHeight="45" />
-                                       <Button fx:id="backToGestDoc" mnemonicParsing="false" onAction="#backToGestDoc" text="Indietro" prefWidth="180" prefHeight="45" />
-                                   </children>
-                               </HBox>
-                           </children>
-                       </VBox>
-                   </children>
-               </VBox>
+               <ScrollPane fx:id="schermataDocumentiAdmin" fitToHeight="true" fitToWidth="true" visible="false">
+                   <VBox alignment="CENTER" maxWidth="Infinity" spacing="25.0" style="-fx-padding: 40;">
+                       <children>
+                           <Label alignment="CENTER" style="-fx-font-size: 32px; -fx-font-weight: bold;" text="Inserisci documenti" />
+                           
+                           <VBox alignment="CENTER" maxWidth="Infinity" spacing="25">
+                               <children>
+                                   <HBox alignment="CENTER" maxWidth="Infinity" spacing="20">
+                                       <children>
+                                           <Label text="Nome documento:" />
+                                           <TextField fx:id="pathTextField" minHeight="35" prefWidth="350" promptText="NomeFile.txt" HBox.hgrow="ALWAYS" />
+                                       </children>
+                                   </HBox>
+                                   
+                                   <VBox alignment="CENTER" maxWidth="Infinity" spacing="15">
+                                       <children>
+                                           <Label text="Scegli lingua:" />
+                                           <HBox alignment="CENTER" maxWidth="Infinity" spacing="20">
+                                               <children>
+                                                   <RadioButton fx:id="adminRadioIT" mnemonicParsing="false" text="IT">
+                                                       <toggleGroup>
+                                                           <ToggleGroup fx:id="lingua" />
+                                                       </toggleGroup>
+                                                   </RadioButton>
+                                                   <RadioButton fx:id="adminRadioEN" mnemonicParsing="false" text="EN" toggleGroup="$lingua" />
+                                                   <RadioButton fx:id="adminRadioES" mnemonicParsing="false" text="ES" toggleGroup="$lingua" />
+                                                   <RadioButton fx:id="adminRadioDE" mnemonicParsing="false" text="DE" toggleGroup="$lingua" />
+                                                   <RadioButton fx:id="adminRadioFR" mnemonicParsing="false" text="FR" toggleGroup="$lingua" />
+                                               </children>
+                                           </HBox>
+                                       </children>
+                                   </VBox>
+                                   
+                                   <VBox alignment="CENTER" maxWidth="Infinity" spacing="15">
+                                       <children>
+                                           <Label text="Scegli la difficoltà:" />
+                                           <HBox alignment="CENTER" maxWidth="Infinity" spacing="20">
+                                               <children>
+                                                   <RadioButton fx:id="adminRadioFacile" mnemonicParsing="false" text="Facile">
+                                                       <toggleGroup>
+                                                           <ToggleGroup fx:id="inserisciDifficoltà" />
+                                                       </toggleGroup>
+                                                   </RadioButton>
+                                                   <RadioButton fx:id="adminRadioMedio" mnemonicParsing="false" text="Medio" toggleGroup="$inserisciDifficoltà" />
+                                                   <RadioButton fx:id="adminRadioDifficile" mnemonicParsing="false" text="Difficile" toggleGroup="$inserisciDifficoltà" />
+                                               </children>
+                                           </HBox>
+                                       </children>
+                                   </VBox>
+                                   
+                                   <Button fx:id="browseButton" mnemonicParsing="false" onAction="#scegliFileTesto" prefHeight="45" prefWidth="250" text="Scegli file di testo" />
+                                   
+                                   <HBox alignment="CENTER" maxWidth="Infinity" spacing="25">
+                                       <children>
+                                           <Button fx:id="saveButton" mnemonicParsing="false" onAction="#caricaTesto" prefHeight="45" prefWidth="220" text="Salva documento" />
+                                           <Button fx:id="backToGestDoc" mnemonicParsing="false" onAction="#backToGestDoc" prefHeight="45" prefWidth="180" text="Indietro" />
+                                       </children>
+                                   </HBox>
+                               </children>
+                           </VBox>
+                       </children>
+                   </VBox>
+               </ScrollPane>
 
                <!-- Gestione Documenti -->
-               <VBox fx:id="gestioneDocumentiView" alignment="CENTER" prefHeight="200.0" prefWidth="100.0" visible="false" spacing="12" style="-fx-padding: 30;">
-                   <children>
-                       <Label text="Gestione Documenti" style="-fx-font-size: 28px; -fx-font-weight: bold;" />
-                       
-                       <TableView fx:id="gestDocTabella" editable="true" VBox.vgrow="ALWAYS" prefHeight="220">
-                           <columns>
-                               <TableColumn fx:id="gestDocColNomeFile" prefWidth="150.0" text="Nome file" />
-                               <TableColumn fx:id="gestDocColDifficoltà" prefWidth="100.0" text="Difficoltà" />
-                               <TableColumn fx:id="gestDocColInserito" prefWidth="150.0" text="Inserito da:" />
-                               <TableColumn fx:id="gestDocColLingua" prefWidth="100.0" text="Lingua" />
-                               <TableColumn fx:id="gestDocColDocumento" prefWidth="200.0" text="Documento" />
-                           </columns>
-                           <contextMenu>
-                               <ContextMenu>
-                                   <items>
-                                       <MenuItem fx:id="eliminaDocItem" mnemonicParsing="false" onAction="#eliminaDoc" text="Elimina" />
-                                   </items>
-                               </ContextMenu>
-                           </contextMenu>
-                           <columnResizePolicy>
-                               <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
-                           </columnResizePolicy>
-                       </TableView>
-                       
-                       <VBox spacing="10" alignment="CENTER">
-                           <children>
-                               <Label text="Barra di ricerca" />
-                               <TextField fx:id="gestDocBarraDiRicerca" prefWidth="450" minHeight="35" />
-                               
-                               <VBox spacing="8" alignment="CENTER">
-                                   <children>
-                                       <Label text="Seleziona difficoltà" />
-                                       <HBox alignment="CENTER" spacing="25.0">
-                                           <children>
-                                               <CheckBox fx:id="gestDocCheckFacile" mnemonicParsing="false" text="Facile" />
-                                               <CheckBox fx:id="gestDocCheckMedia" mnemonicParsing="false" text="Media" />
-                                               <CheckBox fx:id="gestDocCheckDifficile" mnemonicParsing="false" text="Difficile" />
-                                           </children>
-                                       </HBox>
-                                   </children>
-                               </VBox>
-                               
-                               <VBox spacing="8" alignment="CENTER">
-                                   <children>
-                                       <Label text="Seleziona lingua" />
-                                       <HBox alignment="CENTER" spacing="20.0">
-                                           <children>
-                                               <CheckBox fx:id="gestDocIT" mnemonicParsing="false" text="Italiano" />
-                                               <CheckBox fx:id="gestDocCheckEN" mnemonicParsing="false" text="Inglese" />
-                                               <CheckBox fx:id="gestDocCheckES" mnemonicParsing="false" text="Spagnolo" />
-                                               <CheckBox fx:id="gestDocCheckFR" mnemonicParsing="false" text="Francese" />
-                                               <CheckBox fx:id="gestDocCheckDE" mnemonicParsing="false" text="Tedesco" />
-                                           </children>
-                                       </HBox>
-                                   </children>
-                               </VBox>
-                               
-                               <HBox alignment="CENTER" spacing="25.0">
-                                   <children>
-                                       <Button fx:id="gestDocNuovoButton" mnemonicParsing="false" onAction="#gestDocNuovoButtonOnAction" text="Inserisci nuovo documento" prefWidth="340" prefHeight="45" />
-                                       <Button fx:id="gestDocButtonTornaAllaHome" mnemonicParsing="false" onAction="#tornaAllaHomeFromGestDoc" text="Torna alla homepage" prefWidth="300" prefHeight="45" />
-                                   </children>
-                               </HBox>
-                           </children>
-                       </VBox>
-                   </children>
-               </VBox>
+               <ScrollPane fx:id="gestioneDocumentiView" fitToHeight="true" fitToWidth="true" visible="false">
+                   <VBox alignment="CENTER" maxWidth="Infinity" spacing="12" style="-fx-padding: 30;">
+                       <children>
+                           <Label style="-fx-font-size: 28px; -fx-font-weight: bold;" text="Gestione Documenti" />
+                           
+                           <TableView fx:id="gestDocTabella" editable="true" maxWidth="Infinity" prefHeight="220" VBox.vgrow="ALWAYS">
+                               <columns>
+                                   <TableColumn fx:id="gestDocColNomeFile" prefWidth="150.0" text="Nome file" />
+                                   <TableColumn fx:id="gestDocColDifficoltà" prefWidth="100.0" text="Difficoltà" />
+                                   <TableColumn fx:id="gestDocColInserito" prefWidth="150.0" text="Inserito da:" />
+                                   <TableColumn fx:id="gestDocColLingua" prefWidth="100.0" text="Lingua" />
+                                   <TableColumn fx:id="gestDocColDocumento" prefWidth="200.0" text="Documento" />
+                               </columns>
+                               <contextMenu>
+                                   <ContextMenu>
+                                       <items>
+                                           <MenuItem fx:id="eliminaDocItem" mnemonicParsing="false" onAction="#eliminaDoc" text="Elimina" />
+                                       </items>
+                                   </ContextMenu>
+                               </contextMenu>
+                               <columnResizePolicy>
+                                   <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                               </columnResizePolicy>
+                           </TableView>
+                           
+                           <VBox alignment="CENTER" maxWidth="Infinity" spacing="10">
+                               <children>
+                                   <Label text="Barra di ricerca" />
+                                   <TextField fx:id="gestDocBarraDiRicerca" minHeight="35" prefWidth="450" />
+                                   
+                                   <VBox alignment="CENTER" spacing="8">
+                                       <children>
+                                           <Label text="Seleziona difficoltà" />
+                                           <HBox alignment="CENTER" maxWidth="Infinity" spacing="25.0">
+                                               <children>
+                                                   <CheckBox fx:id="gestDocCheckFacile" mnemonicParsing="false" text="Facile" />
+                                                   <CheckBox fx:id="gestDocCheckMedia" mnemonicParsing="false" text="Media" />
+                                                   <CheckBox fx:id="gestDocCheckDifficile" mnemonicParsing="false" text="Difficile" />
+                                               </children>
+                                           </HBox>
+                                       </children>
+                                   </VBox>
+                                   
+                                   <VBox alignment="CENTER" spacing="8">
+                                       <children>
+                                           <Label text="Seleziona lingua" />
+                                           <HBox alignment="CENTER" maxWidth="Infinity" spacing="20.0">
+                                               <children>
+                                                   <CheckBox fx:id="gestDocIT" mnemonicParsing="false" text="Italiano" />
+                                                   <CheckBox fx:id="gestDocCheckEN" mnemonicParsing="false" text="Inglese" />
+                                                   <CheckBox fx:id="gestDocCheckES" mnemonicParsing="false" text="Spagnolo" />
+                                                   <CheckBox fx:id="gestDocCheckFR" mnemonicParsing="false" text="Francese" />
+                                                   <CheckBox fx:id="gestDocCheckDE" mnemonicParsing="false" text="Tedesco" />
+                                               </children>
+                                           </HBox>
+                                       </children>
+                                   </VBox>
+                                   
+                                   <HBox alignment="CENTER" maxWidth="Infinity" spacing="25.0">
+                                       <children>
+                                           <Button fx:id="gestDocNuovoButton" mnemonicParsing="false" onAction="#gestDocNuovoButtonOnAction" prefHeight="45" prefWidth="340" text="Inserisci nuovo documento" />
+                                           <Button fx:id="gestDocButtonTornaAllaHome" mnemonicParsing="false" onAction="#tornaAllaHomeFromGestDoc" prefHeight="45" prefWidth="300" text="Torna alla homepage" />
+                                       </children>
+                                   </HBox>
+                               </children>
+                           </VBox>
+                       </children>
+                   </VBox>
+               </ScrollPane>
 
                <!-- Schermata Stopwords -->
-               <VBox fx:id="schermataStopwords" alignment="CENTER" prefHeight="200.0" prefWidth="100.0" spacing="30.0" style="-fx-padding: 40;">
-                   <children>
-                       <Label text="Modifica le stopwords" style="-fx-font-size: 32px; -fx-font-weight: bold;" />
-                       
-                       <TextArea fx:id="stopwordTextArea" prefHeight="380.0" prefWidth="750.0" VBox.vgrow="ALWAYS" />
-                       
-                       <HBox alignment="CENTER" spacing="30">
-                           <children>
-                               <Button fx:id="tornaHomeButton" mnemonicParsing="false" onAction="#tornaAllaHome" text="Torna alla Homepage" prefWidth="320" prefHeight="45" />
-                               <Button fx:id="salvaStopwordsButton" mnemonicParsing="false" onAction="#salvaStopwords" text="Salva" prefWidth="220" prefHeight="45" />
-                           </children>
-                       </HBox>
-                   </children>
-               </VBox>
+               <ScrollPane fx:id="schermataStopwords" fitToHeight="true" fitToWidth="true" visible="false">
+                   <VBox alignment="CENTER" maxWidth="Infinity" spacing="30.0" style="-fx-padding: 40;">
+                       <children>
+                           <Label style="-fx-font-size: 32px; -fx-font-weight: bold;" text="Modifica le stopwords" />
+                           
+                           <TextArea fx:id="stopwordTextArea" maxWidth="Infinity" prefHeight="380.0" prefWidth="750.0" VBox.vgrow="ALWAYS" />
+                           
+                           <HBox alignment="CENTER" maxWidth="Infinity" spacing="30">
+                               <children>
+                                   <Button fx:id="tornaHomeButton" mnemonicParsing="false" onAction="#tornaAllaHome" prefHeight="45" prefWidth="320" text="Torna alla Homepage" />
+                                   <Button fx:id="salvaStopwordsButton" mnemonicParsing="false" onAction="#salvaStopwords" prefHeight="45" prefWidth="220" text="Salva" />
+                               </children>
+                           </HBox>
+                       </children>
+                   </VBox>
+               </ScrollPane>
 
                <!-- Loading Overlay -->
                <AnchorPane fx:id="loadingOverlay" style="-fx-background-color: rgba(0, 0, 0, 0.7);" visible="false" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0" StackPane.alignment="CENTER">

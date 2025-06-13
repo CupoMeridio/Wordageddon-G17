@@ -78,6 +78,7 @@ import java.util.function.Consumer;
 import javafx.concurrent.Service;
 import javafx.concurrent.Worker;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
 
 /**
@@ -130,7 +131,7 @@ public class AppViewController implements Initializable {
     @FXML
     private Button chiudiClassificheButton;
     @FXML
-    private VBox schermataSelezioneDifficoltà;
+    private ScrollPane schermataSelezioneDifficoltà;
     @FXML
     private Label usernameLabel;
     @FXML
@@ -154,7 +155,7 @@ public class AppViewController implements Initializable {
     @FXML
     private ImageView imageView;
     @FXML
-    private HBox schermataDiRegistrazione;    
+    private ScrollPane schermataDiRegistrazione;    
     @FXML
     private TableColumn<Classifica, Integer> facilePosizione;
     @FXML
@@ -174,7 +175,7 @@ public class AppViewController implements Initializable {
     @FXML
     private TableColumn<Classifica, Float> difficilePunteggio;
     @FXML
-    private VBox schermataInfoUtente;
+    private ScrollPane schermataInfoUtente;
     @FXML
     private Label usernameInfoUtente;
     @FXML
@@ -220,9 +221,9 @@ public class AppViewController implements Initializable {
     @FXML
     private Button infoProfiloButton;
     @FXML
-    private VBox schermataStopwords;
+    private ScrollPane schermataStopwords;
     @FXML
-    private VBox gestioneDocumentiView;
+    private ScrollPane gestioneDocumentiView;
     @FXML
     private TableView<DocumentoDiTesto> gestDocTabella;
     @FXML
@@ -288,7 +289,7 @@ public class AppViewController implements Initializable {
     @FXML
     private Button salvaStopwordsButton;
     @FXML
-    private VBox schermataDocumentiAdmin;
+    private ScrollPane schermataDocumentiAdmin;
     @FXML
     private TextField pathTextField;
     @FXML
@@ -338,6 +339,8 @@ public class AppViewController implements Initializable {
     private CaricaTestoService cts = new CaricaTestoService();
     private PrendiTestoService pts = new PrendiTestoService();
     private ModificaFotoProfiloService mfps = new ModificaFotoProfiloService();
+    @FXML
+    private Button indietroSelezione;
 
     
     

@@ -89,7 +89,8 @@ public class GeneratoreDomande {
         int idx = opzioniNum.indexOf(freq);
 
         List<String> opzioni = opzioniNum.stream().map(String::valueOf).collect(Collectors.toList());
-        String testo = String.format("Quante volte compare la parola \"%s\" nel documento?", parola);
+        String nomeSenzaEstensione = nomeDocumento.endsWith(".txt") ? nomeDocumento.substring(0, nomeDocumento.lastIndexOf(".txt")) : nomeDocumento;
+        String testo = String.format("Quante volte compare la parola \"%s\" nel documento \"%s\"?", parola, nomeSenzaEstensione);
         return new Domanda(testo, opzioni, idx);
     }
 

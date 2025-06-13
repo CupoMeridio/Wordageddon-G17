@@ -1937,6 +1937,7 @@ public class AppViewController implements Initializable {
      */
     private Runnable creaFiltro(FilteredList<DocumentoDiTesto> filteredList) {
         return () -> filteredList.setPredicate(doc -> {
+            // Filtro per difficoltà
             String livelloDb = doc.getDifficolta() != null ? doc.getDifficolta().getDbValue() : "";
 
             boolean matchDifficolta =
@@ -1945,24 +1946,32 @@ public class AppViewController implements Initializable {
                     (gestDocCheckDifficile.isSelected() && "difficile".equalsIgnoreCase(livelloDb));
 
             if (!gestDocCheckFacile.isSelected() && !gestDocCheckMedia.isSelected() && !gestDocCheckDifficile.isSelected()) {
-                matchDifficolta = true;
+                matchDifficolta = true; // Mostra tutti se nessuna difficoltà è selezionata
             }
 
+            // Filtro per lingua
             Lingua lingua = doc.lingua();
+            boolean matchLingua = true; // Default a true se nessuna lingua è selezionata
 
-            boolean matchLingua =
-                (gestDocIT.isSelected() && lingua == Lingua.ITALIANO) ||
-                (gestDocCheckEN.isSelected() && lingua == Lingua.INGLESE) ||
-                (gestDocCheckES.isSelected() && lingua == Lingua.SPAGNOLO) ||
-                (gestDocCheckFR.isSelected() && lingua == Lingua.FRANCESE) ||
-                (gestDocCheckDE.isSelected() && lingua == Lingua.TEDESCO) ||
-                (!gestDocIT.isSelected() && !gestDocCheckEN.isSelected() && !gestDocCheckES.isSelected() &&
-                 !gestDocCheckFR.isSelected() && !gestDocCheckDE.isSelected());
+            if (gestDocIT.isSelected() || gestDocCheckEN.isSelected() || gestDocCheckES.isSelected() ||
+                gestDocCheckFR.isSelected() || gestDocCheckDE.isSelected()) {
 
-            String query = gestDocBarraDiRicerca.getText() != null ? gestDocBarraDiRicerca.getText().toLowerCase() : "";
-            boolean matchRicerca = query.isBlank()
-                || doc.nomeFile().toLowerCase().contains(query)
-                || doc.emailAmministratore().toLowerCase().contains(query);
+                matchLingua = 
+                    (gestDocIT.isSelected() && lingua == Lingua.ITALIANO) ||
+                    (gestDocCheckEN.isSelected() && lingua == Lingua.INGLESE) ||
+                    (gestDocCheckES.isSelected() && lingua == Lingua.SPAGNOLO) ||
+                    (gestDocCheckFR.isSelected() && lingua == Lingua.FRANCESE) ||
+                    (gestDocCheckDE.isSelected() && lingua == Lingua.TEDESCO);
+            }
+
+            // Filtro per ricerca testo
+            String query = gestDocBarraDiRicerca.getText() != null ? 
+                           gestDocBarraDiRicerca.getText().toLowerCase() : "";
+            boolean matchRicerca = query.isBlank() ||
+                    doc.nomeFile().toLowerCase().contains(query) ||
+                    doc.emailAmministratore().toLowerCase().contains(query) ||
+                    livelloDb.contains(query.toLowerCase()) ||  // Cerca anche nella difficoltà
+                    lingua.toString().toLowerCase().contains(query.toLowerCase()); // Cerca anche nella lingua
 
             return matchDifficolta && matchLingua && matchRicerca;
         });

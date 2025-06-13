@@ -119,16 +119,14 @@ public class GeneratoreDomande {
         }
         Collections.shuffle(opzioni);
         int idx = opzioni.indexOf(parolaMax);
-
-        String testo = "Quale parola compare più spesso nel documento?";
+        String nomeSenzaEstensione = nomeDocumento.endsWith(".txt") ? nomeDocumento.substring(0, nomeDocumento.lastIndexOf(".txt")) : nomeDocumento;
+        String testo = String.format("Quale parola compare più spesso nel documento \"%s\"?", nomeSenzaEstensione);
         return new Domanda(testo, opzioni, idx);
     }
 
     /**
-     *
+     * Dizionario necessario per l'implementazione di domandaParolaMaiComparsa
      */
-    // public Domanda domandaParolaMaiComparsa
-    // da implementare, serve anche un dizionario, una lista di parole
     private static final List<String> DIZIONARIO_PAROLE = Arrays.asList(
             "CASA", "LIBRO", "TAVOLO", "SEDIA", "FINESTRA", "PORTA", "GIARDINO", "ALBERO",
             "FIORE", "SOLE", "LUNA", "STELLA", "MARE", "MONTAGNA", "FIUME", "LAGO",
@@ -193,8 +191,9 @@ public class GeneratoreDomande {
 
         Collections.shuffle(opzioni);
         int idx = opzioni.indexOf(parolaNonPresente);
-
-        String testo = "Quale di queste parole NON è presente nel documento?";
+        
+        String nomeSenzaEstensione = nomeDocumento.endsWith(".txt") ? nomeDocumento.substring(0, nomeDocumento.lastIndexOf(".txt")) : nomeDocumento;
+        String testo = String.format("Quale di queste parole NON è presente nel documento \"%s\"?", nomeSenzaEstensione);
         return new Domanda(testo, opzioni, idx);
     }
 
@@ -218,7 +217,8 @@ public class GeneratoreDomande {
         String parolaMax = scelte.stream().max(Comparator.comparingInt(parole::get)).get(); // viene creato uno stream di parole, e si trova quella con frequenza massima
         int idx = scelte.indexOf(parolaMax); // indice della parola più frequente
 
-        String testo = "Quale tra queste parole è la più frequente nel documento?";
+        String nomeSenzaEstensione = nomeDocumento.endsWith(".txt") ? nomeDocumento.substring(0, nomeDocumento.lastIndexOf(".txt")) : nomeDocumento;
+        String testo = String.format("Quale tra queste parole è la più frequente nel documento \"%s\"?", nomeSenzaEstensione);
         return new Domanda(testo, scelte, idx);
     }
 
@@ -249,8 +249,9 @@ public class GeneratoreDomande {
         }
         Collections.shuffle(opzioni);
         int idx = opzioni.indexOf(parolaMin);
-
-        String testo = "Quale parola compare meno spesso nel documento?";
+        
+        String nomeSenzaEstensione = nomeDocumento.endsWith(".txt") ? nomeDocumento.substring(0, nomeDocumento.lastIndexOf(".txt")) : nomeDocumento;
+        String testo = String.format("Quale parola compare meno spesso nel documento \"%s\"?", nomeSenzaEstensione);
         return new Domanda(testo, opzioni, idx);
     }
 

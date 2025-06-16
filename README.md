@@ -21,6 +21,9 @@ Un'applicazione desktop ludico-educativa sviluppata in JavaFX per testare la mem
     - Gestione dei documenti testuali
     - Modifica della lista di *stopwords*
 - 🏆 **Classifiche e storico punteggi**
+- 💾 Ripresa delle partite interrotte:
+  - Il sistema salva automaticamente lo stato corrente della partita
+  - Alla successiva autenticazione, l'utente può decidere se riprendere o iniziare una nuova sessione di gioco
 
 ---
 

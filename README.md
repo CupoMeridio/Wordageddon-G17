@@ -68,10 +68,14 @@ Il progetto utilizza le seguenti librerie e plugin esterni:
 Wordageddon-G17/
 ├── src/
 │   └── main/
-│       ├── java/                  # Codice sorgente Java
-│       ├── resources/             # Risorse (FXML, immagini, file di configurazione)
-├── .env                          # Variabili d’ambiente (NON incluso nel repository)
-├── pom.xml                       # Configurazione Maven
+│       ├── java/                           # Codice sorgente Java
+│       ├── resources/                      # Risorse (FXML, immagini, file di configurazione)
+├── .env                                    # Variabili d’ambiente (NON incluso nel repository)
+├── Documentazione javadoc/                 # Cartella contenente la documentazione javadoc
+├── Home documentazione javadoc             # Collegamento epr accedere rapidamente alla home della documentazione javadoc
+├── pom.xml                                 # Configurazione Maven
+├── Schema database.sql                     # Backup del database realizzato contenente la sola struttura
+├── Relazione di progetto - Gruppo 17.pdf   # Relazione del progetto contenente analisi dei requisiti, casi d'uso, diagrammi delle classi, diagrammi delle sequenze, progettazione database con diagramma ER, mockup
 ```
 
 ---

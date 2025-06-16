@@ -1,0 +1,435 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<ClassDiagram name="ProgettoPerDiagrammi">
+  <ClassDiagramComponents>
+    <Class name="AppViewController" package="" visibility="public" xPosition="20.0" yPosition="20.0">
+      <Fields>
+        <Field name="root" type="StackPane" visibility="private"/>
+        <Field name="schermataDiLogin" type="VBox" visibility="private"/>
+        <Field name="emailTextField" type="TextField" visibility="private"/>
+        <Field name="passwordTextField" type="TextField" visibility="private"/>
+        <Field name="accediButton" type="Button" visibility="private"/>
+        <Field name="passaARegistratiButton" type="Button" visibility="private"/>
+        <Field name="schermataHome" type="AnchorPane" visibility="private"/>
+        <Field name="contenutoHome" type="VBox" visibility="private"/>
+        <Field name="startButton" type="Button" visibility="private"/>
+        <Field name="classificheButton" type="Button" visibility="private"/>
+        <Field name="quickInfoUtente" type="HBox" visibility="private"/>
+        <Field name="benvenutoLabel" type="Label" visibility="private"/>
+        <Field name="fotoProfilo" type="ImageView" visibility="private"/>
+        <Field name="dashboardMenu" type="VBox" visibility="private"/>
+        <Field name="newDocument" type="Button" visibility="private"/>
+        <Field name="stopwordList" type="Button" visibility="private"/>
+        <Field name="schermataClassifiche" type="VBox" visibility="private"/>
+        <Field name="facileTable" type="TableView&lt;Classifica&gt;" visibility="private"/>
+        <Field name="mediaTable" type="TableView&lt;Classifica&gt;" visibility="private"/>
+        <Field name="difficileTable" type="TableView&lt;Classifica&gt;" visibility="private"/>
+        <Field name="chiudiClassificheButton" type="Button" visibility="private"/>
+        <Field name="schermataSelezioneDifficoltà" type="VBox" visibility="private"/>
+        <Field name="usernameLabel" type="Label" visibility="private"/>
+        <Field name="username" type="TextField" visibility="private"/>
+        <Field name="emailLabel" type="Label" visibility="private"/>
+        <Field name="email" type="TextField" visibility="private"/>
+        <Field name="passwordLabel" type="Label" visibility="private"/>
+        <Field name="password" type="TextField" visibility="private"/>
+        <Field name="repeatLabel" type="Label" visibility="private"/>
+        <Field name="repeatPassword" type="TextField" visibility="private"/>
+        <Field name="registerButton" type="Button" visibility="private"/>
+        <Field name="registerPageLogin" type="Button" visibility="private"/>
+        <Field name="imageView" type="ImageView" visibility="private"/>
+        <Field name="schermataDiRegistrazione" type="HBox" visibility="private"/>
+        <Field name="facilePosizione" type="TableColumn&lt;Classifica, Integer&gt;" visibility="private"/>
+        <Field name="facileNome" type="TableColumn&lt;Classifica, String&gt;" visibility="private"/>
+        <Field name="facilePunteggio" type="TableColumn&lt;Classifica, Float&gt;" visibility="private"/>
+        <Field name="mediaPosizione" type="TableColumn&lt;Classifica, Integer&gt;" visibility="private"/>
+        <Field name="mediaNome" type="TableColumn&lt;Classifica, String&gt;" visibility="private"/>
+        <Field name="mediaPunteggio" type="TableColumn&lt;Classifica, Float&gt;" visibility="private"/>
+        <Field name="difficilePosizione" type="TableColumn&lt;Classifica, Integer&gt;" visibility="private"/>
+        <Field name="difficileNome" type="TableColumn&lt;Classifica, String&gt;" visibility="private"/>
+        <Field name="difficilePunteggio" type="TableColumn&lt;Classifica, Float&gt;" visibility="private"/>
+        <Field name="schermataInfoUtente" type="VBox" visibility="private"/>
+        <Field name="usernameInfoUtente" type="Label" visibility="private"/>
+        <Field name="emailInfoUtente" type="Label" visibility="private"/>
+        <Field name="n_facile" type="Label" visibility="private"/>
+        <Field name="migliore_facile" type="Label" visibility="private"/>
+        <Field name="n_medio" type="Label" visibility="private"/>
+        <Field name="migliore_medio" type="Label" visibility="private"/>
+        <Field name="n_difficile" type="Label" visibility="private"/>
+        <Field name="migliore_difficile" type="Label" visibility="private"/>
+        <Field name="immagineInfoUtente" type="ImageView" visibility="private"/>
+        <Field name="cronologiaPartite" type="TableView&lt;Classifica&gt;" visibility="private"/>
+        <Field name="dataCronologiaPartite" type="TableColumn&lt;Classifica, Timestamp&gt;" visibility="private"/>
+        <Field name="difficoltàCronologiaPartite" type="TableColumn&lt;Classifica, String&gt;" visibility="private"/>
+        <Field name="punteggioCronologiaPartite" type="TableColumn&lt;Classifica, Float&gt;" visibility="private"/>
+        <Field name="dataInizio" type="DatePicker" visibility="private"/>
+        <Field name="dataFine" type="DatePicker" visibility="private"/>
+        <Field name="punteggioMinimo" type="TextField" visibility="private"/>
+        <Field name="punteggioMassimo" type="TextField" visibility="private"/>
+        <Field name="checkFacile" type="CheckBox" visibility="private"/>
+        <Field name="checkMedio" type="CheckBox" visibility="private"/>
+        <Field name="checkDifficile" type="CheckBox" visibility="private"/>
+        <Field name="tornaAllaHomepage" type="Button" visibility="private"/>
+        <Field name="infoProfiloButton" type="Button" visibility="private"/>
+        <Field name="schermataStopwords" type="VBox" visibility="private"/>
+        <Field name="gestioneDocumentiView" type="VBox" visibility="private"/>
+        <Field name="gestDocTabella" type="TableView&lt;DocumentoDiTesto&gt;" visibility="private"/>
+        <Field name="gestDocBarraDiRicerca" type="TextField" visibility="private"/>
+        <Field name="gestDocCheckFacile" type="CheckBox" visibility="private"/>
+        <Field name="gestDocCheckMedia" type="CheckBox" visibility="private"/>
+        <Field name="gestDocCheckDifficile" type="CheckBox" visibility="private"/>
+        <Field name="gestDocIT" type="CheckBox" visibility="private"/>
+        <Field name="gestDocCheckEN" type="CheckBox" visibility="private"/>
+        <Field name="gestDocCheckES" type="CheckBox" visibility="private"/>
+        <Field name="gestDocCheckFR" type="CheckBox" visibility="private"/>
+        <Field name="gestDocCheckDE" type="CheckBox" visibility="private"/>
+        <Field name="gestDocNuovoButton" type="Button" visibility="private"/>
+        <Field name="gestDocColDifficoltà" type="TableColumn&lt;DocumentoDiTesto, LivelloPartita&gt;" visibility="private"/>
+        <Field name="gestDocColInserito" type="TableColumn&lt;DocumentoDiTesto, String&gt;" visibility="private"/>
+        <Field name="gestDocColLingua" type="TableColumn&lt;DocumentoDiTesto, Lingua&gt;" visibility="private"/>
+        <Field name="gestDocColDocumento" type="TableColumn&lt;DocumentoDiTesto, String&gt;" visibility="private"/>
+        <Field name="gestDocColNomeFile" type="TableColumn&lt;DocumentoDiTesto, String&gt;" visibility="private"/>
+        <Field name="gestDocButtonTornaAllaHome" type="Button" visibility="private"/>
+        <Field name="loadingOverlay" type="AnchorPane" visibility="private"/>
+        <Field name="eliminaDocItem" type="MenuItem" visibility="private"/>
+        <Field name="radioFacile" type="RadioButton" visibility="private"/>
+        <Field name="difficoltà" type="ToggleGroup" visibility="private"/>
+        <Field name="radioMedio" type="RadioButton" visibility="private"/>
+        <Field name="radioDifficile" type="RadioButton" visibility="private"/>
+        <Field name="checkIT" type="CheckBox" visibility="private"/>
+        <Field name="checkEN" type="CheckBox" visibility="private"/>
+        <Field name="checkFR" type="CheckBox" visibility="private"/>
+        <Field name="checkDE" type="CheckBox" visibility="private"/>
+        <Field name="checkES" type="CheckBox" visibility="private"/>
+        <Field name="iniziaPartita" type="Button" visibility="private"/>
+        <Field name="stopwordTextArea" type="TextArea" visibility="private"/>
+        <Field name="tornaHomeButton" type="Button" visibility="private"/>
+        <Field name="salvaStopwordsButton" type="Button" visibility="private"/>
+        <Field name="schermataDocumentiAdmin" type="VBox" visibility="private"/>
+        <Field name="pathTextField" type="TextField" visibility="private"/>
+        <Field name="adminRadioIT" type="RadioButton" visibility="private"/>
+        <Field name="lingua" type="ToggleGroup" visibility="private"/>
+        <Field name="adminRadioEN" type="RadioButton" visibility="private"/>
+        <Field name="adminRadioES" type="RadioButton" visibility="private"/>
+        <Field name="adminRadioDE" type="RadioButton" visibility="private"/>
+        <Field name="adminRadioFR" type="RadioButton" visibility="private"/>
+        <Field name="adminRadioFacile" type="RadioButton" visibility="private"/>
+        <Field name="inserisciDifficoltà" type="ToggleGroup" visibility="private"/>
+        <Field name="adminRadioMedio" type="RadioButton" visibility="private"/>
+        <Field name="adminRadioDifficile" type="RadioButton" visibility="private"/>
+        <Field name="browseButton" type="Button" visibility="private"/>
+        <Field name="saveButton" type="Button" visibility="private"/>
+        <Field name="backToGestDoc" type="Button" visibility="private"/>
+        <Field name="appstate" type="AppState" visibility="private" isFinal="true"/>
+        <Field name="classificaFacile" type="ObservableList&lt;Classifica&gt;" visibility="private"/>
+        <Field name="classificaMedia" type="ObservableList&lt;Classifica&gt;" visibility="private"/>
+        <Field name="classificaDifficile" type="ObservableList&lt;Classifica&gt;" visibility="private"/>
+        <Field name="listaCronologiaPartite" type="ObservableList&lt;Classifica&gt;" visibility="private"/>
+        <Field name="listaDocumenti" type="ObservableList&lt;DocumentoDiTesto&gt;" visibility="private"/>
+        <Field name="fileSelezionato" type="File" visibility="private"/>
+        <Field name="dbSW" type="DAOListaStopWords" visibility="private" isFinal="true"/>
+        <Field name="pcs" type="PrendiClassificheService" visibility="private"/>
+        <Field name="pius" type="PrendiInfoUtenteService" visibility="private"/>
+        <Field name="pus" type="PrendiUtenteService" visibility="private"/>
+        <Field name="ius" type="InserisciUtenteService" visibility="private"/>
+        <Field name="ls" type="LoginService" visibility="private"/>
+        <Field name="ets" type="EliminaTestoService" visibility="private"/>
+        <Field name="ptds" type="PrendiTuttiIDocumentiService" visibility="private"/>
+        <Field name="cts" type="CaricaTestoService" visibility="private"/>
+        <Field name="pts" type="PrendiTestoService" visibility="private"/>
+        <Field name="mfps" type="ModificaFotoProfiloService" visibility="private"/>
+      </Fields>
+      <Constructors>
+        <Constructor visibility="public"/>
+      </Constructors>
+      <Methods>
+        <Method name="initialize" returnType="void" visibility="public">
+          <Argument type="URL" name="url"/>
+          <Argument type="ResourceBundle" name="rb"/>
+        </Method>
+        <Method name="accediOnAction" returnType="void" visibility="private">
+          <Argument type="ActionEvent" name="event"/>
+        </Method>
+        <Method name="passaARegistratiOnAction" returnType="void" visibility="private">
+          <Argument type="ActionEvent" name="event"/>
+        </Method>
+        <Method name="startOnAction" returnType="void" visibility="private">
+          <Argument type="ActionEvent" name="event"/>
+        </Method>
+        <Method name="verificaEsistenzaSalvataggio" returnType="boolean" visibility="private"/>
+        <Method name="eliminaSalvataggi" returnType="boolean" visibility="private"/>
+        <Method name="classificheOnAction" returnType="void" visibility="private">
+          <Argument type="ActionEvent" name="event"/>
+        </Method>
+        <Method name="toggleDashboard" returnType="void" visibility="private">
+          <Argument type="MouseEvent" name="event"/>
+        </Method>
+        <Method name="logout" returnType="void" visibility="private">
+          <Argument type="ActionEvent" name="event"/>
+        </Method>
+        <Method name="chiudiClassificheOnAction" returnType="void" visibility="private">
+          <Argument type="ActionEvent" name="event"/>
+        </Method>
+        <Method name="isValidEmail" returnType="boolean" visibility="private">
+          <Argument type="String" name="email"/>
+        </Method>
+        <Method name="mostraAlert" returnType="void" visibility="private">
+          <Argument type="String" name="titolo"/>
+          <Argument type="String" name="messaggio"/>
+          <Argument type="Alert.AlertType" name="tipo"/>
+        </Method>
+        <Method name="mostraAlert" returnType="void" visibility="private">
+          <Argument type="String" name="titolo"/>
+          <Argument type="String" name="messaggio"/>
+          <Argument type="Alert.AlertType" name="tipo"/>
+          <Argument type="Consumer&lt;T&gt;" name="azione"/>
+          <Argument type="T" name="valore"/>
+        </Method>
+        <Method name="registerButtonOnAction" returnType="void" visibility="private">
+          <Argument type="ActionEvent" name="event"/>
+        </Method>
+        <Method name="caricaIMG" returnType="void" visibility="private"/>
+        <Method name="getImageFromByte" returnType="Image" visibility="private">
+          <Argument type="byte[]" name="img"/>
+        </Method>
+        <Method name="chiudiTutto" returnType="void" visibility="private"/>
+        <Method name="pulisciTutto" returnType="void" visibility="private"/>
+        <Method name="getPlaceholderImage" returnType="Image" visibility="private"/>
+        <Method name="passaALogin" returnType="void" visibility="private">
+          <Argument type="ActionEvent" name="event"/>
+        </Method>
+        <Method name="ritagliaQuadrato" returnType="void" visibility="private">
+          <Argument type="ImageView" name="imageView"/>
+          <Argument type="double" name="dimensione"/>
+        </Method>
+        <Method name="ritagliaCerchio" returnType="void" visibility="private">
+          <Argument type="ImageView" name="imageView"/>
+          <Argument type="double" name="dimensione"/>
+        </Method>
+        <Method name="initializeClassifiche" returnType="void" visibility="private"/>
+        <Method name="setupTable" returnType="void" visibility="private">
+          <Argument type="TableView&lt;Classifica&gt;" name="table"/>
+          <Argument type="TableColumn&lt;Classifica, Integer&gt;" name="posizioneCol"/>
+          <Argument type="TableColumn&lt;Classifica, String&gt;" name="nomeCol"/>
+          <Argument type="TableColumn&lt;Classifica, Float&gt;" name="punteggioCol"/>
+          <Argument type="ObservableList&lt;Classifica&gt;" name="data"/>
+        </Method>
+        <Method name="configuraPulsantiAdmin" returnType="void" visibility="private"/>
+        <Method name="mostraGestioneDocumenti" returnType="void" visibility="private"/>
+        <Method name="mostraGestioneStopwords" returnType="void" visibility="private"/>
+        <Method name="tornaAllaHome" returnType="void" visibility="private"/>
+        <Method name="salvaStopwords" returnType="void" visibility="private">
+          <Argument type="ActionEvent" name="event"/>
+        </Method>
+        <Method name="getDifficoltaSelezionataAdmin" returnType="String" visibility="private"/>
+        <Method name="getLinguaSelezionataAdmin" returnType="Lingua" visibility="private"/>
+        <Method name="scegliFileTesto" returnType="void" visibility="private">
+          <Argument type="ActionEvent" name="event"/>
+        </Method>
+        <Method name="caricaTesto" returnType="void" visibility="private">
+          <Argument type="ActionEvent" name="event"/>
+        </Method>
+        <Method name="mettiStopwordInTextArea" returnType="void" visibility="private"/>
+        <Method name="passaAInfoProfilo" returnType="void" visibility="private">
+          <Argument type="ActionEvent" name="event"/>
+        </Method>
+        <Method name="initializeCronologiaPartite" returnType="void" visibility="private"/>
+        <Method name="chiudiInfoUtente" returnType="void" visibility="private">
+          <Argument type="ActionEvent" name="event"/>
+        </Method>
+        <Method name="cambiaIMG" returnType="void" visibility="private">
+          <Argument type="MouseEvent" name="event"/>
+        </Method>
+        <Method name="scegliImmagine" returnType="byte[]" visibility="private">
+          <Argument type="ImageView" name="imgv"/>
+        </Method>
+        <Method name="initializeInfoUtente" returnType="void" visibility="private"/>
+        <Method name="initializeCronologiaFiltro" returnType="void" visibility="private"/>
+        <Method name="parseSafeFloat" returnType="float" visibility="private">
+          <Argument type="String" name="text"/>
+          <Argument type="float" name="fallback"/>
+        </Method>
+        <Method name="aggiornaFotoProfilo" returnType="void" visibility="private">
+          <Argument type="byte[]" name="immagineBytes"/>
+        </Method>
+        <Method name="validaImmagine" returnType="boolean" visibility="private">
+          <Argument type="File" name="file"/>
+        </Method>
+        <Method name="gestDocNuovoButtonOnAction" returnType="void" visibility="private">
+          <Argument type="ActionEvent" name="event"/>
+        </Method>
+        <Method name="inizializzaTabellaDocumenti" returnType="void" visibility="private"/>
+        <Method name="creaListaFiltrata" returnType="FilteredList&lt;DocumentoDiTesto&gt;" visibility="private"/>
+        <Method name="creaFiltro" returnType="Runnable" visibility="private">
+          <Argument type="FilteredList&lt;DocumentoDiTesto&gt;" name="filteredList"/>
+        </Method>
+        <Method name="aggiungiListenerFiltri" returnType="void" visibility="private">
+          <Argument type="Runnable" name="filtro"/>
+        </Method>
+        <Method name="initializeGestioneDocumenti" returnType="void" visibility="private"/>
+        <Method name="tornaAllaHomeFromGestDoc" returnType="void" visibility="private">
+          <Argument type="ActionEvent" name="event"/>
+        </Method>
+        <Method name="backToGestDoc" returnType="void" visibility="private">
+          <Argument type="ActionEvent" name="event"/>
+        </Method>
+        <Method name="eliminaDoc" returnType="void" visibility="private">
+          <Argument type="ActionEvent" name="event"/>
+        </Method>
+        <Method name="iniziaPartitaOnAction" returnType="void" visibility="private">
+          <Argument type="ActionEvent" name="event"/>
+        </Method>
+        <Method name="initializeSchermataDifficoltà" returnType="void" visibility="private"/>
+        <Method name="resetService" returnType="void" visibility="private">
+          <Argument type="Service&lt;?&gt;" name="service"/>
+        </Method>
+      </Methods>
+    </Class>
+    <Class name="Classifica" package="" visibility="public" xPosition="320.0" yPosition="20.0">
+      <Fields>
+        <Field name="username" type="String" visibility="private" isFinal="true"/>
+        <Field name="data" type="Timestamp" visibility="private" isFinal="true"/>
+        <Field name="punti" type="float" visibility="private" isFinal="true"/>
+        <Field name="difficolta" type="LivelloPartita" visibility="private" isFinal="true"/>
+        <Field name="sbc" type="DatabaseClassifica" visibility="private" isFinal="true"/>
+      </Fields>
+      <Constructors>
+        <Constructor visibility="public">
+          <Argument type="String" name="email_utente"/>
+          <Argument type="Timestamp" name="data"/>
+          <Argument type="float" name="punti"/>
+          <Argument type="LivelloPartita" name="difficolta"/>
+        </Constructor>
+      </Constructors>
+      <Methods>
+        <Method name="getUsername" returnType="String" visibility="public"/>
+        <Method name="getData" returnType="Timestamp" visibility="public"/>
+        <Method name="getPunti" returnType="float" visibility="public"/>
+        <Method name="getDifficolta" returnType="LivelloPartita" visibility="public"/>
+        <Method name="toString" returnType="String" visibility="public"/>
+      </Methods>
+    </Class>
+    <Interface name="DAOClassifica" package="" visibility="public" xPosition="620.0" yPosition="20.0">
+      <Methods>
+        <Method name="prendiClassifica" returnType="List&lt;Classifica&gt;" visibility="public">
+          <Argument type="LivelloPartita" name="difficolta"/>
+        </Method>
+        <Method name="recuperaCronologiaPartite" returnType="List&lt;Classifica&gt;" visibility="public">
+          <Argument type="String" name="email"/>
+        </Method>
+        <Method name="recuperaNumeroPartite" returnType="int" visibility="public">
+          <Argument type="String" name="email"/>
+          <Argument type="String" name="difficoltà"/>
+        </Method>
+        <Method name="recuperaMigliorPunteggio" returnType="float" visibility="public">
+          <Argument type="String" name="email"/>
+          <Argument type="String" name="difficoltà"/>
+        </Method>
+        <Method name="inserisciPunteggio" returnType="void" visibility="public">
+          <Argument type="String" name="email"/>
+          <Argument type="float" name="punteggio"/>
+          <Argument type="LivelloPartita" name="difficolta"/>
+        </Method>
+      </Methods>
+    </Interface>
+    <Class name="DatabaseClassifica" package="" visibility="public" xPosition="920.0" yPosition="20.0">
+      <Fields>
+        <Field name="db" type="Database" visibility="private"/>
+      </Fields>
+      <Constructors>
+        <Constructor visibility="private"/>
+      </Constructors>
+      <Methods>
+        <Method name="prendiClassifica" returnType="List&lt;Classifica&gt;" visibility="public">
+          <Argument type="LivelloPartita" name="difficolta"/>
+        </Method>
+        <Method name="getInstance" returnType="DatabaseClassifica" visibility="public" isStatic="true"/>
+        <Method name="recuperaCronologiaPartite" returnType="List&lt;Classifica&gt;" visibility="public">
+          <Argument type="String" name="email"/>
+        </Method>
+        <Method name="recuperaNumeroPartite" returnType="int" visibility="public">
+          <Argument type="String" name="email"/>
+          <Argument type="String" name="difficoltà"/>
+        </Method>
+        <Method name="recuperaMigliorPunteggio" returnType="float" visibility="public">
+          <Argument type="String" name="email"/>
+          <Argument type="String" name="difficoltà"/>
+        </Method>
+        <Method name="inserisciPunteggio" returnType="void" visibility="public">
+          <Argument type="String" name="email"/>
+          <Argument type="float" name="punteggio"/>
+          <Argument type="LivelloPartita" name="difficoltà"/>
+        </Method>
+      </Methods>
+    </Class>
+    <Class name="PrendiClassificheService" package="" visibility="public" xPosition="1220.0" yPosition="20.0">
+      <Fields>
+        <Field name="dbC" type="DAOClassifica" visibility="private" isFinal="true"/>
+      </Fields>
+      <Constructors>
+        <Constructor visibility="public"/>
+      </Constructors>
+      <Methods>
+        <Method name="createTask" returnType="Task&lt;Map&lt;LivelloPartita, List&lt;Classifica&gt;&gt;&gt;" visibility="protected"/>
+      </Methods>
+    </Class>
+    <Class name="PrendiInfoUtenteService" package="" visibility="public" xPosition="1520.0" yPosition="20.0">
+      <Fields>
+        <Field name="cronologiaPartiteList" type="List&lt;Classifica&gt;" visibility="package"/>
+        <Field name="facileCount" type="int" visibility="private"/>
+        <Field name="medioCount" type="int" visibility="private"/>
+        <Field name="difficileCount" type="int" visibility="private"/>
+        <Field name="facilePunteggio" type="float" visibility="private"/>
+        <Field name="medioPunteggio" type="float" visibility="private"/>
+        <Field name="difficilePunteggio" type="float" visibility="private"/>
+        <Field name="dbC" type="DAOClassifica" visibility="private" isFinal="true"/>
+        <Field name="email" type="String" visibility="private"/>
+      </Fields>
+      <Constructors>
+        <Constructor visibility="public">
+          <Argument type="String" name="email"/>
+        </Constructor>
+        <Constructor visibility="public"/>
+      </Constructors>
+      <Methods>
+        <Method name="setEmail" returnType="void" visibility="public">
+          <Argument type="String" name="email"/>
+        </Method>
+        <Method name="createTask" returnType="Task&lt;InfoGiocatore&gt;" visibility="protected"/>
+      </Methods>
+    </Class>
+  </ClassDiagramComponents>
+  <ClassDiagramRelations>
+    <HasRelation name="punteggioCronologiaPartite" source="AppViewController" target="Classifica" type="Aggregation" sourceCardinality="1..1" targetCardinality="1..1"/>
+    <HasRelation name="difficilePunteggio" source="AppViewController" target="Classifica" type="Aggregation" sourceCardinality="1..1" targetCardinality="1..1"/>
+    <HasRelation name="facileTable" source="AppViewController" target="Classifica" type="Aggregation" sourceCardinality="1..1" targetCardinality="1..1"/>
+    <HasRelation name="cronologiaPartite" source="AppViewController" target="Classifica" type="Aggregation" sourceCardinality="1..1" targetCardinality="1..1"/>
+    <HasRelation name="mediaNome" source="AppViewController" target="Classifica" type="Aggregation" sourceCardinality="1..1" targetCardinality="1..1"/>
+    <UseRelation source="DAOClassifica" target="Classifica" sourceCardinality="1..1" targetCardinality="1..1"/>
+    <HasRelation name="difficoltàCronologiaPartite" source="AppViewController" target="Classifica" type="Aggregation" sourceCardinality="1..1" targetCardinality="1..1"/>
+    <HasRelation name="difficilePosizione" source="AppViewController" target="Classifica" type="Aggregation" sourceCardinality="1..1" targetCardinality="1..1"/>
+    <UseRelation source="DatabaseClassifica" target="Classifica" sourceCardinality="1..1" targetCardinality="1..1"/>
+    <UseRelation source="AppViewController" target="Classifica" sourceCardinality="1..1" targetCardinality="1..1"/>
+    <HasRelation name="classificaDifficile" source="AppViewController" target="Classifica" type="Aggregation" sourceCardinality="1..1" targetCardinality="0..*" collectionType="ObservableList&lt;Classifica&gt;"/>
+    <HasRelation name="dbC" source="PrendiInfoUtenteService" target="DAOClassifica" type="Aggregation" sourceCardinality="1..1" targetCardinality="1..1"/>
+    <HasRelation name="dbC" source="PrendiClassificheService" target="DAOClassifica" type="Aggregation" sourceCardinality="1..1" targetCardinality="1..1"/>
+    <HasRelation name="difficileNome" source="AppViewController" target="Classifica" type="Aggregation" sourceCardinality="1..1" targetCardinality="1..1"/>
+    <UseRelation source="DatabaseClassifica" target="DatabaseClassifica" sourceCardinality="1..1" targetCardinality="1..1"/>
+    <HasRelation name="cronologiaPartiteList" source="PrendiInfoUtenteService" target="Classifica" type="Aggregation" sourceCardinality="1..1" targetCardinality="0..*" collectionType="List&lt;Classifica&gt;"/>
+    <HasRelation name="facilePosizione" source="AppViewController" target="Classifica" type="Aggregation" sourceCardinality="1..1" targetCardinality="1..1"/>
+    <HasRelation name="classificaFacile" source="AppViewController" target="Classifica" type="Aggregation" sourceCardinality="1..1" targetCardinality="0..*" collectionType="ObservableList&lt;Classifica&gt;"/>
+    <HasRelation name="facilePunteggio" source="AppViewController" target="Classifica" type="Aggregation" sourceCardinality="1..1" targetCardinality="1..1"/>
+    <HasRelation name="listaCronologiaPartite" source="AppViewController" target="Classifica" type="Aggregation" sourceCardinality="1..1" targetCardinality="0..*" collectionType="ObservableList&lt;Classifica&gt;"/>
+    <HasRelation name="dataCronologiaPartite" source="AppViewController" target="Classifica" type="Aggregation" sourceCardinality="1..1" targetCardinality="1..1"/>
+    <HasRelation name="difficileTable" source="AppViewController" target="Classifica" type="Aggregation" sourceCardinality="1..1" targetCardinality="1..1"/>
+    <UseRelation source="PrendiClassificheService" target="Classifica" sourceCardinality="1..1" targetCardinality="1..1"/>
+    <HasRelation name="mediaPunteggio" source="AppViewController" target="Classifica" type="Aggregation" sourceCardinality="1..1" targetCardinality="1..1"/>
+    <HasRelation name="pius" source="AppViewController" target="PrendiInfoUtenteService" type="Aggregation" sourceCardinality="1..1" targetCardinality="1..1"/>
+    <HasRelation name="sbc" source="Classifica" target="DatabaseClassifica" type="Aggregation" sourceCardinality="1..1" targetCardinality="1..1"/>
+    <HasRelation name="pcs" source="AppViewController" target="PrendiClassificheService" type="Aggregation" sourceCardinality="1..1" targetCardinality="1..1"/>
+    <ImplementsRelation name="&lt;&lt;implements&gt;&gt;" source="DatabaseClassifica" target="DAOClassifica"/>
+    <HasRelation name="facileNome" source="AppViewController" target="Classifica" type="Aggregation" sourceCardinality="1..1" targetCardinality="1..1"/>
+    <HasRelation name="mediaPosizione" source="AppViewController" target="Classifica" type="Aggregation" sourceCardinality="1..1" targetCardinality="1..1"/>
+    <HasRelation name="mediaTable" source="AppViewController" target="Classifica" type="Aggregation" sourceCardinality="1..1" targetCardinality="1..1"/>
+    <HasRelation name="classificaMedia" source="AppViewController" target="Classifica" type="Aggregation" sourceCardinality="1..1" targetCardinality="0..*" collectionType="ObservableList&lt;Classifica&gt;"/>
+  </ClassDiagramRelations>
+</ClassDiagram>

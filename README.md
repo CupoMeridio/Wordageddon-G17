@@ -38,7 +38,9 @@ Un'applicazione desktop ludico-educativa sviluppata in JavaFX per testare la mem
 Il progetto utilizza **PostgreSQL 17** come sistema di gestione del database relazionale.  
 Per l'amministrazione e la gestione dei dati è stato utilizzato **pgAdmin 4**.
 
-Le credenziali di accesso sono gestite tramite un file `.env` (non incluso nel repository).
+Il database è stato **ospitato in cloud** mediante i servizi forniti da [**Aiven**](https://aiven.io/), garantendo accessibilità remota e maggiore affidabilità durante lo sviluppo collaborativo.
+
+Le **credenziali di accesso** sono gestite tramite un file `.env` (non incluso nel repository).
 
 Struttura attesa del file `.env`:
 

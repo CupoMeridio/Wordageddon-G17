@@ -11,9 +11,7 @@ import javafx.concurrent.Task;
  * Questa classe utilizza {@link DAOUtente} per aggiornare l'immagine del profilo
  * associata ad una email specifica. Il servizio viene eseguito in modo asincrono
  * tramite un {@link Task} che effettua l'operazione lato database.
- * </p>
  * 
- * @author Mattia
  */
 public class ModificaFotoProfiloService extends Service<Void> {
 

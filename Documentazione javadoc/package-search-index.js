@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"it.unisa.diem.wordageddong17"},{"l":"it.unisa.diem.wordageddong17.controller"},{"l":"it.unisa.diem.wordageddong17.database"},{"l":"it.unisa.diem.wordageddong17.interfaccia"},{"l":"it.unisa.diem.wordageddong17.model"},{"l":"it.unisa.diem.wordageddong17.service"}];updateSearchResults();

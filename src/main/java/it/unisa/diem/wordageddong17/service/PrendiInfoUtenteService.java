@@ -19,7 +19,6 @@ import javafx.concurrent.Task;
  * {@link it.unisa.diem.wordageddong17.database.DatabaseClassifica}. Il risultato dell'elaborazione
  * è restituito come oggetto {@link it.unisa.diem.wordageddong17.model.InfoGiocatore} che aggrega tutte le 
  * informazioni rilevanti per l'utente.
- * </p>
  *
  * @see javafx.concurrent.Service
  * @see it.unisa.diem.wordageddong17.database.DatabaseClassifica

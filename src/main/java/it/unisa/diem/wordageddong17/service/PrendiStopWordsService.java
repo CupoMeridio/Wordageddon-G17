@@ -12,7 +12,6 @@ import javafx.concurrent.Task;
  * {@link it.unisa.diem.wordageddong17.interfaccia.DAOListaStopWords} per ottenere il file
  * delle stop words, rappresentato come un array di byte. L'istanza del data access
  * object (DAO) viene ottenuta tramite il singleton di {@link it.unisa.diem.wordageddong17.database.DatabaseStopWords}.
- * </p>
  *
  * @see javafx.concurrent.Service
  * @see it.unisa.diem.wordageddong17.database.DatabaseStopWords

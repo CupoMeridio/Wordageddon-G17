@@ -1,6 +1,5 @@
 package it.unisa.diem.wordageddong17.model;
 
-import it.unisa.diem.wordageddong17.interfaccia.DAOUtente;
 import java.io.Serializable;
 
 /**

@@ -1,7 +1,6 @@
 package it.unisa.diem.wordageddong17.model;
 
 import java.io.Serializable;
-import java.sql.Array;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -351,7 +350,7 @@ public class GeneratoreDomande {
      *
      * @param num il numero massimo di domande da generare
      * @param nomeDocumento il nome del documento da cui estrarre le domande
-     * @param l
+     * @param l lingua del documento
      * @return una lista di oggetti {@link Domanda}
      */
     public List<Domanda> getRaccoltaDiDomande(int num, String nomeDocumento, Lingua l) {
@@ -359,21 +358,12 @@ public class GeneratoreDomande {
         for (int i = 0; i < num; i++) {
             switch (this.rnd.nextInt(5)) {
 
-                case 0:
-                    lista.add(this.domandaConfrontoFrequenze(nomeDocumento));
-                    break;
-                case 1:
-                    lista.add(this.domandaFrequenzaAssoluta(nomeDocumento));
-                    break;
-                case 2:
-                    lista.add(this.domandaParolaMenoFrequente(nomeDocumento));
-                    break;
-                case 3:
-                    lista.add(this.domandaParolaMaiComparsa(nomeDocumento, l));
-                    break;
+                case 0 -> lista.add(this.domandaConfrontoFrequenze(nomeDocumento));
+                case 1 -> lista.add(this.domandaFrequenzaAssoluta(nomeDocumento));
+                case 2 -> lista.add(this.domandaParolaMenoFrequente(nomeDocumento));
+                case 3 -> lista.add(this.domandaParolaMaiComparsa(nomeDocumento, l));
 
-                default:
-                    lista.add(this.domandaParolaPiuFrequente(nomeDocumento));
+                default -> lista.add(this.domandaParolaPiuFrequente(nomeDocumento));
             }
 
             System.out.println("getRaccoltaDiDomande: " + lista.get(i).testo);

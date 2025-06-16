@@ -1,7 +1,5 @@
 package it.unisa.diem.wordageddong17.model;
 
-import java.util.Objects;
-
 /**
  * Record che rappresenta un documento di testo utilizzato nel gioco WordAgeddon.
  * 

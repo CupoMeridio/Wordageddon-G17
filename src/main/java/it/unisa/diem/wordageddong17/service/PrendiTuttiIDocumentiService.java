@@ -14,7 +14,6 @@ import javafx.concurrent.Task;
  * {@link it.unisa.diem.wordageddong17.model.DocumentoDiTesto}. Il recupero dei documenti viene eseguito
  * tramite un {@link Task} che invoca il metodo {@code prendiTuttiIDocumenti()} sul DAO
  * ottenuto da {@link it.unisa.diem.wordageddong17.database.DatabaseDocumentoDiTesto}.
- * </p>
  *
  * @see javafx.concurrent.Service
  * @see it.unisa.diem.wordageddong17.database.DatabaseDocumentoDiTesto
@@ -40,8 +39,7 @@ public class PrendiTuttiIDocumentiService extends Service<ArrayList<DocumentoDiT
      * Crea ed esegue un {@link Task} in background per il recupero di tutti i documenti di testo.
      * <p>
      * Questo metodo sovrascrive il metodo {@link Service#createTask()} e restituisce un task che,
-     * una volta completato, restituisce un {@link ArrayList} di documenti di testo ottenuti dal database.
-     * </p>
+     * una volta completato, restituisce un {@link ArrayList} di documenti di testo ottenuti dal database.>
      *
      * @return un {@link Task} che, al completamento, fornisce un {@link ArrayList} di
      *         {@link it.unisa.diem.wordageddong17.model.DocumentoDiTesto}

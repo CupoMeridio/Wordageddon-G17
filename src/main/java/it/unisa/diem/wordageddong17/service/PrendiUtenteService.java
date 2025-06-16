@@ -14,7 +14,6 @@ import javafx.concurrent.Task;
  * Attraverso l'utilizzo di un {@link Task}, il servizio invoca il metodo
  * {@link it.unisa.diem.wordageddong17.interfaccia.DAOUtente#prendiUtente(String)} della
  * classe {@link it.unisa.diem.wordageddong17.database.DatabaseUtente} per ottenere i dettagli dell'utente.
- * </p>
  *
  * @see javafx.concurrent.Service
  * @see javafx.concurrent.Task
@@ -49,7 +48,6 @@ public class PrendiUtenteService extends Service<Utente> {
      * <p>
      * In questo caso, l'email deve essere impostata successivamente tramite il metodo
      * {@link #setEmail(String)} prima di avviare il servizio.
-     * </p>
      */
     public PrendiUtenteService() {
         dbu = DatabaseUtente.getInstance();
@@ -69,7 +67,6 @@ public class PrendiUtenteService extends Service<Utente> {
      * <p>
      * Il task invoca il metodo {@link it.unisa.diem.wordageddong17.interfaccia.DAOUtente#prendiUtente(String)}
      * passando l'indirizzo email e restituisce un'istanza di {@link it.unisa.diem.wordageddong17.model.Utente}.
-     * </p>
      *
      * @return un {@link Task} che, una volta completato, fornirà i dati dell'utente
      */

@@ -13,7 +13,6 @@ import javafx.concurrent.Task;
  * Tale operazione viene eseguita tramite il metodo {@code prendiTesto} dell'interfaccia
  * {@link it.unisa.diem.wordageddong17.interfaccia.DAODocumentoDiTesto}, la cui istanza è ottenuta 
  * tramite il singleton di {@link it.unisa.diem.wordageddong17.database.DatabaseDocumentoDiTesto}.
- * </p>
  *
  * @see javafx.concurrent.Service
  * @see it.unisa.diem.wordageddong17.database.DatabaseDocumentoDiTesto

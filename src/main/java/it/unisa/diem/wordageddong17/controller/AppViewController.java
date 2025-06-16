@@ -72,8 +72,6 @@ import it.unisa.diem.wordageddong17.service.PrendiStopWordsService;
 import it.unisa.diem.wordageddong17.service.PrendiTestoService;
 import it.unisa.diem.wordageddong17.service.PrendiTuttiIDocumentiService;
 import it.unisa.diem.wordageddong17.service.PrendiUtenteService;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -345,6 +343,7 @@ public class AppViewController implements Initializable {
     private CaricaTestoService cts = new CaricaTestoService();
     private PrendiTestoService pts = new PrendiTestoService();
     private ModificaFotoProfiloService mfps = new ModificaFotoProfiloService();
+    private byte[] immagineBytes;
 
 
     
@@ -797,16 +796,18 @@ public class AppViewController implements Initializable {
      */
     @FXML
     private void registerButtonOnAction(ActionEvent event) {
-        if  (username.getText().isEmpty() || email.getText().isEmpty() || password.getText().isEmpty() || repeatPassword.getText().isEmpty()) {
+        if (username.getText().isEmpty() || email.getText().isEmpty() || password.getText().isEmpty() || repeatPassword.getText().isEmpty()) {
             mostraAlert("Errore", "Tutti i campi sono obbligatori.", Alert.AlertType.WARNING);
             return;
         }
+
         if (!isValidEmail(email.getText())) {
             mostraAlert("Email non valida", "L'email inserita non è valida.", Alert.AlertType.ERROR);
             return;
         }
-        this.pus.setEmail(email.getText());
-        pus.start();
+
+        // Imposta l'email nel service che controlla se esiste già
+        pus.setEmail(email.getText());
 
         pus.setOnSucceeded(e -> {
             if (pus.getValue() != null) {
@@ -814,79 +815,83 @@ public class AppViewController implements Initializable {
                 this.resetService(pus);
                 return;
             }
+
+            // Se le email non è già usata, si prosegue
+            if (!password.getText().equals(repeatPassword.getText())) {
+                mostraAlert("Password non corrispondenti", "Le due password inserite non corrispondono", Alert.AlertType.ERROR);
+                return;
+            }
+
+            // Lettura immagine (se presente)
+            immagineBytes = null;
+            Image immagine = imageView.getImage();
+            if (immagine != null && immagine.getUrl() != null && !immagine.getUrl().contains("person.png")) {
+                try {
+                    String url = immagine.getUrl();
+                    String path = url.replaceAll("^file:(/+)?", "");
+                    path = URLDecoder.decode(path, StandardCharsets.UTF_8);
+
+                    if (System.getProperty("os.name").toLowerCase().contains("win")) {
+                        path = path.replace("/", "\\");
+                    }
+
+                    File file = new File(path);
+                    if (!file.exists()) {
+                        throw new IOException("File non trovato: " + file.getAbsolutePath());
+                    }
+
+                    if (!file.canRead()) {
+                        throw new IOException("Permessi insufficienti per leggere il file");
+                    }
+
+                    immagineBytes = Files.readAllBytes(file.toPath());
+
+                } catch (IOException ex) {
+                    mostraAlert("Errore", ex.getMessage(), Alert.AlertType.ERROR);
+                    this.resetService(pus);
+                    return;
+                }
+            }
+
+            // Imposta i dati per il service di registrazione
+            ius.setEmail(email.getText());
+            ius.setUsername(username.getText());
+            ius.setPassword(password.getText());
+            ius.setImmagineBytes(immagineBytes);
+
+            ius.setOnFailed(ev -> {
+                mostraAlert("Errore", "Errore durante la registrazione.", Alert.AlertType.ERROR);
+                this.resetService(ius);
+            });
+
+            ius.setOnSucceeded(ev -> {
+                // Crea oggetto utente
+                Utente nuovoUtente;
+                if (immagineBytes == null) {
+                    nuovoUtente = new Utente(username.getText(), email.getText(), TipoUtente.giocatore);
+                    fotoProfilo.setImage(getPlaceholderImage());
+                } else {
+                    nuovoUtente = new Utente(username.getText(), email.getText(), immagineBytes, TipoUtente.giocatore);
+                    fotoProfilo.setImage(new Image(new ByteArrayInputStream(immagineBytes)));
+                }
+
+                appstate.setUtente(nuovoUtente);
+                aggiornaFotoProfilo(immagineBytes);
+                configuraPulsantiAdmin();
+
+                chiudiTutto();
+                schermataHome.setVisible(true);
+                benvenutoLabel.setText("Benvenuto " + username.getText());
+                pulisciTutto();
+                mostraAlert("Registrazione completata", "Registrazione avvenuta con successo!", Alert.AlertType.INFORMATION);
+            });
+
+            ius.start();
         });
 
-        if (!password.getText().equals(repeatPassword.getText())) {
-            mostraAlert("Password non corrispondenti", "Le due password inserite non corrispondono", Alert.AlertType.ERROR);
-            return;
-        }
-
-        byte[] immagineBytes = null;
-        Image immagine = imageView.getImage();
-        if (immagine != null && immagine.getUrl() != null && !immagine.getUrl().contains("person.png")) {
-        try {
-            String url = immagine.getUrl();
-
-            // Pattern per estrarre il percorso pulito
-            String path = url.replaceAll("^file:(/+)?", "");
-
-            // Decodifica caratteri speciali
-            path = URLDecoder.decode(path, StandardCharsets.UTF_8);
-
-            // Normalizza separatori su Windows
-            if (System.getProperty("os.name").toLowerCase().contains("win")) {
-                path = path.replace("/", "\\");
-            }
-
-            File file = new File(path);
-
-            if (!file.exists()) {
-                throw new IOException("File non trovato: " + file.getAbsolutePath());
-            }
-
-            if (!file.canRead()) {
-                throw new IOException("Permessi insufficienti per leggere il file");
-            }
-
-            immagineBytes = Files.readAllBytes(file.toPath());
-        } catch (IOException e) {
-            mostraAlert("Errore", e.getMessage(), Alert.AlertType.ERROR);
-            this.resetService(pus);
-            return;
-        }
-        this.ius.setEmail(email.getText());
-        this.ius.setUsername(username.getText());
-        this.ius.setImmagineBytes(immagineBytes);
-        this.ius.setPassword(password.getText());
-
-        ius.setOnFailed(e -> {
-             mostraAlert("Errore", "Errore durante la registrazione. ", Alert.AlertType.ERROR);
-             this.resetService(ius);
-             return;
-        });
-        ius.start();
-
-        // Crea l'utente una sola volta, a seconda che ci sia immagine o meno
-        Utente nuovoUtente;
-        if (immagineBytes == null) {
-            nuovoUtente = new Utente(username.getText(), email.getText(), TipoUtente.giocatore);
-            fotoProfilo.setImage(getPlaceholderImage());
-        } else {
-            nuovoUtente = new Utente(username.getText(), email.getText(), immagineBytes, TipoUtente.giocatore);
-            fotoProfilo.setImage(new Image(new ByteArrayInputStream(immagineBytes)));
-        }
-        appstate.setUtente(nuovoUtente);
-
-        aggiornaFotoProfilo(immagineBytes);
-        configuraPulsantiAdmin();
-
-        chiudiTutto();
-        schermataHome.setVisible(true);
-        benvenutoLabel.setText("Benvenuto " + username.getText());
-        pulisciTutto();
-        mostraAlert("Registrazione completata", "Registrazione avvenuta con successo!", Alert.AlertType.INFORMATION);
-        }
+        pus.start();
     }
+
 
 
 

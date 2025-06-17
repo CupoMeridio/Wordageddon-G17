@@ -13,6 +13,9 @@ Un'applicazione desktop ludico-educativa sviluppata in JavaFX per testare la mem
   - Riconoscimento della parola con **frequenza relativa** più alta
   - Identificazione della **parola non presente** nel documento
   - Scelta della **parola più ricorrente** in uno specifico documento
+- 🌍 Supporto multilingua per i documenti:
+  - Prima di iniziare una sessione, l'utente può scegliere la lingua dei documenti con cui giocare
+  - Le lingue attualmente supportate sono: italiano, inglese, spagnolo, francese, tedesco
 - 👤 **Gestione utenti**:
   - Gli utenti possono registrarsi e accedere tramite login
   - Le credenziali sono memorizzate in modo sicuro nel database (hashing con bcrypt)

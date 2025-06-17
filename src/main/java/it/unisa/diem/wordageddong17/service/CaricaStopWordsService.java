@@ -72,7 +72,7 @@ public class CaricaStopWordsService extends Service<Void> {
             @Override
             protected Void call() throws Exception {
                 System.out.println("email: " + email + " documento: " + documento + " nomeFile: " + nomeFile);
-                dbSW.CaricareStopwords(email, documento, nomeFile);
+                dbSW.caricareStopwords(email, documento, nomeFile);
                 return null;
             }
         };

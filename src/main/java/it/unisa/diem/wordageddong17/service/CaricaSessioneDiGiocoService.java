@@ -166,7 +166,7 @@ public class CaricaSessioneDiGiocoService extends Service<List<GeneratoreDomande
                 sessione.setNumeroDocumenti(livello.getNumeroDocumenti());
                 sessione.setNumeroDomande(livello.getNumeroDomande());
                 updateProgress(30, 100);
-                analisi.setStopWords(dbSW.PrendiStopwords("ListaStopwords"));
+                analisi.setStopWords(dbSW.prendiStopwords("ListaStopwords"));
                 updateProgress(40, 100);
                 Map<String, Lingua> docFiltrati = dbDT.prendiNomiDocumentiFiltrati(livello, lingua);
                 ArrayList<String> nomiDoc = new ArrayList<>(docFiltrati.keySet());

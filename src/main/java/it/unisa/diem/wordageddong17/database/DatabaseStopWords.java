@@ -35,7 +35,7 @@ public class DatabaseStopWords implements DAOListaStopWords {
      * 
      */
     @Override
-    public boolean CaricareStopwords(String email, byte[] documentoStopwords, String nomeFile) {
+    public boolean caricareStopwords(String email, byte[] documentoStopwords, String nomeFile) {
         String query= "INSERT INTO stopwords(\n" +
         "nome_file, documento, id_amministratore)\n" +
         "VALUES (?, ?, ?) ON conflict(nome_file) DO UPDATE SET documento=?,id_amministratore=?";
@@ -67,22 +67,24 @@ public class DatabaseStopWords implements DAOListaStopWords {
      */
 
     @Override
-    public byte[] PrendiStopwords(String nomeFile) {
-        String query= "SELECT documento FROM stopwords where nome_file=?;";
-        byte[] risultato=null;
+    public byte[] prendiStopwords(String nomeFile) {
+        String query = "SELECT documento FROM stopwords WHERE nome_file = ?;";
+        byte[] risultato = null;
+
         try (PreparedStatement pstmt = db.getConnection().prepareStatement(query)) {
-            pstmt.setString(1, nomeFile); // inserisce il nome  nella prima posizione del preparestatment
-            ResultSet r = pstmt.executeQuery();
-            
-            if(r.next()){
-            risultato = r.getBytes("documento");
+            pstmt.setString(1, nomeFile);
+            try (ResultSet r = pstmt.executeQuery()) {
+                if (r.next()) {
+                    return r.getBytes("documento");
+                }
             }
-            } catch (SQLException ex) { 
+        } catch (SQLException ex) {
             System.getLogger(DatabaseStopWords.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
         }
-        return risultato;
+
+        return null;
     }
-    
+
     private static class Holder {
         private static final DatabaseStopWords INSTANCE = new DatabaseStopWords();
     }

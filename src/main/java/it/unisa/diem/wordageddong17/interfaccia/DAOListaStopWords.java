@@ -19,7 +19,7 @@ public interface DAOListaStopWords {
      * @param nomeFile             il nome del file contenente le stopwords
      * @return {@code true} se il caricamento ha avuto successo, {@code false} altrimenti
      */
-    public boolean CaricareStopwords(String email, byte[] documentoStopwords, String nomeFile);
+    public boolean caricareStopwords(String email, byte[] documentoStopwords, String nomeFile);
 
     /**
      * Recupera il documento delle stopwords dal database.
@@ -30,5 +30,5 @@ public interface DAOListaStopWords {
      * @param nomeFile il nome del file contenente le stopwords da recuperare
      * @return un array di byte contenente il documento delle stopwords oppure {@code null} se non viene trovato
      */
-    public byte[] PrendiStopwords(String nomeFile);
+    public byte[] prendiStopwords(String nomeFile);
 }

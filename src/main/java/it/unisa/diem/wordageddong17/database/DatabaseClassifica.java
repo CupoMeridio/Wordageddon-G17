@@ -46,31 +46,52 @@ public class DatabaseClassifica implements DAOClassifica {
      */
     @Override
     public List<Classifica> prendiClassifica(LivelloPartita difficolta) {
-        List<Classifica> L = new ArrayList<>();
-        String query = "SELECT utente.username, data, MAX(punti) AS miglior_punteggio, difficolta\n"
-                + "FROM punteggio\n"
-                + "JOIN utente ON utente.email = punteggio.email_utente\n"
-                + "WHERE difficolta = ?\n"
-                + "GROUP BY utente.username, difficolta, data\n"
-                + "ORDER BY miglior_punteggio DESC;";
-    
+        List<Classifica> classifica = new ArrayList<>();
+        String query = """
+            SELECT 
+                u.username,
+                p.data,
+                p.punti AS miglior_punteggio,
+                p.difficolta
+            FROM punteggio p
+            JOIN utente u ON u.email = p.email_utente
+            WHERE p.difficolta = ?
+              AND p.punti = (
+                  SELECT MAX(p2.punti)
+                  FROM punteggio p2
+                  WHERE p2.email_utente = p.email_utente
+                    AND p2.difficolta = p.difficolta
+              )
+              AND p.data = (
+                  SELECT MAX(p3.data)
+                  FROM punteggio p3
+                  WHERE p3.email_utente = p.email_utente
+                    AND p3.difficolta = p.difficolta
+                    AND p3.punti = p.punti
+              )
+            ORDER BY miglior_punteggio DESC;
+            """;
+
         try (PreparedStatement pstmt = db.getConnection().prepareStatement(query)) {
             pstmt.setString(1, difficolta.getDbValue());
-        
-            ResultSet result = pstmt.executeQuery();
-            while(result.next()) {
-                L.add(new Classifica(
-                    result.getString("username"),
-                    result.getTimestamp("data"),
-                    result.getFloat("miglior_punteggio"),
-                    LivelloPartita.fromDbValue(result.getString("difficolta"))));
+            try (ResultSet result = pstmt.executeQuery()) {
+                while (result.next()) {
+                    classifica.add(new Classifica(
+                        result.getString("username"),
+                        result.getTimestamp("data"),
+                        result.getFloat("miglior_punteggio"),
+                        LivelloPartita.fromDbValue(result.getString("difficolta"))
+                    ));
+                }
             }
-        }
-        catch (SQLException ex) {
+        } catch (SQLException ex) {
             Logger.getLogger(DatabaseClassifica.class.getName()).log(Level.SEVERE, "Error loading leaderboard", ex);
         }
-        return L;
+
+        return classifica;
     }
+
+
     
     /**
      * Classe statica interna che contiene l'istanza Singleton della classe {@code Database}.

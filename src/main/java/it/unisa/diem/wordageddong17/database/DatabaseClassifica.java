@@ -167,19 +167,25 @@ public class DatabaseClassifica implements DAOClassifica {
     @Override
     public int recuperaNumeroPartite(String email, String difficoltà) {
         int n = 0;
-        String query = "SELECT COUNT(*) AS n_p\n"
-                + "FROM punteggio\n"
-                + "WHERE email_utente = ?\n"
-                + "AND difficolta = ?";
+        String query = """
+            SELECT COUNT(*) AS n_p
+            FROM punteggio
+            WHERE email_utente = ?
+              AND difficolta = ?
+            """;
+
         try (PreparedStatement pstmt = db.getConnection().prepareStatement(query)) {
             pstmt.setString(1, email);
             pstmt.setString(2, difficoltà);
 
-            ResultSet result = pstmt.executeQuery();
-            if (result.next())
-                n = result.getInt("n_p");
+            try (ResultSet result = pstmt.executeQuery()) {
+                if (result.next()) {
+                    n = result.getInt("n_p");
+                }
+            }
         } catch (SQLException ex) {
-            Logger.getLogger(DatabaseClassifica.class.getName()).log(Level.SEVERE, "Errore nel recupero del numero di partite", ex);
+            Logger.getLogger(DatabaseClassifica.class.getName())
+                  .log(Level.SEVERE, "Errore nel recupero del numero di partite", ex);
         }
         return n;
     }

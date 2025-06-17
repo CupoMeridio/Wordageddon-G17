@@ -60,9 +60,11 @@ public class DatabaseDocumentoDiTesto implements DAODocumentoDiTesto{
      */
     @Override
     public boolean caricaTesto(String email, String nomeFile, String difficolta, byte[] file, Lingua lingua) {
-        String query= "INSERT INTO testo(\n" +
-        "nome_file, id_amministratore, difficolta, documento, lingua)\n" +
-        "VALUES (?, ?, ?, ?, ?::lingua_type)";
+        String query= """
+                      INSERT INTO testo(
+                      nome_file, id_amministratore, difficolta, documento, lingua)
+                      VALUES (?, ?, ?, ?, ?::lingua_type)
+                      """;
         
         boolean risultato= false;
         try (PreparedStatement pstmt = db.getConnection().prepareStatement(query)) {
@@ -90,23 +92,22 @@ public class DatabaseDocumentoDiTesto implements DAODocumentoDiTesto{
     
     @Override
     public byte[] prendiTesto(String nomeDocumento) {
-        
-        String query="SELECT documento\n FROM testo where nome_file= ?;";
-        
-        byte[] risultato=null;
+        String query = "SELECT documento FROM testo WHERE nome_file = ?;";
+        byte[] risultato = null;
+
         try (PreparedStatement pstmt = db.getConnection().prepareStatement(query)) {
-            
-            pstmt.setString(1, nomeDocumento); // inserisce l' utente nella prima posizione del preparestatment  
-            ResultSet r= pstmt.executeQuery();
-            if(r.next()){
-            risultato=r.getBytes("documento");
+            pstmt.setString(1, nomeDocumento);
+            try (ResultSet r = pstmt.executeQuery()) {
+                if (r.next()) {
+                    risultato = r.getBytes("documento");
+                }
             }
         } catch (SQLException ex) {
             System.getLogger(DatabaseDocumentoDiTesto.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
         }
         return risultato;
     }
-        
+      
     /**
      * Recupera tutti i documenti testuali presenti nel database.
      * Questo metodo esegue una query sulla tabella "testo" per ottenere i seguenti campi:
@@ -125,24 +126,24 @@ public class DatabaseDocumentoDiTesto implements DAODocumentoDiTesto{
         ArrayList<DocumentoDiTesto> L = new ArrayList<>();
         String query = "SELECT nome_file, id_amministratore, difficolta, lingua FROM testo";
 
-        try (PreparedStatement pstmt = db.getConnection().prepareStatement(query)) {
-            ResultSet result = pstmt.executeQuery();
+        try (PreparedStatement pstmt = db.getConnection().prepareStatement(query);
+             ResultSet result = pstmt.executeQuery()) {
+
             while (result.next()) {
                 L.add(new DocumentoDiTesto(
                     result.getString("nome_file"),
                     LivelloPartita.fromDbValue(result.getString("difficolta")),
-                    result.getString("id_Amministratore"),
+                    result.getString("id_amministratore"),
                     Lingua.fromCodice(result.getString("lingua"))
                 ));
             }
-        } catch (SQLException ex) { 
+        } catch (SQLException ex) {
             System.getLogger(DatabaseDocumentoDiTesto.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
         }
-
         return L;
     }
 
-    
+
     /**
      * Recupera i nomi dei documenti filtrati in base al livello di difficoltà e alle lingue specificate.
      * Questo metodo esegue una query sulla tabella "testo" per selezionare il nome dei file (campo "nome_file")

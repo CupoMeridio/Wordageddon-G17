@@ -219,8 +219,7 @@ public class DatabaseClassifica implements DAOClassifica {
                 }
             }
         } catch (SQLException ex) {
-            Logger.getLogger(DatabaseClassifica.class.getName())
-                  .log(Level.SEVERE, "Errore nel recupero del miglior punteggio", ex);
+            Logger.getLogger(DatabaseClassifica.class.getName()).log(Level.SEVERE, "Errore nel recupero del miglior punteggio", ex);
         }
         return punteggio;
     }
@@ -244,8 +243,8 @@ public class DatabaseClassifica implements DAOClassifica {
             pstmt.setString(3, difficoltà.getDbValue());
             pstmt.executeUpdate();
         } catch (SQLException ex) {
-            System.getLogger(DatabaseClassifica.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
-        } 
+            Logger.getLogger(DatabaseClassifica.class.getName()).log(Level.SEVERE, "Errore nell'inserimento del punteggio", ex);
+        }  
     }
 
 }

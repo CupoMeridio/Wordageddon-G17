@@ -112,14 +112,15 @@ public class DatabaseUtente implements DAOUtente {
         String sql = "SELECT foto_profilo FROM utente WHERE email = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, email);
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                return rs.getBytes("foto_profilo");
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getBytes("foto_profilo");
+                }
             }
         }
         return null;
     }
-    
+
     
     /**
      * Inserisce un nuovo utente nel database.
@@ -158,10 +159,9 @@ public class DatabaseUtente implements DAOUtente {
     
     /**
      * Recupera il nome utente associato a un indirizzo email.
-     * <p>
+     * 
      * Questo metodo esegue una query per trovare il nome utente corrispondente
      * all'email specificata. 
-     * </p>
      * 
      * @param email l'indirizzo email dell'utente di cui recuperare il nome utente
      * @return il nome utente associato all'email, oppure {@code null} se non trovato
@@ -170,30 +170,29 @@ public class DatabaseUtente implements DAOUtente {
      */
     @Override
     public String prendiUsername(String email) {
-             
-        String query= "Select username from utente where email= ? ";
-        String usernamePresa=null;
-            try (PreparedStatement pstmt = db.getConnection().prepareStatement(query)) {
-            pstmt.setString(1, email); // inserisce l' utente nella prima posizione del preparestatment
-            ResultSet result = pstmt.executeQuery();
-            if(result.next()){
-                usernamePresa = result.getString("username");
+        String query = "SELECT username FROM utente WHERE email = ?";
+
+        try (PreparedStatement pstmt = db.getConnection().prepareStatement(query)) {
+            pstmt.setString(1, email);
+            try (ResultSet result = pstmt.executeQuery()) {
+                if (result.next()) {
+                    return result.getString("username");
+                }
             }
-    }   catch (SQLException ex) {   
+        } catch (SQLException ex) {
             System.getLogger(DatabaseUtente.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
         }
-            return usernamePresa;
+        return null;
     }
     
     /**
      * Verifica se la password in chiaro fornita corrisponde alla password memorizzata per l'utente identificato dall'email.
-     * <p>
+     * 
      * Il metodo esegue una query sulla tabella "utente" per recuperare la password associata all'email specificata.
      * Se viene trovato un record, il valore della password (presumibilmente un hash generato con BCrypt) viene confrontato
      * con la password in chiaro fornita utilizzando il metodo {@code checkPassword}. Se la password corrisponde, il metodo
      * restituisce {@code true}, altrimenti {@code false}. Se non viene trovato alcun record per l'email oppure la password recuperata
      * è {@code null}, viene restituito {@code false}.
-     * </p>
      *
      * @param email    l'email dell'utente di cui verificare la password
      * @param password la password in chiaro da verificare
@@ -201,21 +200,20 @@ public class DatabaseUtente implements DAOUtente {
      */
     @Override
     public boolean verificaPassword(String email, String password) {
-        String query = "Select password from utente where email= ? ";
-        String pwPresa = null;
+        String query = "SELECT password FROM utente WHERE email = ?";
+
         try (PreparedStatement pstmt = db.getConnection().prepareStatement(query)) {
             pstmt.setString(1, email);
-            ResultSet result = pstmt.executeQuery();
-            if (result.next()) {
-                pwPresa = result.getString("password");
-            } else {
-                return false;
+            try (ResultSet result = pstmt.executeQuery()) {
+                if (result.next()) {
+                    String hash = result.getString("password");
+                    return hash != null && this.checkPassword(password, hash);
+                }
             }
         } catch (SQLException ex) {
             System.getLogger(DatabaseUtente.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
         }
-        if (pwPresa == null) return false;
-        return this.checkPassword(password, pwPresa);
+        return false;
     }
 
     /**

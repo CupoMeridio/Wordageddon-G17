@@ -126,30 +126,34 @@ public class DatabaseClassifica implements DAOClassifica {
      */
     @Override
     public List<Classifica> recuperaCronologiaPartite(String email) {
-        List<Classifica> L = new ArrayList<>();
-        String query = "SELECT utente.username, data, punti , difficolta\n"
-                + "FROM punteggio\n"
-                + "JOIN utente ON utente.email = punteggio.email_utente\n"
-                + "WHERE punteggio.email_utente= ?\n"
-                + "ORDER BY data DESC;";
+        List<Classifica> classifiche = new ArrayList<>();
+        String query = """
+            SELECT utente.username, data, punti, difficolta
+            FROM punteggio
+            JOIN utente ON utente.email = punteggio.email_utente
+            WHERE punteggio.email_utente = ?
+            ORDER BY data DESC;
+            """;
 
         try (PreparedStatement pstmt = db.getConnection().prepareStatement(query)) {
             pstmt.setString(1, email);
-
-            ResultSet result = pstmt.executeQuery();
-            while (result.next()) {
-                L.add(new Classifica(
-                    result.getString("username"),
-                    result.getTimestamp("data"),
-                    result.getFloat("punti"),
-                    LivelloPartita.fromDbValue(result.getString("difficolta"))
-                ));
+            try (ResultSet result = pstmt.executeQuery()) {
+                while (result.next()) {
+                    classifiche.add(new Classifica(
+                        result.getString("username"),
+                        result.getTimestamp("data"),
+                        result.getFloat("punti"),
+                        LivelloPartita.fromDbValue(result.getString("difficolta"))
+                    ));
+                }
             }
         } catch (SQLException ex) {
             Logger.getLogger(DatabaseClassifica.class.getName()).log(Level.SEVERE, "Errore nel recupero della cronologia delle partite.", ex);
         }
-        return L;
+
+        return classifiche;
     }
+
 
     /**
      * Recupera il numero di partite giocate da un utente per una determinata difficoltà.

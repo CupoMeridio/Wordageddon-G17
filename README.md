@@ -33,7 +33,7 @@ Un'applicazione desktop ludico-educativa sviluppata in JavaFX per testare la mem
 ## ⚙️ Requisiti tecnici
 
 - **JDK 17+**
-- **NetBeans 26**
+- **[NetBeans 26](https://netbeans.apache.org/front/main/index.html)**
 - **Maven**
 - Sistema operativo: multipiattaforma (testato su Windows e Linux)
 
@@ -41,7 +41,7 @@ Un'applicazione desktop ludico-educativa sviluppata in JavaFX per testare la mem
 
 ## 🗃️ Database
 
-Il progetto utilizza **PostgreSQL 17** come sistema di gestione del database relazionale.  
+Il progetto utilizza **[PostgreSQL 17](https://www.postgresql.org)** come sistema di gestione del database relazionale.  
 Per l'amministrazione e la gestione dei dati è stato utilizzato **pgAdmin 4**.
 
 Il database è stato **ospitato in cloud** mediante i servizi forniti da [**Aiven**](https://aiven.io/), garantendo accessibilità remota e maggiore affidabilità durante lo sviluppo collaborativo.
@@ -96,7 +96,7 @@ Wordageddon-G17/
   - Diagrammi delle classi
   - Diagrammi delle sequenze
   - Mockup dell'interfaccia
-- Nella sezione **Releases** è disponibile il file JAR eseguibile pronto all'uso
+- Nella sezione **[Releases](https://github.com/CupoMeridio/Wordageddon-G17/releases)** è disponibile il file JAR eseguibile pronto all'uso
 - Il JAR può essere generato anche localmente tramite le funzioni di build di NetBeans
 
 ---

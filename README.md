@@ -59,15 +59,15 @@ PASSWORD=password_utente
 ---
 
 ## 📦 Tecnologie e dipendenze
-Il progetto utilizza le seguenti librerie e plugin esterni:
 
-- JavaFX — UI framework principale
+Questo progetto utilizza le seguenti librerie e plugin esterni, **gestiti automaticamente tramite Maven** (non è necessario scaricare nulla manualmente):
 
-- dotenv-java — Gestione variabili d'ambiente (.env) per la connessione sicura al database
+- [JavaFX](https://openjfx.io/) — UI framework principale per la realizzazione dell'interfaccia grafica.
+- [dotenv-java](https://github.com/cdimascio/dotenv-java) — Gestione delle variabili d'ambiente (`.env`) per una configurazione sicura, ad esempio per la connessione al database.
+- [jBCrypt](https://github.com/jeremyh/jBCrypt) — Crittografia sicura delle password con algoritmo BCrypt.
+- [Maven Shade Plugin](https://maven.apache.org/plugins/maven-shade-plugin/) — Permette la creazione di un JAR eseguibile contenente tutte le dipendenze.
 
-- jbcrypt — Crittografia sicura delle password
-
-- maven-shade-plugin — Creazione del JAR eseguibile con tutte le dipendenze incluse
+Tutte le dipendenze sono dichiarate nel file [`pom.xml`](./pom.xml).
 
 ---
 

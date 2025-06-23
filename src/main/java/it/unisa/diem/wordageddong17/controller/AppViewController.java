@@ -819,6 +819,7 @@ public class AppViewController implements Initializable {
             // Se le email non è già usata, si prosegue
             if (!password.getText().equals(repeatPassword.getText())) {
                 mostraAlert("Password non corrispondenti", "Le due password inserite non corrispondono", Alert.AlertType.ERROR);
+                this.resetService(pus);
                 return;
             }
 
@@ -884,9 +885,15 @@ public class AppViewController implements Initializable {
                 benvenutoLabel.setText("Benvenuto " + username.getText());
                 pulisciTutto();
                 mostraAlert("Registrazione completata", "Registrazione avvenuta con successo!", Alert.AlertType.INFORMATION);
+                this.resetService(ius);
             });
 
             ius.start();
+            this.resetService(pus);
+        });
+        pus.setOnFailed(e -> {
+            mostraAlert("Errore", "Errore durante il controllo dell'email.", Alert.AlertType.ERROR);
+            this.resetService(pus);
         });
 
         pus.start();
@@ -2246,13 +2253,11 @@ public class AppViewController implements Initializable {
      * @param service Servizio da resettare.
      */
     private void resetService(Service<?> service) {
-        if (service.getState() == Worker.State.SUCCEEDED ||
-            service.getState() == Worker.State.FAILED ||
-            service.getState() == Worker.State.CANCELLED) {
-
+        if (service.getState() != Worker.State.READY) {
             service.reset();  // Resetta lo stato a READY
         }
     }
+
     
     /**
      * Costruttore di default.

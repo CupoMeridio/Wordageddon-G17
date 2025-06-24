@@ -1365,7 +1365,7 @@ public class AppViewController implements Initializable {
             new FileChooser.ExtensionFilter("File di testo", "*.txt")
         );
 
-        File file = fileChooser.showOpenDialog(null);
+        File file = fileChooser.showOpenDialog(this.newDocument.getScene().getWindow());
         if (file != null) {
             fileSelezionato = file;
             pathTextField.setText(file.getName());
@@ -1623,7 +1623,7 @@ public class AppViewController implements Initializable {
         );
 
         try {
-            File file = fileChooser.showOpenDialog(null);
+            File file = fileChooser.showOpenDialog(this.imageView.getScene().getWindow());
             if (file == null) {
                 mostraAlert("Attenzione", "Nessun file selezionato.", Alert.AlertType.WARNING);
                 return null;

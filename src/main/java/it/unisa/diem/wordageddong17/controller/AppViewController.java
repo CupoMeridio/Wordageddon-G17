@@ -82,6 +82,8 @@ import javafx.concurrent.Worker;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
+import javafx.animation.PauseTransition;
+import javafx.util.Duration;
 
 /**
  * Questa classe gestisce tutte le interazioni dell'interfaccia utente
@@ -333,16 +335,16 @@ public class AppViewController implements Initializable {
     private ObservableList<DocumentoDiTesto> listaDocumenti;
     private File fileSelezionato;
     private final DAOListaStopWords dbSW = DatabaseStopWords.getInstance();
-    private PrendiClassificheService pcs = new PrendiClassificheService();
-    private PrendiInfoUtenteService pius = new PrendiInfoUtenteService();
-    private PrendiUtenteService pus = new PrendiUtenteService();
-    private InserisciUtenteService ius = new InserisciUtenteService();
-    private LoginService ls = new LoginService();
-    private EliminaTestoService ets = new EliminaTestoService();
-    private PrendiTuttiIDocumentiService ptds = new PrendiTuttiIDocumentiService();
-    private CaricaTestoService cts = new CaricaTestoService();
-    private PrendiTestoService pts = new PrendiTestoService();
-    private ModificaFotoProfiloService mfps = new ModificaFotoProfiloService();
+
+
+
+
+
+
+
+
+
+
     private byte[] immagineBytes;
 
 
@@ -448,14 +450,15 @@ public class AppViewController implements Initializable {
         passaARegistratiButton.setDisable(true);
         loadingOverlay.setVisible(true);
 
-        this.ls.setEmail(email);
-        this.ls.setPassword(password);     
+        LoginService loginService = new LoginService();
+        loginService.setEmail(email);
+        loginService.setPassword(password);     
 
-        ls.setOnSucceeded(workerStateEvent -> {
+        loginService.setOnSucceeded(workerStateEvent -> {
             accediButton.setDisable(false);
             passaARegistratiButton.setDisable(false);
             
-            Utente utente = this.ls.getValue();
+            Utente utente = loginService.getValue();
             if (utente != null) {
                 appstate.setUtente(utente);
                 configuraPulsantiAdmin();
@@ -469,19 +472,17 @@ public class AppViewController implements Initializable {
                 mostraAlert("Errore", "Email o password errati", Alert.AlertType.WARNING);
             }
             loadingOverlay.setVisible(false);
-            this.resetService(ls);
         });
 
-        ls.setOnFailed(workerStateEvent -> {
+        loginService.setOnFailed(workerStateEvent -> {
             accediButton.setDisable(false);
             passaARegistratiButton.setDisable(false);
             loadingOverlay.setVisible(false);
 
             mostraAlert("Errore", "Si è verificato un errore durante il login. Riprova più tardi.", Alert.AlertType.ERROR);
-            this.resetService(ls);
         });
 
-        this.ls.start();
+        loginService.start();
     }
 
 
@@ -521,7 +522,6 @@ public class AppViewController implements Initializable {
                     Alert.AlertType.CONFIRMATION,
                      e->{try {
                             this.appstate.setSessioneSalvata(e); 
-                            System.out.println("this.appstate.setSessioneSalvata(e): "+ this.appstate.isSessioneSalvata());
                             App.setRoot("SessionView");
                         } catch (IOException ex) {
                             this.eliminaSalvataggi();
@@ -570,9 +570,7 @@ public class AppViewController implements Initializable {
 
     private boolean eliminaSalvataggi() {
         boolean f1 = new File("SalvataggioDi" + this.appstate.getUtente().getEmail() + ".ser").delete();
-        System.out.println("Eliminazione file 1: " + f1);
         boolean f2 = new File("SalvataggioFaseGenerazioneDi" + this.appstate.getUtente().getEmail() + ".ser").delete();
-        System.out.println("Eliminazione file 2: " + f2);
         return f1 && f2;
     }
 
@@ -588,40 +586,30 @@ public class AppViewController implements Initializable {
      */
     @FXML
     private void classificheOnAction(ActionEvent event) {
-
         if(classificheButton.isDisable()) return;
         classificheButton.setDisable(true);
-        // Interrompi eventuale caricamento in corso
-        if (this.pcs != null && pcs.isRunning()) {
-            pcs.cancel();
-        }
         chiudiTutto();
         schermataClassifiche.setVisible(true);
         
-        this.pcs.setOnSucceeded(e->{
+        PrendiClassificheService pcs = new PrendiClassificheService();
+        pcs.setOnSucceeded(e->{
             classificheButton.setDisable(false);
-            Map<LivelloPartita,List<Classifica>> classifiche =new HashMap<LivelloPartita, List<Classifica>>();
-            classifiche = pcs.getValue();
+            Map<LivelloPartita,List<Classifica>> classifiche = pcs.getValue();
             classificaFacile.setAll(classifiche.get(LivelloPartita.FACILE));
             classificaMedia.setAll(classifiche.get(LivelloPartita.MEDIO));
             classificaDifficile.setAll(classifiche.get(LivelloPartita.DIFFICILE));
-            this.resetService(pcs);
         });
         
         pcs.setOnCancelled(e->{ 
-                classificheButton.setDisable(false);
-                this.resetService(pcs);
+            classificheButton.setDisable(false);
         });
         
         pcs.setOnFailed(e -> {
-            Platform.runLater(()
-                    -> mostraAlert("Errore", "Caricamento delle classifiche fallito.", Alert.AlertType.ERROR));
+            Platform.runLater(() -> mostraAlert("Errore", "Caricamento delle classifiche fallito.", Alert.AlertType.ERROR));
             classificheButton.setDisable(false);
-            this.resetService(pcs);
         });
 
         pcs.start();
-
     }
 
     /**
@@ -675,9 +663,6 @@ public class AppViewController implements Initializable {
      */
     @FXML
     private void chiudiClassificheOnAction(ActionEvent event) {
-        if (pcs != null && pcs.isRunning()) {
-            pcs.cancel();
-        }
         chiudiTutto();
         schermataHome.setVisible(true);
     }
@@ -807,19 +792,18 @@ public class AppViewController implements Initializable {
         }
 
         // Imposta l'email nel service che controlla se esiste già
+        PrendiUtenteService pus = new PrendiUtenteService();
         pus.setEmail(email.getText());
 
         pus.setOnSucceeded(e -> {
             if (pus.getValue() != null) {
                 mostraAlert("Email già utilizzata", "Questa email è già associata a un altro account.", Alert.AlertType.ERROR);
-                this.resetService(pus);
                 return;
             }
 
             // Se le email non è già usata, si prosegue
             if (!password.getText().equals(repeatPassword.getText())) {
                 mostraAlert("Password non corrispondenti", "Le due password inserite non corrispondono", Alert.AlertType.ERROR);
-                this.resetService(pus);
                 return;
             }
 
@@ -849,12 +833,12 @@ public class AppViewController implements Initializable {
 
                 } catch (IOException ex) {
                     mostraAlert("Errore", ex.getMessage(), Alert.AlertType.ERROR);
-                    this.resetService(pus);
                     return;
                 }
             }
 
             // Imposta i dati per il service di registrazione
+            InserisciUtenteService ius = new InserisciUtenteService();
             ius.setEmail(email.getText());
             ius.setUsername(username.getText());
             ius.setPassword(password.getText());
@@ -862,7 +846,6 @@ public class AppViewController implements Initializable {
 
             ius.setOnFailed(ev -> {
                 mostraAlert("Errore", "Errore durante la registrazione.", Alert.AlertType.ERROR);
-                this.resetService(ius);
             });
 
             ius.setOnSucceeded(ev -> {
@@ -885,15 +868,12 @@ public class AppViewController implements Initializable {
                 benvenutoLabel.setText("Benvenuto " + username.getText());
                 pulisciTutto();
                 mostraAlert("Registrazione completata", "Registrazione avvenuta con successo!", Alert.AlertType.INFORMATION);
-                this.resetService(ius);
             });
 
             ius.start();
-            this.resetService(pus);
         });
         pus.setOnFailed(e -> {
             mostraAlert("Errore", "Errore durante il controllo dell'email.", Alert.AlertType.ERROR);
-            this.resetService(pus);
         });
 
         pus.start();
@@ -1223,7 +1203,7 @@ public class AppViewController implements Initializable {
      *   <li>Pulisce la lista {@code listaDocumenti} per evitare duplicati.</li>
      *   <li>Aggiunge i documenti recuperati alla lista.</li>
      *   <li>Se la lista risulta vuota, mostra un alert informativo.</li>
-     *   <li>Al termine, resetta il servizio con {@code resetService(ptds)}.</li>
+     *   <li>Al termine, il servizio viene automaticamente gestito.</li>
      * </ul>
      * Se si verifica un'eccezione, il metodo visualizza un alert di errore con il messaggio corrispondente.
      */
@@ -1235,18 +1215,22 @@ public class AppViewController implements Initializable {
         Object utente = appstate.getUtente();
 
         try {
+            PrendiTuttiIDocumentiService ptds = new PrendiTuttiIDocumentiService();
             ptds.setOnSucceeded(e -> {
                 listaDocumenti.clear(); // Buona pratica: evita duplicati
-                listaDocumenti.addAll(this.ptds.getValue());
+                listaDocumenti.addAll(ptds.getValue());
                 if (listaDocumenti.isEmpty()) {
                     mostraAlert("Attenzione", "Nessun documento trovato.", Alert.AlertType.INFORMATION);
                 }
-                this.resetService(ptds);
+                
+                // Aggiorna l'interfaccia dopo il caricamento dei documenti
             });
-            this.ptds.start();
+            ptds.start();
         } catch (Exception e) {
             mostraAlert("Errore", "Impossibile caricare la lista documenti: " + e.getMessage(), Alert.AlertType.ERROR);
         }
+        
+        // Visualizza la schermata di gestione documenti
     }
 
     /**
@@ -1365,7 +1349,7 @@ public class AppViewController implements Initializable {
             new FileChooser.ExtensionFilter("File di testo", "*.txt")
         );
 
-        File file = fileChooser.showOpenDialog(this.newDocument.getScene().getWindow());
+        File file = fileChooser.showOpenDialog(null);
         if (file != null) {
             fileSelezionato = file;
             pathTextField.setText(file.getName());
@@ -1406,34 +1390,33 @@ public class AppViewController implements Initializable {
             return;
         }
 
-        this.cts.setDifficoltà(getDifficoltaSelezionataAdmin());
+        CaricaTestoService cts = new CaricaTestoService();
+        cts.setDifficoltà(getDifficoltaSelezionataAdmin());
         
         try {
-            this.cts.setDocumento(Files.readAllBytes(fileSelezionato.toPath()));
+            cts.setDocumento(Files.readAllBytes(fileSelezionato.toPath()));
         } catch (IOException ex) {
             System.getLogger(AppViewController.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
         }
         
 
-        this.cts.setEmail(appstate.getUtente().getEmail());
-        this.cts.setNomeFile(fileSelezionato.getName());
-        this.cts.setLingua(getLinguaSelezionataAdmin());
+        cts.setEmail(appstate.getUtente().getEmail());
+        cts.setNomeFile(fileSelezionato.getName());
+        cts.setLingua(getLinguaSelezionataAdmin());
 
-        this.cts.setOnSucceeded(e -> {
+        cts.setOnSucceeded(e -> {
             mostraAlert("Successo", "Documento caricato correttamente.", Alert.AlertType.INFORMATION);
             pathTextField.clear();
             fileSelezionato = null;
-            this.resetService(cts);
         });
 
-        this.cts.setOnFailed(e -> {
+        cts.setOnFailed(e -> {
             mostraAlert("Errore", "Errore durante il caricamento del documento.", Alert.AlertType.INFORMATION);
             pathTextField.clear();
             fileSelezionato = null;
-            this.resetService(cts);
         });
 
-        this.cts.start();
+        cts.start();
     }
 
     
@@ -1453,7 +1436,6 @@ public class AppViewController implements Initializable {
 
         ps.setOnSucceeded(e -> {
             this.stopwordTextArea.setText(new String(ps.getValue()));
-            System.out.println(" this.stopwordTextArea.setText " + this.stopwordTextArea.getText());
         });
 
         ps.setOnFailed(e -> {
@@ -1478,7 +1460,7 @@ public class AppViewController implements Initializable {
      *       <li>I contatori delle partite giocate per ogni difficoltà.</li>
      *       <li>I migliori punteggi.</li>
      *     </ul>
-     *     Infine, resetta il servizio con {@code resetService(pius)}.</li>
+     *     Infine, il servizio viene automaticamente gestito.</li>
      *   <li>Se il servizio fallisce, logga l'errore e mostra un alert tramite {@code Platform.runLater()}.</li>
      * </ul>
      * Parallelamente, esegue un task separato per caricare l'immagine del profilo:
@@ -1499,11 +1481,8 @@ public class AppViewController implements Initializable {
             return;
         }
 
+        PrendiInfoUtenteService pius = new PrendiInfoUtenteService();
         pius.setEmail(utente.getEmail());
-
-        if (this.pius != null && this.pius.isRunning()) {
-            pius.cancel();
-        }
 
         chiudiTutto();
         schermataInfoUtente.setVisible(true);
@@ -1521,14 +1500,12 @@ public class AppViewController implements Initializable {
             migliore_facile.setText(String.format("Miglior punteggio in difficoltà facile: %.1f", ig.getFacilePunteggio()));
             migliore_medio.setText(String.format("Miglior punteggio in difficoltà media: %.1f", ig.getMedioPunteggio()));
             migliore_difficile.setText(String.format("Miglior punteggio in difficoltà difficile: %.1f", ig.getDifficilePunteggio()));
-            this.resetService(pius);
         });
 
         pius.setOnFailed(e -> {
             Logger.getLogger(AppViewController.class.getName()).log(Level.SEVERE, "Errore nel caricamento info profilo", pius.getException());
             Platform.runLater(() ->
                 mostraAlert("Errore", "Impossibile caricare i dati del profilo", Alert.AlertType.ERROR));
-            this.resetService(pius);
         });
 
         pius.start();
@@ -1623,7 +1600,7 @@ public class AppViewController implements Initializable {
         );
 
         try {
-            File file = fileChooser.showOpenDialog(this.imageView.getScene().getWindow());
+            File file = fileChooser.showOpenDialog(null);
             if (file == null) {
                 mostraAlert("Attenzione", "Nessun file selezionato.", Alert.AlertType.WARNING);
                 return null;
@@ -1775,26 +1752,25 @@ public class AppViewController implements Initializable {
      */
     private void aggiornaFotoProfilo(byte[] immagineBytes) {
         Utente utente = appstate.getUtente();
+        ModificaFotoProfiloService mfps = new ModificaFotoProfiloService();
         mfps.setEmail(utente.getEmail());
         mfps.setImmagine(immagineBytes);
 
-        this.mfps.setOnSucceeded(e -> {   
+        mfps.setOnSucceeded(e -> {   
             Image image = immagineBytes != null ? new Image(new ByteArrayInputStream(immagineBytes)) : getPlaceholderImage();
             utente.setFotoProfilo(immagineBytes);
             fotoProfilo.setImage(image);
             immagineInfoUtente.setImage(image);
-            resetService(mfps);
             loadingOverlay.setVisible(false);
         });
 
-        this.mfps.setOnFailed(e -> {
+        mfps.setOnFailed(e -> {
             mostraAlert("Errore", "Impossibile aggiornare l'immagine: ", Alert.AlertType.ERROR);
             // Ripristino della vecchia immagine in caso di errore
             byte[] vecchiaImmagine = utente.getFotoProfilo();
             Image oldImage = vecchiaImmagine != null ? new Image(new ByteArrayInputStream(vecchiaImmagine)) : getPlaceholderImage();
             fotoProfilo.setImage(oldImage);
             immagineInfoUtente.setImage(oldImage);
-            resetService(mfps);
             loadingOverlay.setVisible(false);
         });
 
@@ -1880,11 +1856,12 @@ public class AppViewController implements Initializable {
             private final Button btnDownload = new Button("🗎");
 
             {
-                btnDownload.setStyle("-fx-background-color: transparent; -fx-cursor: hand; -fx-font-size: 16;");
+                btnDownload.setStyle("-fx-background-color: transparent; -fx-cursor: hand; -fx-font-size: 14; -fx-padding: 2;");
                 btnDownload.setOnAction(event -> {
                     DocumentoDiTesto doc = getTableView().getItems().get(getIndex());
                     if (doc == null) return;
 
+                    PrendiTestoService pts = new PrendiTestoService();
                     pts.setNomeFile(doc.getNomeFile());
                     pts.setOnSucceeded(e -> {
                         byte[] contenuto = pts.getValue();
@@ -1911,12 +1888,10 @@ public class AppViewController implements Initializable {
                             
                             mostraAlert("Successo", "File salvato in:\n" + fileDest.getAbsolutePath(), Alert.AlertType.INFORMATION);
                         }
-                        resetService(pts);
                     });
 
                     pts.setOnFailed(e -> {
                         mostraAlert("Errore", "Errore durante il recupero del file.", Alert.AlertType.ERROR);
-                        resetService(pts);
                     });
 
                     pts.start();
@@ -1932,6 +1907,7 @@ public class AppViewController implements Initializable {
                 } else {
                     setText(null);
                     setGraphic(btnDownload);
+                    setAlignment(javafx.geometry.Pos.CENTER);
                 }
             }
         });
@@ -1978,46 +1954,55 @@ public class AppViewController implements Initializable {
      * @return {@link Runnable} che, quando eseguito, applica il predicato di filtraggio alla lista.
      */
     private Runnable creaFiltro(FilteredList<DocumentoDiTesto> filteredList) {
-        return () -> filteredList.setPredicate(doc -> {
-            // Filtro per difficoltà
-            String livelloDb = doc.getDifficolta() != null ? doc.getDifficolta().getDbValue() : "";
+        return () -> {
+            filteredList.setPredicate(doc -> {
+                // Filtro per difficoltà
+                String livelloDb = doc.getDifficolta() != null ? doc.getDifficolta().getDbValue() : "";
 
-            boolean matchDifficolta =
-                    (gestDocCheckFacile.isSelected() && "facile".equalsIgnoreCase(livelloDb)) ||
-                    (gestDocCheckMedia.isSelected() && "medio".equalsIgnoreCase(livelloDb)) ||
-                    (gestDocCheckDifficile.isSelected() && "difficile".equalsIgnoreCase(livelloDb));
+                boolean matchDifficolta =
+                        (gestDocCheckFacile.isSelected() && "facile".equalsIgnoreCase(livelloDb)) ||
+                        (gestDocCheckMedia.isSelected() && "medio".equalsIgnoreCase(livelloDb)) ||
+                        (gestDocCheckDifficile.isSelected() && "difficile".equalsIgnoreCase(livelloDb));
 
-            if (!gestDocCheckFacile.isSelected() && !gestDocCheckMedia.isSelected() && !gestDocCheckDifficile.isSelected()) {
-                matchDifficolta = true; // Mostra tutti se nessuna difficoltà è selezionata
-            }
+                if (!gestDocCheckFacile.isSelected() && !gestDocCheckMedia.isSelected() && !gestDocCheckDifficile.isSelected()) {
+                    matchDifficolta = true; // Mostra tutti se nessuna difficoltà è selezionata
+                }
 
-            // Filtro per lingua
-            Lingua lingua = doc.lingua();
-            boolean matchLingua = true; // Default a true se nessuna lingua è selezionata
+                // Filtro per lingua
+                Lingua lingua = doc.lingua();
+                boolean matchLingua = true; // Default a true se nessuna lingua è selezionata
 
-            if (gestDocIT.isSelected() || gestDocCheckEN.isSelected() || gestDocCheckES.isSelected() ||
-                gestDocCheckFR.isSelected() || gestDocCheckDE.isSelected()) {
+                if (gestDocIT.isSelected() || gestDocCheckEN.isSelected() || gestDocCheckES.isSelected() ||
+                    gestDocCheckFR.isSelected() || gestDocCheckDE.isSelected()) {
 
-                matchLingua = 
-                    (gestDocIT.isSelected() && lingua == Lingua.ITALIANO) ||
-                    (gestDocCheckEN.isSelected() && lingua == Lingua.INGLESE) ||
-                    (gestDocCheckES.isSelected() && lingua == Lingua.SPAGNOLO) ||
-                    (gestDocCheckFR.isSelected() && lingua == Lingua.FRANCESE) ||
-                    (gestDocCheckDE.isSelected() && lingua == Lingua.TEDESCO);
-            }
+                    matchLingua = 
+                        (gestDocIT.isSelected() && lingua == Lingua.ITALIANO) ||
+                        (gestDocCheckEN.isSelected() && lingua == Lingua.INGLESE) ||
+                        (gestDocCheckES.isSelected() && lingua == Lingua.SPAGNOLO) ||
+                        (gestDocCheckFR.isSelected() && lingua == Lingua.FRANCESE) ||
+                        (gestDocCheckDE.isSelected() && lingua == Lingua.TEDESCO);
+                }
 
-            // Filtro per ricerca testo
-            String query = gestDocBarraDiRicerca.getText() != null ? 
-                           gestDocBarraDiRicerca.getText().toLowerCase() : "";
-            boolean matchRicerca = query.isBlank() ||
-                    doc.nomeFile().toLowerCase().contains(query) ||
-                    doc.emailAmministratore().toLowerCase().contains(query) ||
-                    livelloDb.contains(query.toLowerCase()) ||  // Cerca anche nella difficoltà
-                    lingua.toString().toLowerCase().contains(query.toLowerCase()); // Cerca anche nella lingua
+                // Filtro per ricerca testo
+                String query = gestDocBarraDiRicerca.getText() != null ? 
+                               gestDocBarraDiRicerca.getText().toLowerCase() : "";
+                boolean matchRicerca = query.isBlank() ||
+                        doc.nomeFile().toLowerCase().contains(query) ||
+                        doc.emailAmministratore().toLowerCase().contains(query) ||
+                        livelloDb.contains(query.toLowerCase()) ||  // Cerca anche nella difficoltà
+                        lingua.toString().toLowerCase().contains(query.toLowerCase()); // Cerca anche nella lingua
 
-            return matchDifficolta && matchLingua && matchRicerca;
-        });
+                return matchDifficolta && matchLingua && matchRicerca;
+            });
+        };
     }
+    
+    /**
+     * Aggiusta la larghezza della tabella in base al contenuto visualizzato.
+     * Questo metodo aiuta a prevenire problemi di visualizzazione come la comparsa
+     * della barra di scorrimento orizzontale in determinate condizioni di filtro.
+     */
+
 
     /**
      * Aggiunge listener ai controlli di filtro per aggiornare dinamicamente la lista dei documenti.
@@ -2034,15 +2019,42 @@ public class AppViewController implements Initializable {
      * @param filtro Filtro ({@link Runnable}) da eseguire quando uno dei controlli cambia.
      */
     private void aggiungiListenerFiltri(Runnable filtro) {
-        gestDocIT.selectedProperty().addListener((obs, o, n) -> filtro.run());
-        gestDocCheckEN.selectedProperty().addListener((obs, o, n) -> filtro.run());
-        gestDocCheckES.selectedProperty().addListener((obs, o, n) -> filtro.run());
-        gestDocCheckFR.selectedProperty().addListener((obs, o, n) -> filtro.run());
-        gestDocCheckDE.selectedProperty().addListener((obs, o, n) -> filtro.run());
-        gestDocBarraDiRicerca.textProperty().addListener((obs, oldVal, newVal) -> filtro.run());
-        gestDocCheckFacile.selectedProperty().addListener((obs, oldVal, newVal) -> filtro.run());
-        gestDocCheckMedia.selectedProperty().addListener((obs, oldVal, newVal) -> filtro.run());
-        gestDocCheckDifficile.selectedProperty().addListener((obs, oldVal, newVal) -> filtro.run());
+        // Utilizzo di un timer per evitare aggiornamenti troppo frequenti che causano tremolio
+        PauseTransition pause = new PauseTransition(Duration.millis(50));
+        pause.setOnFinished(e -> filtro.run());
+        
+        // Aggiungi listener per i filtri di lingua
+        gestDocIT.selectedProperty().addListener((obs, o, n) -> {
+            pause.playFromStart();
+        });
+        gestDocCheckEN.selectedProperty().addListener((obs, o, n) -> {
+            pause.playFromStart();
+        });
+        gestDocCheckES.selectedProperty().addListener((obs, o, n) -> {
+            pause.playFromStart();
+        });
+        gestDocCheckFR.selectedProperty().addListener((obs, o, n) -> {
+            pause.playFromStart();
+        });
+        gestDocCheckDE.selectedProperty().addListener((obs, o, n) -> {
+            pause.playFromStart();
+        });
+        
+        // Aggiungi listener per la barra di ricerca
+        gestDocBarraDiRicerca.textProperty().addListener((obs, oldVal, newVal) -> {
+            pause.playFromStart();
+        });
+        
+        // Aggiungi listener per i filtri di difficoltà
+        gestDocCheckFacile.selectedProperty().addListener((obs, oldVal, newVal) -> {
+            pause.playFromStart();
+        });
+        gestDocCheckMedia.selectedProperty().addListener((obs, oldVal, newVal) -> {
+            pause.playFromStart();
+        });
+        gestDocCheckDifficile.selectedProperty().addListener((obs, oldVal, newVal) -> {
+            pause.playFromStart();
+        });
     }
 
 
@@ -2096,13 +2108,17 @@ public class AppViewController implements Initializable {
         pulisciTutto();
 
         listaDocumenti.clear(); // Buona pratica: evita duplicati
-        this.ptds.setOnSucceeded(e -> {
-            listaDocumenti.addAll(this.ptds.getValue());
-            this.resetService(ptds);
+        PrendiTuttiIDocumentiService ptds = new PrendiTuttiIDocumentiService();
+        ptds.setOnSucceeded(e -> {
+            listaDocumenti.addAll(ptds.getValue());
+            
+            // Aggiorna l'interfaccia dopo il caricamento dei documenti
         });
 
-        this.ptds.start();
+        ptds.start();
         gestioneDocumentiView.setVisible(true);
+        
+        // Visualizza la schermata di gestione documenti
     }
 
     /**
@@ -2130,7 +2146,7 @@ public class AppViewController implements Initializable {
 
         // Mostra l'overlay prima di iniziare l'operazione di eliminazione
         loadingOverlay.setVisible(true);
-        ets = new EliminaTestoService(selezionati);
+        EliminaTestoService ets = new EliminaTestoService(selezionati);
 
         ets.setOnSucceeded(e -> {
             Platform.runLater(() -> {
@@ -2138,18 +2154,15 @@ public class AppViewController implements Initializable {
                 listaDocumenti.removeAll(selezionati);
                 mostraAlert("Successo", "Documenti eliminati con successo.", Alert.AlertType.INFORMATION);
             });
-            this.resetService(ets);
         });
 
         ets.setOnFailed(e -> {
             loadingOverlay.setVisible(false);
             mostraAlert("Errore", "Errore durante l'eliminazione dei documenti", Alert.AlertType.ERROR);
-            this.resetService(ets);
         });
 
         ets.setOnCancelled(e -> {
             loadingOverlay.setVisible(false);
-            this.resetService(ets);
         });
 
         ets.start();
@@ -2244,21 +2257,7 @@ public class AppViewController implements Initializable {
         );
     }
 
-    /**
-     * Resetta il servizio specificato se ha raggiunto uno stato terminale (SUCCEEDED, FAILED o CANCELLED).
-     *
-     * Il metodo verifica lo stato del {@link Service} e, se terminato, invoca {@code reset()} 
-     * per riportarlo allo stato READY, consentendone un nuovo utilizzo.
-     *
-     * @param service Servizio da resettare.
-     */
-    private void resetService(Service<?> service) {
-        if (service.getState() != Worker.State.READY) {
-            service.reset();  // Resetta lo stato a READY
-        }
-    }
 
-    
     /**
      * Costruttore di default.
      * <p>
@@ -2268,4 +2267,4 @@ public class AppViewController implements Initializable {
     public AppViewController() {
         // eventuali inizializzazioni se necessarie
     }
-}  
+}

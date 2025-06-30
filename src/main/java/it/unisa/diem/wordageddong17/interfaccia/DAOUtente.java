@@ -12,35 +12,31 @@ import it.unisa.diem.wordageddong17.model.Utente;
 public interface DAOUtente {
 
     /**
-     * Modifica il nome utente associato all'indirizzo email specificato.
+     * Modifica il nome utente dell'utente specificato.
      *
-     * @param email    l'email dell'utente di cui si vuole modificare il nome utente
-     * @param username il nuovo nome utente da impostare
+     * @param utente l'oggetto Utente contenente l'email e il nuovo nome utente da impostare
      * @return {@code true} se la modifica ha avuto successo, {@code false} altrimenti
      */
-    public boolean modificaUsername(String email, String username);
+    public boolean modificaUsername(Utente utente);
 
     /**
-     * Modifica la foto profilo dell'utente.
+     * Modifica la foto profilo dell'utente specificato.
      *
-     * @param email l'email dell'utente di cui si vuole modificare la foto profilo
-     * @param foto  un array di byte rappresentante la nuova foto profilo
+     * @param utente l'oggetto Utente contenente l'email e la nuova foto profilo
      * @return {@code true} se la modifica ha avuto successo, {@code false} altrimenti
      */
-    public boolean modificaFotoProfilo(String email, byte[] foto);
+    public boolean modificaFotoProfilo(Utente utente);
 
     /**
      * Inserisce un nuovo utente nel sistema.
      * 
-     * Questo metodo registra un utente fornendo il nome utente, l'email, la password e, opzionalmente, una foto profilo.
+     * Questo metodo registra un utente utilizzando l'oggetto Utente e la password fornita.
      * La password dovrebbe essere opportunamente criptata prima del salvataggio.
      *
-     * @param username il nome utente da registrare
-     * @param email    l'email dell'utente
+     * @param utente l'oggetto Utente contenente le informazioni dell'utente da inserire
      * @param password la password in chiaro dell'utente
-     * @param foto     un array di byte contenente la foto profilo (può essere {@code null} se non specificato)
      */
-    public void inserisciUtente(String username, String email, String password, byte[] foto);
+    public void inserisciUtente(Utente utente, String password);
 
     /**
      * Recupera il nome utente associato all'indirizzo email specificato.

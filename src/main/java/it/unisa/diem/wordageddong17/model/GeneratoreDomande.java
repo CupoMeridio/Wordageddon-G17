@@ -69,7 +69,7 @@ public class GeneratoreDomande {
      */
     private Domanda domandaFrequenzaAssoluta(String nomeDocumento) {
         Map<String, Integer> parole = analisi.restituisciDocumento(nomeDocumento);
-        // System.out.println("domandaFrequenzaAssoluta "+ parole );
+        
         if (parole == null || parole.isEmpty()) {
             return null;
         }
@@ -103,7 +103,7 @@ public class GeneratoreDomande {
      */
     private Domanda domandaParolaPiuFrequente(String nomeDocumento) {
         Map<String, Integer> parole = analisi.restituisciDocumento(nomeDocumento);
-        //System.out.println("domandaParolaPiuFrequente :" + parole);
+        
         if (parole == null || parole.isEmpty()) {
             return null;
         }
@@ -297,7 +297,7 @@ public class GeneratoreDomande {
      */
     private Domanda domandaConfrontoFrequenze(String nomeDocumento) {
         Map<String, Integer> parole = analisi.restituisciDocumento(nomeDocumento);
-        //System.out.println("domandaConfrontoFrequenze :" + parole);
+        
         if (parole == null || parole.size() < 4) {
             return null;
         }
@@ -366,8 +366,7 @@ public class GeneratoreDomande {
                 default -> lista.add(this.domandaParolaPiuFrequente(nomeDocumento));
             }
 
-            System.out.println("getRaccoltaDiDomande: " + lista.get(i).testo);
-            //System.out.println("getRaccoltaDiDomande: "+ lista);
+            
         }
         return lista;
     }

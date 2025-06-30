@@ -467,11 +467,11 @@
                            
                            <TableView fx:id="gestDocTabella" editable="true" maxWidth="Infinity" prefHeight="220" VBox.vgrow="ALWAYS">
                                <columns>
-                                   <TableColumn fx:id="gestDocColNomeFile" prefWidth="150.0" text="Nome file" />
-                                   <TableColumn fx:id="gestDocColDifficoltà" prefWidth="100.0" text="Difficoltà" />
-                                   <TableColumn fx:id="gestDocColInserito" prefWidth="150.0" text="Inserito da:" />
-                                   <TableColumn fx:id="gestDocColLingua" prefWidth="100.0" text="Lingua" />
-                                   <TableColumn fx:id="gestDocColDocumento" prefWidth="200.0" text="Documento" />
+                                   <TableColumn fx:id="gestDocColNomeFile" prefWidth="250.0" minWidth="200.0" text="Nome file" />
+                                   <TableColumn fx:id="gestDocColDifficoltà" prefWidth="100.0" minWidth="80.0" text="Difficoltà" />
+                                   <TableColumn fx:id="gestDocColInserito" prefWidth="150.0" minWidth="120.0" text="Inserito da:" />
+                                   <TableColumn fx:id="gestDocColLingua" prefWidth="100.0" minWidth="80.0" text="Lingua" />
+                                   <TableColumn fx:id="gestDocColDocumento" prefWidth="60.0" minWidth="50.0" style="-fx-alignment: CENTER;" text="Documento" />
                                </columns>
                                <contextMenu>
                                    <ContextMenu>

@@ -2,6 +2,8 @@ package it.unisa.diem.wordageddong17.service;
 
 import it.unisa.diem.wordageddong17.database.DatabaseUtente;
 import it.unisa.diem.wordageddong17.interfaccia.DAOUtente;
+import it.unisa.diem.wordageddong17.model.TipoUtente;
+import it.unisa.diem.wordageddong17.model.Utente;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 
@@ -15,8 +17,7 @@ import javafx.concurrent.Task;
  */
 public class ModificaFotoProfiloService extends Service<Void> {
 
-    private byte[] immagine;
-    private String email;
+    private Utente utente;
     private final DAOUtente dbu;
 
     /**
@@ -26,8 +27,7 @@ public class ModificaFotoProfiloService extends Service<Void> {
      * @param email    L'indirizzo email dell'utente per cui modificare la foto profilo.
      */
     public ModificaFotoProfiloService(byte[] immagine, String email) {
-        this.immagine = immagine;
-        this.email = email;
+        this.utente = new Utente("", email, immagine, TipoUtente.giocatore);
         this.dbu = DatabaseUtente.getInstance();
     }
 
@@ -44,7 +44,11 @@ public class ModificaFotoProfiloService extends Service<Void> {
      * @param immagine L'immagine in formato byte array da impostare.
      */
     public void setImmagine(byte[] immagine) {
-        this.immagine = immagine;
+        if (this.utente == null) {
+            this.utente = new Utente("", "", immagine, TipoUtente.giocatore);
+        } else {
+            this.utente.setFotoProfilo(immagine);
+        }
     }
 
     /**
@@ -53,7 +57,12 @@ public class ModificaFotoProfiloService extends Service<Void> {
      * @param email L'email da impostare.
      */
     public void setEmail(String email) {
-        this.email = email;
+        if (this.utente == null) {
+            this.utente = new Utente("", email, null, TipoUtente.giocatore);
+        } else {
+            // Poiché l'email è final nel modello Utente, dobbiamo creare un nuovo oggetto
+            this.utente = new Utente(this.utente.getUsername(), email, this.utente.getFotoProfilo(), this.utente.getTipo());
+        }
     }
 
     /**
@@ -69,7 +78,7 @@ public class ModificaFotoProfiloService extends Service<Void> {
         return new Task<Void>() {
             @Override
             protected Void call() throws Exception {
-                dbu.modificaFotoProfilo(email, immagine);
+                dbu.modificaFotoProfilo(utente);
                 return null;
             }
         };

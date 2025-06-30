@@ -28,17 +28,13 @@ public interface DAODocumentoDiTesto {
 
     /**
      * Carica un documento testuale nel sistema.
-     * Permette di salvare un documento fornendo l'email dell'utente, il nome del file, il livello di difficoltà,
-     * il contenuto del documento in formato byte e la lingua in cui è scritto.
+     * Permette di salvare un documento fornendo un oggetto DocumentoDiTesto e il contenuto del documento.
      *
-     * @param email     l'email dell'utente che carica il documento
-     * @param nomeFile  il nome del file da caricare
-     * @param difficolta una stringa che rappresenta la difficoltà (es. "facile", "medio", "difficile")
+     * @param documento l'oggetto DocumentoDiTesto contenente le informazioni del documento da caricare
      * @param file      il contenuto del documento in formato {@code byte[]}
-     * @param lingua    l'oggetto {@link Lingua} che rappresenta la lingua del documento
      * @return {@code true} se il caricamento ha avuto successo, {@code false} in caso contrario
      */
-    public boolean caricaTesto(String email, String nomeFile, String difficolta, byte[] file, Lingua lingua);
+    public boolean caricaTesto(DocumentoDiTesto documento, byte[] file);
 
     /**
      * Recupera il contenuto testuale di un documento.

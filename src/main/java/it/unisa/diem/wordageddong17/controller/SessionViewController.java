@@ -135,7 +135,6 @@ public class SessionViewController implements Initializable {
     MappaDocumenti = new HashMap<>();
     this.stato = AppState.getInstance();
        
-     System.out.println("this.stato.isSessioneSalvata()"+ this.stato.isSessioneSalvata());
     if(this.stato.isSessioneSalvata()){
         this.inizializeConSalvataggio();
     }else{
@@ -151,23 +150,21 @@ public class SessionViewController implements Initializable {
 
     private void serviceInitialize() {
         this.caricaSessione.setOnRunning(e -> {
-            System.out.println("Service in esecuzione...");
+            // Service in esecuzione
         });
 
         this.caricaSessione.setOnSucceeded(e -> {
             progessBar.progressProperty().unbind();
             loadingOverlay.setVisible(false);
-            System.out.println("Service completato con successo!");
+            // Service completato con successo
             List<Domanda> domandeCaricate = caricaSessione.getValue();
             if (domandeCaricate != null && !domandeCaricate.isEmpty()) {
                 this.domande.addAll(domandeCaricate);
-                System.out.println("Caricate " + domandeCaricate.size() + " domande");
                 MappaDocumenti = this.sessione.getDocumenti();
                 this.inizializzaTimer();
                 cambioTesto();
             } else {
-                System.out.println("Nessuna domanda caricata o lista vuota");
-                  this.mostraAlert("ERRORE", "Impossibile caricare le domande riprova più tardi", Alert.AlertType.ERROR);
+                this.mostraAlert("ERRORE", "Impossibile caricare le domande riprova più tardi", Alert.AlertType.ERROR);
                 return;
             }
             resetService(caricaSessione);
@@ -176,12 +173,10 @@ public class SessionViewController implements Initializable {
         this.caricaSessione.setOnFailed(e -> {
             loadingOverlay.setVisible(false);
             progessBar.progressProperty().unbind();
-            System.out.println("Service fallito!");
+            // Service fallito
             Throwable exception = caricaSessione.getException();
             if (exception != null) {
                 exception.printStackTrace();
-            } else {
-                System.out.println("Nessuna eccezione specificata");   
             }
             this.mostraAlert("ERRORE", "Impossibile caricare la sessione riprova più tardi", Alert.AlertType.ERROR);
             resetService(caricaSessione);
@@ -190,25 +185,20 @@ public class SessionViewController implements Initializable {
 
     private void cambioTesto() {
         this.NomiDocumenti = this.sessione.getDocumenti().keySet().toArray(new String[0]);
-        System.out.println("MappaDocumenti: " + MappaDocumenti);
         this.TestoDaLeggere.textProperty().setValue(
             new String(MappaDocumenti.get(NomiDocumenti[this.NumeroDiTesto]), StandardCharsets.UTF_8)
         );
-        System.out.println("NumeroDiTesto :" + NumeroDiTesto + " this.NomiDocumenti.length: " + this.NomiDocumenti.length);
         this.contatoreLettura.setText(this.NumeroDiTesto + 1 + "/" + this.NomiDocumenti.length);
     }
 
     private void cambioDomanda() {
 
-        System.out.println("this.domande.size() ;" + this.domande.size());
         if (this.domande.isEmpty()) {
             this.FaseLettura.setVisible(false);
             this.FaseRisposte.setVisible(false);
             this.schermataGameOver.setVisible(true);
             this.sessione.aggiornaPuntiFatti(this.durata);
-            System.out.println("this.sessione.getPunteggioFatto() "+ this.sessione.getPunteggioFatto());
             this.highScoreLabel.setText(String.valueOf(this.sessione.getPunteggioFatto()));
-            System.out.println("\n Verifica "+ this.sessione.getRisposte());
             cps.setDifficoltà(this.sessione.getLivello());
             cps.setEmail(stato.getUtente().getEmail());
             cps.setPunteggio(this.sessione.getPunteggioFatto());
@@ -216,7 +206,6 @@ public class SessionViewController implements Initializable {
                 resetService(cps);
             });
             cps.setOnFailed(e -> {
-                System.out.println("Service fallito");
                 mostraAlert("Errore", "Impossibile salvare il punteggio.", Alert.AlertType.WARNING);
                 resetService(cps);
             });
@@ -274,7 +263,6 @@ public class SessionViewController implements Initializable {
 
     @FXML
     private void TestoPrecedente(ActionEvent event) {
-        System.out.println("ProssimoTesto: " + this.NumeroDiTesto);
         this.NumeroDiTesto--;
         if (this.NumeroDiTesto < 0) {
             this.NumeroDiTesto = this.NomiDocumenti.length - 1;
@@ -284,7 +272,6 @@ public class SessionViewController implements Initializable {
 
     @FXML
     private void ProssimoTesto(ActionEvent event) {
-        System.out.println("ProssimoTesto: " + this.NumeroDiTesto);
         this.NumeroDiTesto++;
         if (this.NumeroDiTesto > this.NomiDocumenti.length - 1) {
             this.NumeroDiTesto = 0;
@@ -351,9 +338,7 @@ public class SessionViewController implements Initializable {
 
     private boolean eliminaSalvataggi() {
         boolean f1 = new File("SalvataggioDi"+this.sessione.getUtente().getEmail()+".ser").delete();
-        System.out.println("Eliminazione file 1: "+ f1);
         boolean f2 =new File(("SalvataggioFaseGenerazioneDi"+this.sessione.getUtente().getEmail()+".ser")).delete();
-        System.out.println("Eliminazione file 1: "+ f2);
         return f1 && f2;
     }
 
@@ -364,7 +349,6 @@ public class SessionViewController implements Initializable {
             try {
                 sessione.caricaSessioneDiGioco("SalvataggioFaseGenerazioneDi"+stato.getUtente().getEmail()+".ser");
             } catch (IOException ex1) {
-                System.out.println("Notifica");
                 System.getLogger(SessionViewController.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex1);
                 this.eliminaSalvataggi();
             }
@@ -380,10 +364,7 @@ public class SessionViewController implements Initializable {
         this.domande.addAll(
                 this.sessione.getDomande().stream().skip((int)this.sessione.getRisposte().size()).collect(Collectors.toList()));
         
-        System.out.println("getDomande:"+ this.sessione.getDomande());
-        System.out.println("domande:"+ domande);
-        System.out.println("this.sessione.getRisposte().size() "+this.sessione.getRisposte().size());
-        System.out.println("this.sessione.getDurata(): "+ this.sessione.getDurata());
+        // Inizializzazione completata
         if(this.sessione.getDurata()>0 && this.sessione.getRisposte().size()<1 ){
             cambioTesto();
             this.inizializzaTimer();

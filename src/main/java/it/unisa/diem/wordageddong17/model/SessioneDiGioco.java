@@ -79,9 +79,7 @@ public class SessioneDiGioco implements Serializable {
         // Salvataggio automatico se la sessione viene interrotta bruscamente
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             Thread salva = new Thread(() -> {
-                System.out.println("Inizio salvataggio");
                 this.salvaSessioneDiGioco("SalvataggioDi" + this.utente.getEmail() + ".ser");
-                System.out.println("Fine salvataggio");
             });
 
             // Salva la sessione solo se il numero di domande non corrisponde al numero di risposte registrate
@@ -90,7 +88,6 @@ public class SessioneDiGioco implements Serializable {
             try {
                 salva.join(1000);
                 if (salva.isAlive()) {
-                    System.out.println("Non hai avuto tempo");
                     salva.interrupt();
                 }
             } catch (InterruptedException e) {
@@ -180,9 +177,7 @@ public class SessioneDiGioco implements Serializable {
     public synchronized void setDurata(int durata) {
         if (this.durata == 0 && this.durataIniziale == 0)
             this.durataIniziale = durata;
-        System.out.println("Dopo :" + this.durata);
         this.durata = durata;
-        System.out.println("Dopo :" + this.durata);
     }
 
     /**
@@ -310,9 +305,7 @@ public class SessioneDiGioco implements Serializable {
      */
     public void salvaSessioneDiGioco(String NomeFile) {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(NomeFile))) {
-            System.out.println("Inizio salvataggio");
             oos.writeObject(this);
-            System.out.println("Fine salvataggio");
         } catch (FileNotFoundException ex) {
             Logger.getLogger(SessioneDiGioco.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
@@ -325,9 +318,7 @@ public class SessioneDiGioco implements Serializable {
      */
     public void salvaSessioneDiGioco() {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("SalvataggioFaseGenerazioneDi" + this.utente.getEmail() + ".ser"))) {
-            System.out.println("Inizio salvataggio");
             oos.writeObject(this);
-            System.out.println("Fine salvataggio");
         } catch (FileNotFoundException ex) {
             Logger.getLogger(SessioneDiGioco.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
@@ -410,9 +401,7 @@ public class SessioneDiGioco implements Serializable {
      */
     public void caricaSessioneDiGioco(String NomeFile) throws IOException {
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(NomeFile))) {
-            System.out.println("Inizio caricamento");
             SessioneDiGioco s = (SessioneDiGioco) ois.readObject();
-            System.out.println("s:" + s.toString());
             this.utente = s.getUtente();
             this.Domande = s.getDomande();
             this.risposte = s.getRisposte();
@@ -424,7 +413,6 @@ public class SessioneDiGioco implements Serializable {
             this.stopWords = s.getStopWords();
             this.durataIniziale = s.getDurataIniziale();
             this.livello = s.getLivello();
-            System.out.println("Fine caricamento");
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(SessioneDiGioco.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -441,9 +429,8 @@ public class SessioneDiGioco implements Serializable {
     private void SalvaDocumentiInLocale(String nomedoc, byte[] documento) {
         try (FileOutputStream fos = new FileOutputStream(nomedoc)) {
             fos.write(documento);
-            System.out.println("Scrittura completata!");
         } catch (IOException e) {
-            System.err.println("Errore durante la scrittura del file: " + e.getMessage());
+            Logger.getLogger(SessioneDiGioco.class.getName()).log(Level.SEVERE, null, e);
         }
     }
 

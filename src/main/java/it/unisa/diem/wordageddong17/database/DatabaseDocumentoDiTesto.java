@@ -51,15 +51,13 @@ public class DatabaseDocumentoDiTesto implements DAODocumentoDiTesto{
      * Inserisce un nuovo documento nella tabella testo con le informazioni specificate.
      * Il documento viene associato all'amministratore che lo carica.
      * 
-     * @param email l'email dell'amministratore che carica il testo
-     * @param nomeFile il nome del file da salvare
-     * @param difficolta il livello di difficoltà del testo
+     * @param documento l'oggetto DocumentoDiTesto contenente le informazioni del documento da caricare
      * @param file il contenuto del file come array di byte
      * @return {@code true} se l'operazione è stata eseguita con successo, {@code false} altrimenti
      * 
      */
     @Override
-    public boolean caricaTesto(String email, String nomeFile, String difficolta, byte[] file, Lingua lingua) {
+    public boolean caricaTesto(DocumentoDiTesto documento, byte[] file) {
         String query= """
                       INSERT INTO testo(
                       nome_file, id_amministratore, difficolta, documento, lingua)
@@ -68,11 +66,11 @@ public class DatabaseDocumentoDiTesto implements DAODocumentoDiTesto{
         
         boolean risultato= false;
         try (PreparedStatement pstmt = db.getConnection().prepareStatement(query)) {
-            pstmt.setString(1, nomeFile); // inserisce l' utente nella prima posizione del preparestatment
-            pstmt.setString(2, email);
-            pstmt.setString(3, difficolta);
+            pstmt.setString(1, documento.nomeFile()); // inserisce l' utente nella prima posizione del preparestatment
+            pstmt.setString(2, documento.emailAmministratore());
+            pstmt.setString(3, documento.difficolta().getDbValue());
             pstmt.setBytes(4, file);
-            pstmt.setString(5,lingua.getCodice());
+            pstmt.setString(5, documento.lingua().getCodice());
             return pstmt.executeUpdate() > 0; // True se almeno una riga è stata inserita
             } catch (SQLException ex) { 
             System.getLogger(DatabaseDocumentoDiTesto.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);

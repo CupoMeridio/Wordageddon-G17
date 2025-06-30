@@ -24,20 +24,19 @@ public class DatabaseUtente implements DAOUtente {
     }
     
     /**
-     * Modifica il nome utente associato a una determinata email.
+     * Modifica il nome utente dell'utente specificato.
      *
-     * @param email l'email dell'utente da modificare
-     * @param username il nuovo nome utente da impostare
+     * @param utente l'oggetto Utente contenente l'email e il nuovo nome utente da impostare
      * @return true se l'aggiornamento ha avuto successo, false altrimenti
      */
     @Override
-    public boolean modificaUsername(String email, String username) {
+    public boolean modificaUsername(Utente utente) {
         String query = "UPDATE utente SET username=? WHERE email=?";
         boolean risultato = false;
 
         try (PreparedStatement pstmt = db.getConnection().prepareStatement(query)) {
-            pstmt.setString(1, username);
-            pstmt.setString(2, email);
+            pstmt.setString(1, utente.getUsername());
+            pstmt.setString(2, utente.getEmail());
             int updated = pstmt.executeUpdate();
             risultato = (updated == 1);
         } catch (SQLException ex) {
@@ -48,16 +47,15 @@ public class DatabaseUtente implements DAOUtente {
     }
     
     /**
-     * Modifica la foto profilo dell'utente specificato dall'email.
+     * Modifica la foto profilo dell'utente specificato.
      * Se {@code fotoProfilo} è null, la foto profilo viene rimossa.
      * L'operazione è eseguita in una transazione.
      *
-     * @param email l'email dell'utente da aggiornare
-     * @param fotoProfilo un array di byte contenente la nuova foto profilo, oppure null per rimuoverla
+     * @param utente l'oggetto Utente contenente l'email e la nuova foto profilo
      * @return true se l'aggiornamento ha avuto successo, false altrimenti
      */
     @Override
-    public boolean modificaFotoProfilo(String email, byte[] fotoProfilo) {
+    public boolean modificaFotoProfilo(Utente utente) {
         Connection conn = db.getConnection();
 
         try {
@@ -65,12 +63,12 @@ public class DatabaseUtente implements DAOUtente {
 
             String sql = "UPDATE utente SET foto_profilo = ? WHERE email = ?";
             try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-                if (fotoProfilo != null) {
-                    stmt.setBytes(1, fotoProfilo); // Usa setBytes direttamente con byte[]
+                if (utente.getFotoProfilo() != null) {
+                    stmt.setBytes(1, utente.getFotoProfilo()); // Usa setBytes direttamente con byte[]
                 } else {
                     stmt.setNull(1, Types.BINARY); // Usa Types.BINARY invece di BLOB per bytea
                 }
-                stmt.setString(2, email);
+                stmt.setString(2, utente.getEmail());
 
                 int righe = stmt.executeUpdate();
                 if (righe != 1) {
@@ -130,24 +128,22 @@ public class DatabaseUtente implements DAOUtente {
      * è opzionale e può essere null.
      * </p>
      * 
-     * @param username il nome utente univoco per l'utente
-     * @param email l'indirizzo email dell'utente 
+     * @param utente l'oggetto Utente contenente le informazioni dell'utente da inserire
      * @param password la password in chiaro dell'utente (verrà automaticamente crittografata)
-     * @param foto l'immagine del profilo dell'utente come array di byte, può essere {@code null}
      * 
      */
     @Override
-    public void inserisciUtente(String username, String email, String password, byte[] foto) {
+    public void inserisciUtente(Utente utente, String password) {
         
         String passwordCriptata = this.hashPassword(password);
         String query= "Insert into utente(username, email, password, foto_profilo) values (?,?,?,?) ";
         
             try (PreparedStatement pstmt = db.getConnection().prepareStatement(query)) {
-            pstmt.setString(1, username); // inserisce l' utente nella prima posizione del preparestatment
-            pstmt.setString(2, email);
+            pstmt.setString(1, utente.getUsername()); // inserisce l' utente nella prima posizione del preparestatment
+            pstmt.setString(2, utente.getEmail());
             pstmt.setString(3, passwordCriptata);
-            if (foto != null) {
-                pstmt.setBytes(4, foto);
+            if (utente.getFotoProfilo() != null) {
+                pstmt.setBytes(4, utente.getFotoProfilo());
             } else {
                 pstmt.setNull(4, java.sql.Types.BINARY);
             }

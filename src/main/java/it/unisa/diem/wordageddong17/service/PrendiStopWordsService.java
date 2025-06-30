@@ -64,7 +64,6 @@ public class PrendiStopWordsService extends Service<byte[]> {
             @Override
             protected byte[] call() throws Exception {
                 byte[] file = dbSW.prendiStopwords(nomeFile);
-                System.out.println(new String(file));
                 return file;
             }
         };

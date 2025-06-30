@@ -3,6 +3,9 @@ package it.unisa.diem.wordageddong17.service;
 
 import it.unisa.diem.wordageddong17.database.DatabaseStopWords;
 import it.unisa.diem.wordageddong17.interfaccia.DAOListaStopWords;
+import it.unisa.diem.wordageddong17.model.ListaStopWords;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 
@@ -16,9 +19,8 @@ import javafx.concurrent.Task;
 public class CaricaStopWordsService extends Service<Void> {
     
     private final DAOListaStopWords dbSW;
-    private String nomeFile;
-    private String email;
-    private byte[] documento;
+    private ListaStopWords listaStopWords;
+    private byte[] contenutoDocumento;
 
     /**
      * Costruttore per il servizio di caricamento delle stopwords.
@@ -29,9 +31,8 @@ public class CaricaStopWordsService extends Service<Void> {
      */
     public CaricaStopWordsService(String nomeFile, String email, byte[] documento) {
         this.dbSW = DatabaseStopWords.getInstance();
-        this.nomeFile = nomeFile;
-        this.email = email;
-        this.documento = documento;
+        this.listaStopWords = new ListaStopWords(nomeFile, email, Timestamp.valueOf(LocalDateTime.now()));
+        this.contenutoDocumento = documento;
     }
 
     /**
@@ -40,7 +41,15 @@ public class CaricaStopWordsService extends Service<Void> {
      * @param email L'email da impostare.
      */
     public void setEmail(String email) {
-        this.email = email;
+        if (this.listaStopWords == null) {
+            this.listaStopWords = new ListaStopWords("", email, Timestamp.valueOf(LocalDateTime.now()));
+        } else {
+            this.listaStopWords = new ListaStopWords(
+                this.listaStopWords.nomeFile(), 
+                email, 
+                Timestamp.valueOf(LocalDateTime.now())
+            );
+        }
     }
 
     /**
@@ -49,7 +58,7 @@ public class CaricaStopWordsService extends Service<Void> {
      * @param documento Il documento da caricare in formato byte array.
      */
     public void setDocumento(byte[] documento) {
-        this.documento = documento;
+        this.contenutoDocumento = documento;
     }
 
     /**
@@ -58,7 +67,15 @@ public class CaricaStopWordsService extends Service<Void> {
      * @param nomeFile Il nome del file da impostare.
      */
     public void setNomeFile(String nomeFile) {
-        this.nomeFile = nomeFile;
+        if (this.listaStopWords == null) {
+            this.listaStopWords = new ListaStopWords(nomeFile, "", Timestamp.valueOf(LocalDateTime.now()));
+        } else {
+            this.listaStopWords = new ListaStopWords(
+                nomeFile, 
+                this.listaStopWords.amministratore(), 
+                Timestamp.valueOf(LocalDateTime.now())
+            );
+        }
     }
 
     /**
@@ -71,8 +88,7 @@ public class CaricaStopWordsService extends Service<Void> {
         return new Task<Void>() {
             @Override
             protected Void call() throws Exception {
-                System.out.println("email: " + email + " documento: " + documento + " nomeFile: " + nomeFile);
-                dbSW.caricareStopwords(email, documento, nomeFile);
+                dbSW.caricareStopwords(listaStopWords, contenutoDocumento);
                 return null;
             }
         };

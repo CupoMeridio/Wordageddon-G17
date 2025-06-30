@@ -2,6 +2,8 @@ package it.unisa.diem.wordageddong17.service;
 
 import it.unisa.diem.wordageddong17.database.DatabaseUtente;
 import it.unisa.diem.wordageddong17.interfaccia.DAOUtente;
+import it.unisa.diem.wordageddong17.model.TipoUtente;
+import it.unisa.diem.wordageddong17.model.Utente;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 
@@ -15,10 +17,8 @@ import javafx.concurrent.Task;
 public class InserisciUtenteService extends Service<Void> {
     
     private final DAOUtente dbu;
-    private String username;
-    private String email;
+    private Utente utente;
     private String password;
-    private byte[] immagineBytes;
 
     /**
      * Costruttore con parametri per inizializzare il servizio di inserimento utente.
@@ -29,10 +29,8 @@ public class InserisciUtenteService extends Service<Void> {
      * @param immagineBytes L'immagine del profilo dell'utente in formato byte array.
      */
     public InserisciUtenteService(String username, String email, String password, byte[] immagineBytes) {
-        this.email = email;
-        this.username = username;
+        this.utente = new Utente(username, email, immagineBytes, TipoUtente.giocatore);
         this.password = password;
-        this.immagineBytes = immagineBytes;
         this.dbu = DatabaseUtente.getInstance();
     }
 
@@ -49,7 +47,11 @@ public class InserisciUtenteService extends Service<Void> {
      * @param username Il nome utente da impostare.
      */
     public void setUsername(String username) {
-        this.username = username;
+        if (this.utente == null) {
+            this.utente = new Utente(username, "", null, TipoUtente.giocatore);
+        } else {
+            this.utente = new Utente(username, this.utente.getEmail(), this.utente.getFotoProfilo(), this.utente.getTipo());
+        }
     }
 
     /**
@@ -58,7 +60,11 @@ public class InserisciUtenteService extends Service<Void> {
      * @param email L'email da impostare.
      */
     public void setEmail(String email) {
-        this.email = email;
+        if (this.utente == null) {
+            this.utente = new Utente("", email, null, TipoUtente.giocatore);
+        } else {
+            this.utente = new Utente(this.utente.getUsername(), email, this.utente.getFotoProfilo(), this.utente.getTipo());
+        }
     }
 
     /**
@@ -76,7 +82,11 @@ public class InserisciUtenteService extends Service<Void> {
      * @param immagineBytes Il contenuto dell'immagine in formato byte array.
      */
     public void setImmagineBytes(byte[] immagineBytes) {
-        this.immagineBytes = immagineBytes;
+        if (this.utente == null) {
+            this.utente = new Utente("", "", immagineBytes, TipoUtente.giocatore);
+        } else {
+            this.utente = new Utente(this.utente.getUsername(), this.utente.getEmail(), immagineBytes, this.utente.getTipo());
+        }
     }
 
     /**
@@ -89,7 +99,7 @@ public class InserisciUtenteService extends Service<Void> {
         return new Task<Void>() {
             @Override
             protected Void call() {
-                dbu.inserisciUtente(username, email, password, immagineBytes);
+                dbu.inserisciUtente(utente, password);
                 return null;
             }
         };

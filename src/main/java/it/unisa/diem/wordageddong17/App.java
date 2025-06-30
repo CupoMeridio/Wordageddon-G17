@@ -44,8 +44,6 @@ public class App extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         scene = new Scene(loadFXML("AppView"));
-        // Per utilizzare una vista alternativa (ad esempio "SessionView"), decommentare la seguente riga:
-        // scene = new Scene(loadFXML("SessionView"));
         stage.setScene(scene);
         stage.setMaximized(true);
         stage.setTitle("Wordageddon");

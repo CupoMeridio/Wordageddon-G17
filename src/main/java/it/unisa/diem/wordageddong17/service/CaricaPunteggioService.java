@@ -77,7 +77,6 @@ public class CaricaPunteggioService extends Service<Void>{
         return new Task<Void>(){
             @Override
             protected Void call() throws Exception {
-                System.out.println(email+" "+punteggio+" "+difficoltà);
                 dbC.inserisciPunteggio(email, punteggio,difficoltà);
                 return null;
             }    

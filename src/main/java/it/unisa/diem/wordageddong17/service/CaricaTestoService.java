@@ -2,7 +2,9 @@ package it.unisa.diem.wordageddong17.service;
 
 import it.unisa.diem.wordageddong17.database.DatabaseDocumentoDiTesto;
 import it.unisa.diem.wordageddong17.interfaccia.DAODocumentoDiTesto;
+import it.unisa.diem.wordageddong17.model.DocumentoDiTesto;
 import it.unisa.diem.wordageddong17.model.Lingua;
+import it.unisa.diem.wordageddong17.model.LivelloPartita;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 
@@ -15,11 +17,8 @@ import javafx.concurrent.Task;
  */
 public class CaricaTestoService extends Service<Void> {
     
-    private String email;
-    private String nomeFile;
-    private String difficoltà;
-    private byte[] documento;
-    private Lingua lingua;
+    private DocumentoDiTesto documento;
+    private byte[] contenutoDocumento;
     private final DAODocumentoDiTesto dbDT;
 
     /**
@@ -28,15 +27,13 @@ public class CaricaTestoService extends Service<Void> {
      * @param email L'email dell'utente che carica il documento.
      * @param nomeFile Il nome del file del documento di testo.
      * @param difficoltà Il livello di difficoltà del documento.
-     * @param documento Il contenuto del documento di testo in formato byte array.
+     * @param contenutoDocumento Il contenuto del documento di testo in formato byte array.
      * @param lingua La lingua del documento.
      */
-    public CaricaTestoService(String email, String nomeFile, String difficoltà, byte[] documento, Lingua lingua) {
-        this.email = email;
-        this.nomeFile = nomeFile;
-        this.difficoltà = difficoltà;
-        this.documento = documento;
-        this.lingua = lingua;
+    public CaricaTestoService(String email, String nomeFile, String difficoltà, byte[] contenutoDocumento, Lingua lingua) {
+        LivelloPartita livello = LivelloPartita.valueOf(difficoltà.toUpperCase());
+        this.documento = new DocumentoDiTesto(nomeFile, livello, email, lingua);
+        this.contenutoDocumento = contenutoDocumento;
         this.dbDT = DatabaseDocumentoDiTesto.getInstance();
     }
 
@@ -53,7 +50,16 @@ public class CaricaTestoService extends Service<Void> {
      * @param email L'email da impostare.
      */
     public void setEmail(String email) {
-        this.email = email;
+        if (this.documento == null) {
+            this.documento = new DocumentoDiTesto("", LivelloPartita.FACILE, email, Lingua.ITALIANO);
+        } else {
+            this.documento = new DocumentoDiTesto(
+                this.documento.getNomeFile(), 
+                this.documento.getDifficolta(), 
+                email, 
+                this.documento.getLingua()
+            );
+        }
     }
 
     /**
@@ -62,7 +68,16 @@ public class CaricaTestoService extends Service<Void> {
      * @param nomeFile Il nome del file da impostare.
      */
     public void setNomeFile(String nomeFile) {
-        this.nomeFile = nomeFile;
+        if (this.documento == null) {
+            this.documento = new DocumentoDiTesto(nomeFile, LivelloPartita.FACILE, "", Lingua.ITALIANO);
+        } else {
+            this.documento = new DocumentoDiTesto(
+                nomeFile, 
+                this.documento.getDifficolta(), 
+                this.documento.getEmailAmministratore(), 
+                this.documento.getLingua()
+            );
+        }
     }
 
     /**
@@ -71,16 +86,26 @@ public class CaricaTestoService extends Service<Void> {
      * @param difficoltà La difficoltà da impostare.
      */
     public void setDifficoltà(String difficoltà) {
-        this.difficoltà = difficoltà;
+        LivelloPartita livello = LivelloPartita.valueOf(difficoltà.toUpperCase());
+        if (this.documento == null) {
+            this.documento = new DocumentoDiTesto("", livello, "", Lingua.ITALIANO);
+        } else {
+            this.documento = new DocumentoDiTesto(
+                this.documento.getNomeFile(), 
+                livello, 
+                this.documento.getEmailAmministratore(), 
+                this.documento.getLingua()
+            );
+        }
     }
 
     /**
      * Imposta il contenuto del documento di testo.
      * 
-     * @param documento Il contenuto del documento in formato byte array.
+     * @param contenutoDocumento Il contenuto del documento in formato byte array.
      */
-    public void setDocumento(byte[] documento) {
-        this.documento = documento;
+    public void setDocumento(byte[] contenutoDocumento) {
+        this.contenutoDocumento = contenutoDocumento;
     }
 
     /**
@@ -89,7 +114,16 @@ public class CaricaTestoService extends Service<Void> {
      * @param lingua La lingua da impostare.
      */
     public void setLingua(Lingua lingua) {
-        this.lingua = lingua;
+        if (this.documento == null) {
+            this.documento = new DocumentoDiTesto("", LivelloPartita.FACILE, "", lingua);
+        } else {
+            this.documento = new DocumentoDiTesto(
+                this.documento.getNomeFile(), 
+                this.documento.getDifficolta(), 
+                this.documento.getEmailAmministratore(), 
+                lingua
+            );
+        }
     }
 
     /**
@@ -102,7 +136,7 @@ public class CaricaTestoService extends Service<Void> {
         return new Task<Void>() {
             @Override
             protected Void call() throws Exception {
-                dbDT.caricaTesto(email, nomeFile, difficoltà, documento, lingua);               
+                dbDT.caricaTesto(documento, contenutoDocumento);               
                 return null;
             }  
         };

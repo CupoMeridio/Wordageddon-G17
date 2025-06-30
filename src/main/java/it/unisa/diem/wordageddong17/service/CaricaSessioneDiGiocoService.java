@@ -180,7 +180,6 @@ public class CaricaSessioneDiGiocoService extends Service<List<GeneratoreDomande
                 updateProgress(80, 100);
                 sessione.salvaSessioneDiGioco();
                 updateProgress(100, 100);
-                System.out.println("Matrice: "+ analisi.getMatrice());
                 return sessione.getDomande();
             }
         };

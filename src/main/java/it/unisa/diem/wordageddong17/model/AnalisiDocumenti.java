@@ -65,7 +65,6 @@ public class AnalisiDocumenti implements Serializable {
      */
     public void setStopWords(byte[] stopWords) {
         this.stopWords = stopWords;
-        System.out.println("this.stopWords");
     }
 
     
@@ -88,7 +87,7 @@ public class AnalisiDocumenti implements Serializable {
      * @return Map contenente le parole come chiavi e le loro frequenze come valori
      */
     public Map<String, Integer> restituisciDocumento(String NomeDocumento){
-        //System.out.println("restituisciDocumento: "+ this.Matrice.get(NomeDocumento));
+        
        return Matrice.get(NomeDocumento);
     }
     
@@ -125,13 +124,12 @@ public class AnalisiDocumenti implements Serializable {
      * @return {@code true} se la parola è una stop word, {@code false} altrimenti
      */
     public boolean appartenenzaStopWords(String parola) {
-        //System.out.println("this.stopWords: " + this.stopWords);
+        
 
         if (this.stopWords != null) {
             String stringheStopWords = new String(this.stopWords);
             String[] parole = stringheStopWords.toUpperCase().split("[\\p{Punct}\\s]+");
-           // System.out.println("Arrays.asList(parole): di "+ parola);
-             //Arrays.asList(parole).stream().forEach(e -> System.out.println(e));
+           
             return Arrays.asList(parole).contains(parola.toUpperCase());
         }
         return false;
@@ -154,7 +152,7 @@ public class AnalisiDocumenti implements Serializable {
             f = File.createTempFile("FileAnalisiUnDocumento", ".txt");
             p = Files.write(f.toPath(), doc);
         } catch (IOException e) {
-            System.out.println("Eccezione: " + e);
+            Logger.getLogger(AnalisiDocumenti.class.getName()).log(Level.SEVERE, "Errore durante l'analisi del documento", e);
         }
         Stream<String> stringStream = Files.lines(p);
 
@@ -163,7 +161,6 @@ public class AnalisiDocumenti implements Serializable {
             .filter(parola -> !parola.isEmpty())
             .filter(parola -> !appartenenzaStopWords(parola))
             .collect(Collectors.toMap(parola -> parola, parola -> 1, Integer::sum));
-        System.out.println(documento.toString());
         this.aggiungiDocumento(NomeDocumento, documento);
         if (f != null) f.deleteOnExit();
     }

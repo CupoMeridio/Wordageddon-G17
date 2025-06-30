@@ -1,9 +1,11 @@
 package it.unisa.diem.wordageddong17.database;
 
 import it.unisa.diem.wordageddong17.interfaccia.DAOListaStopWords;
+import it.unisa.diem.wordageddong17.model.ListaStopWords;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 
 /**
  * Implementazione del DAO per la gestione della lista di stop words.
@@ -28,25 +30,24 @@ public class DatabaseStopWords implements DAOListaStopWords {
      * Se un file con lo stesso nome esiste già, viene aggiornato con il nuovo contenuto.
      * Utilizza la clausola ON CONFLICT per gestire i duplicati.
      * 
-     * @param email l'email dell'amministratore che carica il file
+     * @param listaStopWords il modello contenente le informazioni della lista di stopwords
      * @param documentoStopwords il contenuto del file di stopwords come array di byte
-     * @param nomeFile il nome del file da salvare nel database
      * @return {@code true} se l'operazione è stata eseguita con successo, {@code false} altrimenti
      * 
      */
     @Override
-    public boolean caricareStopwords(String email, byte[] documentoStopwords, String nomeFile) {
+    public boolean caricareStopwords(ListaStopWords listaStopWords, byte[] documentoStopwords) {
         String query= "INSERT INTO stopwords(\n" +
         "nome_file, documento, id_amministratore)\n" +
         "VALUES (?, ?, ?) ON conflict(nome_file) DO UPDATE SET documento=?,id_amministratore=?";
         
         boolean risultato= false;
         try (PreparedStatement pstmt = db.getConnection().prepareStatement(query)) {
-            pstmt.setString(1, nomeFile); // inserisce il nome  nella prima posizione del preparestatment
+            pstmt.setString(1, listaStopWords.getNomeFile()); // inserisce il nome nella prima posizione del preparestatment
             pstmt.setBytes(2, documentoStopwords);
-            pstmt.setString(3, email);
+            pstmt.setString(3, listaStopWords.getAmministratore());
             pstmt.setBytes(4, documentoStopwords);
-            pstmt.setString(5, email);
+            pstmt.setString(5, listaStopWords.getAmministratore());
             risultato= pstmt.executeUpdate()==1;// esegue il prepare statment
             
             } catch (SQLException ex) { 
@@ -83,6 +84,35 @@ public class DatabaseStopWords implements DAOListaStopWords {
         }
 
         return null;
+    }
+
+    /**
+     * Recupera le informazioni sulla lista di stopwords dal database.
+     * 
+     * @param nomeFile il nome del file contenente le stopwords da recuperare
+     * @return un oggetto ListaStopWords contenente le informazioni sulla lista di stopwords oppure {@code null} se non viene trovato
+     */
+    @Override
+    public ListaStopWords prendiInfoStopwords(String nomeFile) {
+        String query = "SELECT nome_file, id_amministratore, data_ultima_modifica FROM stopwords WHERE nome_file = ?;";
+        ListaStopWords risultato = null;
+
+        try (PreparedStatement pstmt = db.getConnection().prepareStatement(query)) {
+            pstmt.setString(1, nomeFile);
+            try (ResultSet r = pstmt.executeQuery()) {
+                if (r.next()) {
+                    risultato = new ListaStopWords(
+                        r.getString("nome_file"),
+                        r.getString("id_amministratore"),
+                        r.getTimestamp("data_ultima_modifica")
+                    );
+                }
+            }
+        } catch (SQLException ex) {
+            System.getLogger(DatabaseStopWords.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+        }
+
+        return risultato;
     }
 
     private static class Holder {

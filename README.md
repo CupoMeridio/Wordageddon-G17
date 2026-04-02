@@ -65,6 +65,7 @@ Questo progetto utilizza le seguenti librerie e plugin esterni, **gestiti automa
 - [JavaFX](https://openjfx.io/) — UI framework principale per la realizzazione dell'interfaccia grafica.
 - [dotenv-java](https://github.com/cdimascio/dotenv-java) — Gestione delle variabili d'ambiente (`.env`) per una configurazione sicura, ad esempio per la connessione al database.
 - [jBCrypt](https://github.com/jeremyh/jBCrypt) — Crittografia sicura delle password con algoritmo BCrypt.
+- [PostgreSQL JDBC Driver](https://jdbc.postgresql.org/) — Driver per la connessione al database PostgreSQL.
 - [Maven Shade Plugin](https://maven.apache.org/plugins/maven-shade-plugin/) — Permette la creazione di un JAR eseguibile contenente tutte le dipendenze.
 
 Tutte le dipendenze sono dichiarate nel file [`pom.xml`](./pom.xml).
@@ -72,18 +73,29 @@ Tutte le dipendenze sono dichiarate nel file [`pom.xml`](./pom.xml).
 ---
 
 ## 📁 Struttura del progetto
-```
+
+Il progetto segue il pattern architetturale **MVC (Model-View-Controller)**, supportato da un livello di **Service** per le operazioni asincrone e un pattern **DAO (Data Access Object)** per la persistenza.
+
+```text
 Wordageddon-G17/
-├── src/
-│   └── main/
-│       ├── java/                           # Codice sorgente Java
-│       ├── resources/                      # Risorse (FXML, immagini, file di configurazione)
-├── .env                                    # Variabili d’ambiente (NON incluso nel repository)
-├── Documentazione javadoc/                 # Cartella contenente la documentazione javadoc
-├── Home documentazione javadoc             # Collegamento epr accedere rapidamente alla home della documentazione javadoc
-├── pom.xml                                 # Configurazione Maven
-├── Schema database.sql                     # Backup del database realizzato contenente la sola struttura
-├── Relazione di progetto - Gruppo 17.pdf   # Relazione del progetto contenente analisi dei requisiti, casi d'uso, diagrammi delle classi, diagrammi delle sequenze, progettazione database con diagramma ER, mockup
+├── src/main/java/it/unisa/diem/wordageddong17/
+│   ├── controller/      # Gestori degli eventi JavaFX e logica di presentazione
+│   ├── model/           # Core business logic e classi di dominio (Utente, Partita, Analisi)
+│   ├── service/         # Servizi per operazioni asincrone e task in background
+│   ├── database/        # Implementazioni concrete per l'accesso ai dati (PostgreSQL)
+│   ├── interfaccia/     # Interfacce DAO per il disaccoppiamento della persistenza
+│   ├── App.java         # Classe principale dell'applicazione JavaFX
+│   └── RunMain.java     # Launcher ausiliario per l'eseguibile JAR
+├── src/main/resources/
+│   ├── fxml/            # Definizioni dell'interfaccia utente (Scene Builder)
+│   ├── styles/          # Fogli di stile CSS per il look & feel dell'app
+│   ├── imgs/            # Asset grafici, loghi e diagrammi UML esportati
+│   └── UML/             # Sorgenti dei diagrammi delle classi e casi d'uso
+├── .env                 # Variabili d’ambiente (NON incluso nel repository)
+├── Documentazione javadoc/  # Cartella contenente la documentazione javadoc completa
+├── pom.xml              # File di configurazione Maven e gestione dipendenze
+├── Schema database.sql  # Script SQL per l'inizializzazione del database
+└── Relazione...pdf      # Documentazione completa dell'analisi e progettazione
 ```
 
 ---
@@ -97,7 +109,7 @@ Wordageddon-G17/
   - Diagrammi delle sequenze
   - Mockup dell'interfaccia
 - Nella sezione **[Releases](https://github.com/CupoMeridio/Wordageddon-G17/releases)** è disponibile il file JAR eseguibile pronto all'uso
-- Il JAR può essere generato anche localmente tramite le funzioni di build di NetBeans
+- Il JAR può essere generato anche localmente tramite il comando `mvn clean package` o le funzioni di build dell'IDE
 
 ---
 

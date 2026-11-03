@@ -1,5 +1,6 @@
 package it.unisa.diem.wordageddong17.database;
 
+import it.unisa.diem.wordageddong17.interfaccia.DAODocumentoDiTesto;
 import it.unisa.diem.wordageddong17.model.DocumentoDiTesto;
 import it.unisa.diem.wordageddong17.model.Lingua;
 import it.unisa.diem.wordageddong17.model.LivelloPartita;
@@ -8,168 +9,152 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import it.unisa.diem.wordageddong17.interfaccia.DAODocumentoDiTesto;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
- * Implementazione del DAO (Data Access Object) per la gestione dei documenti di testo.
- * Questa classe utilizza un'istanza singleton di {@link Database} per operazioni di accesso e manipolazione dei dati.
+ * Gestione dei documenti di testo nel database (operazioni di inserimento,
+ * cancellazione e lettura dei testi e metadati associati).
  */
-public class DatabaseDocumentoDiTesto implements DAODocumentoDiTesto{
-    
-    Database db;
-    
-    private DatabaseDocumentoDiTesto(){
-        db= Database.getInstance();
+public class DatabaseDocumentoDiTesto implements DAODocumentoDiTesto {
+
+    private static final Logger LOGGER = Logger.getLogger(DatabaseDocumentoDiTesto.class.getName());
+    private final Database db;
+
+    private DatabaseDocumentoDiTesto() {
+        this.db = Database.getInstance();
     }
-    
+
     /**
-     * Cancella un testo dal database.
-     * 
-     * Rimuove definitivamente il documento specificato dalla tabella testo.
-     * 
-     * @param nomeDocumento il nome del documento da cancellare
-     * @return {@code true} se l'operazione è stata eseguita con successo, {@code false} altrimenti
-     * 
+     * Cancella un documento dal database specificandone il nome.
+     *
+     * @param nomeDocumento nome del documento da eliminare
+     * @return true se l'eliminazione ha avuto successo
      */
     @Override
     public boolean cancellaTesto(String nomeDocumento) {
-       String query="DELETE FROM public.testo WHERE nome_file= ?;";
-       boolean risultato=false;
+        String query = "DELETE FROM public.testo WHERE nome_file = ?;";
         try (Connection conn = db.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(query)) {
-            pstmt.setString(1, nomeDocumento); // cancella il documento con questo nome
-            risultato = pstmt.executeUpdate()>0;
-            } catch (SQLException ex) {
-            System.getLogger(DatabaseDocumentoDiTesto.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+            pstmt.setString(1, nomeDocumento);
+            int rows = pstmt.executeUpdate();
+            if (rows == 0) {
+                throw new DataAccessException("Documento '" + nomeDocumento + "' non trovato per la cancellazione.");
+            }
+            return true;
+        } catch (SQLException ex) {
+            LOGGER.log(Level.SEVERE, "Errore cancellazione testo", ex);
+            throw new DataAccessException("Errore durante la cancellazione del documento '" + nomeDocumento + "'.", ex);
         }
-        return risultato;
     }
 
     /**
-     * Carica un nuovo testo nel database.
-     * 
-     * Inserisce un nuovo documento nella tabella testo con le informazioni specificate.
-     * Il documento viene associato all'amministratore che lo carica.
-     * 
-     * @param documento l'oggetto DocumentoDiTesto contenente le informazioni del documento da caricare
-     * @param file il contenuto del file come array di byte
-     * @return {@code true} se l'operazione è stata eseguita con successo, {@code false} altrimenti
-     * 
+     * Carica un nuovo documento di testo nel database.
+     *
+     * @param documento metadati del documento
+     * @param file contenuto in byte del documento
+     * @return true se l'inserimento ha avuto successo
      */
     @Override
     public boolean caricaTesto(DocumentoDiTesto documento, byte[] file) {
-        String query= """
-                      INSERT INTO testo(
-                      nome_file, id_amministratore, difficolta, documento, lingua)
+        String query = """
+                      INSERT INTO public.testo (nome_file, id_amministratore, difficolta, documento, lingua)
                       VALUES (?, ?, ?, ?, ?::lingua_type)
                       """;
-        
-        boolean risultato= false;
+
         try (Connection conn = db.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(query)) {
-            pstmt.setString(1, documento.nomeFile()); // inserisce l' utente nella prima posizione del preparestatment
+            pstmt.setString(1, documento.nomeFile());
             pstmt.setString(2, documento.emailAmministratore());
             pstmt.setString(3, documento.difficolta().getDbValue());
             pstmt.setBytes(4, file);
-            pstmt.setString(5, documento.lingua().getCodice());
-            return pstmt.executeUpdate() > 0; // True se almeno una riga è stata inserita
-            } catch (SQLException ex) { 
-            System.getLogger(DatabaseDocumentoDiTesto.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+            pstmt.setString(5, documento.lingua().getDbValue());
+
+            int rows = pstmt.executeUpdate();
+            if (rows == 0) {
+                throw new DataAccessException("Nessun record inserito per il documento: " + documento.nomeFile());
+            }
+            return true;
+        } catch (SQLException ex) {
+            LOGGER.log(Level.SEVERE, "Errore caricamento testo", ex);
+            if ("23505".equals(ex.getSQLState())) {
+                throw new DataAccessException("Esiste già un documento con il nome '" + documento.nomeFile() + "'.");
+            }
+            throw new DataAccessException("Errore durante il caricamento del documento nel database: " + ex.getMessage(), ex);
         }
-        return false;
     }
-    
+
     /**
-     * Recupera il contenuto di un testo dal database.
-     * 
-     * Cerca il documento specificato nella tabella testo e restituisce il suo contenuto
-     * sotto forma di array di byte.
-     * 
-     * @param nomeDocumento il nome del documento da recuperare
-     * @return l'array di byte contenente il documento, oppure {@code null} se il documento non esiste
+     * Recupera il contenuto in byte di un documento dato il nome.
+     *
+     * @param nomeDocumento nome del documento da recuperare
+     * @return byte[] del documento, oppure null se non trovato
      */
-    
     @Override
     public byte[] prendiTesto(String nomeDocumento) {
         String query = "SELECT documento FROM testo WHERE nome_file = ?;";
-        byte[] risultato = null;
 
         try (Connection conn = db.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setString(1, nomeDocumento);
             try (ResultSet r = pstmt.executeQuery()) {
                 if (r.next()) {
-                    risultato = r.getBytes("documento");
+                    return r.getBytes("documento");
                 }
             }
+            return null;
         } catch (SQLException ex) {
-            System.getLogger(DatabaseDocumentoDiTesto.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+            LOGGER.log(Level.SEVERE, "Errore lettura testo", ex);
+            throw new DataAccessException("Impossibile recuperare il contenuto del documento: " + nomeDocumento, ex);
         }
-        return risultato;
     }
-      
+
     /**
-     * Recupera tutti i documenti testuali presenti nel database.
-     * Questo metodo esegue una query sulla tabella "testo" per ottenere i seguenti campi:
-     * - <code>nome_file</code>: il nome del file.
-     * - <code>id_amministratore</code>: l'identificativo dell'amministratore che ha inserito il documento.
-     * - <code>difficolta</code>: il livello di difficoltà del documento, convertito in un oggetto {@link LivelloPartita} tramite {@code LivelloPartita.fromDbValue()}.
-     * - <code>lingua</code>: la lingua del documento, convertita in un oggetto {@link Lingua} tramite {@code Lingua.fromCodice()}.
-     * Per ogni record viene creato un oggetto {@link DocumentoDiTesto} ed aggiunto a una lista.
-     * Se si verifica un'eccezione {@link SQLException} durante l'esecuzione della query, questa verrà loggata
-     * e il metodo restituirà una lista eventualmente vuota.
+     * Recupera tutti i documenti presenti nel database (solo metadati, senza bytea).
      *
-     * @return una {@link ArrayList} di {@link DocumentoDiTesto} contenente tutti i documenti recuperati dal database
+     * @return ArrayList di DocumentoDiTesto
      */
     @Override
     public ArrayList<DocumentoDiTesto> prendiTuttiIDocumenti() {
-        ArrayList<DocumentoDiTesto> L = new ArrayList<>();
-        String query = "SELECT nome_file, id_amministratore, difficolta, lingua FROM testo";
+        ArrayList<DocumentoDiTesto> lista = new ArrayList<>();
+        String query = "SELECT nome_file, id_amministratore, difficolta, lingua FROM testo ORDER BY nome_file ASC";
 
         try (Connection conn = db.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(query);
              ResultSet result = pstmt.executeQuery()) {
-
             while (result.next()) {
-                L.add(new DocumentoDiTesto(
-                    result.getString("nome_file"),
-                    LivelloPartita.fromDbValue(result.getString("difficolta")),
-                    result.getString("id_amministratore"),
-                    Lingua.fromCodice(result.getString("lingua"))
+                lista.add(new DocumentoDiTesto(
+                        result.getString("nome_file"),
+                        LivelloPartita.fromDbValue(result.getString("difficolta").trim()),
+                        result.getString("id_amministratore"),
+                        Lingua.fromDbValue(result.getString("lingua").trim())
                 ));
             }
+            return lista;
         } catch (SQLException ex) {
-            System.getLogger(DatabaseDocumentoDiTesto.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+            LOGGER.log(Level.SEVERE, "Errore recupero tutti i documenti", ex);
+            throw new DataAccessException("Impossibile recuperare l'elenco dei documenti dal database.", ex);
         }
-        return L;
     }
 
-
     /**
-     * Recupera i nomi dei documenti filtrati in base al livello di difficoltà e alle lingue specificate.
-     * Questo metodo esegue una query sulla tabella "testo" per selezionare il nome dei file (campo "nome_file")
-     * che corrispondono a:
-     * - Un determinato livello di difficoltà, ottenuto tramite {@code livello.getDbValue()}.
-     * - Un insieme di lingue, passato come lista di {@link Lingua}. Per ogni lingua,
-     *   viene dinamicamente costruito un segnaposto della forma "?::lingua_type" per inserirla nella clausola IN.
-     * Vengono quindi impostati i parametri nel {@link PreparedStatement} in modo che il primo parametro
-     * rappresenti il livello e i successivi, partendo dall'indice 2, rappresentino i codici delle lingue.
-     * Se la query esegue correttamente, i nomi dei documenti vengono aggiunti a una lista, che viene poi restituita.
-     * In caso di errore, l'eccezione {@link SQLException} viene loggata e il metodo restituisce la lista,
-     * eventualmente vuota.
+     * Restituisce una mappa che associa il nome del file alla relativa lingua,
+     * filtrando per livello di difficoltà e per elenco di lingue supportate.
      *
-     * @param livello il livello di partita (difficoltà) utilizzato come filtro (es. FACILE, MEDIO, DIFFICILE)
-     * @param lingue una lista di oggetti {@link Lingua} per filtrare i documenti in base alla lingua
-     * @return un {@link ArrayList} contenente i nomi dei documenti filtrati; se nessun documento viene trovato, viene restituita una lista vuota
+     * @param livello il livello di difficoltà richiesto
+     * @param lingue lista delle lingue selezionate
+     * @return mappa (nome_file -> Lingua)
      */
-
     @Override
-    public Map<String,Lingua> prendiNomiDocumentiFiltrati(LivelloPartita livello, ArrayList<Lingua> lingue) {
-        Map<String,Lingua> nomiDocumenti = new HashMap<>();
+    public Map<String, Lingua> prendiNomiDocumentiFiltrati(LivelloPartita livello, ArrayList<Lingua> lingue) {
+        Map<String, Lingua> mappaDocumenti = new HashMap<>();
 
-        // Costruisce i segnaposto per la clausola IN (?, ?, ...)
+        if (livello == null || lingue == null || lingue.isEmpty()) {
+            return mappaDocumenti;
+        }
+
         StringBuilder placeholdersBuilder = new StringBuilder();
         for (int i = 0; i < lingue.size(); i++) {
             placeholdersBuilder.append("?::lingua_type");
@@ -178,52 +163,36 @@ public class DatabaseDocumentoDiTesto implements DAODocumentoDiTesto{
             }
         }
         String placeholdersPerLingue = placeholdersBuilder.toString();
-        String query = "SELECT nome_file,lingua FROM testo WHERE difficolta = ? AND lingua IN (" + placeholdersPerLingue + ")";
+        String query = "SELECT nome_file, lingua FROM testo WHERE difficolta = ? AND lingua IN (" + placeholdersPerLingue + ")";
 
         try (Connection conn = db.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(query)) {
-            // Imposta il parametro relativo al livello
             pstmt.setString(1, livello.getDbValue());
 
-            // Imposta i parametri relativi alle lingue (a partire dall'indice 2)
             for (int i = 0; i < lingue.size(); i++) {
-                pstmt.setString(i + 2, lingue.get(i).getCodice());
+                pstmt.setString(i + 2, lingue.get(i).getDbValue());
             }
 
-            try (ResultSet r = pstmt.executeQuery()) {
-                while (r.next()) {
-                   String codiceLingua = r.getString("lingua");
-                   Lingua lingua = Lingua.fromCodice(codiceLingua);
-                   nomiDocumenti.put(r.getString("nome_file"), lingua);
+            try (ResultSet result = pstmt.executeQuery()) {
+                while (result.next()) {
+                    mappaDocumenti.put(
+                            result.getString("nome_file"),
+                            Lingua.fromDbValue(result.getString("lingua").trim())
+                    );
                 }
             }
+            return mappaDocumenti;
         } catch (SQLException ex) {
-            System.getLogger(DatabaseDocumentoDiTesto.class.getName())
-                  .log(System.Logger.Level.ERROR, "Errore nel recupero dei nomi dei documenti filtrati", ex);
+            LOGGER.log(Level.SEVERE, "Errore recupero documenti filtrati", ex);
+            throw new DataAccessException("Impossibile recuperare i documenti filtrati per la sessione.", ex);
         }
-
-        return nomiDocumenti;
     }
 
-    
-    /**
-     * Classe statica interna che contiene l'istanza Singleton della classe {@code Database}.
-     * 
-     * L'istanza viene creata solo quando la classe {@code Holder} viene caricata, garantendo la thread safety.
-     */
     private static class Holder {
         private static final DatabaseDocumentoDiTesto INSTANCE = new DatabaseDocumentoDiTesto();
     }
 
-    /**
-     * Restituisce l'istanza Singleton della classe {@code Database}.
-     * Utilizza il pattern del Lazy Holder per garantire l'inizializzazione pigra e la thread safety
-     * senza la necessità di sincronizzazione esplicita.
-     *
-     * @return l'istanza Singleton della classe {@code Database}.
-     */
     public static DatabaseDocumentoDiTesto getInstance() {
         return Holder.INSTANCE;
     }
-    
 }

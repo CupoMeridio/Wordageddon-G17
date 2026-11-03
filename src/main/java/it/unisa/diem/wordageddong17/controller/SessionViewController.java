@@ -136,6 +136,7 @@ public class SessionViewController implements Initializable {
     this.stato = AppState.getInstance();
        
     if(this.stato.isSessioneSalvata()){
+        this.stato.setSessioneSalvata(false);
         this.inizializeConSalvataggio();
     }else{
         sessione = new SessioneDiGioco( stato.getUtente());
@@ -192,8 +193,8 @@ public class SessionViewController implements Initializable {
     }
 
     private void cambioDomanda() {
-
         if (this.domande.isEmpty()) {
+            if (tm != null) tm.stop();
             this.FaseLettura.setVisible(false);
             this.FaseRisposte.setVisible(false);
             this.schermataGameOver.setVisible(true);
@@ -212,48 +213,72 @@ public class SessionViewController implements Initializable {
             cps.start();
             stampaResocontoDomande();
             eliminaSalvataggi();
-        }else{
-            this.question.setText(this.domande.element().testo);
-            this.counter.setText(1 + this.NumeroDiDomande - this.domande.size() + "/" + this.NumeroDiDomande);
-            this.risposta1button.setText(this.domande.element().opzioni.get(0));
-            this.risposta2button.setText(this.domande.element().opzioni.get(1));
-            this.risposta3button.setText(this.domande.element().opzioni.get(2));
-            this.risposta4button.setText(this.domande.element().opzioni.get(3));
+        } else {
+            Domanda corrente = this.domande.element();
+            this.question.setText(corrente.testo);
+            this.counter.setText((1 + this.NumeroDiDomande - this.domande.size()) + "/" + this.NumeroDiDomande);
+            this.risposta1button.setText(corrente.opzioni.get(0));
+            this.risposta2button.setText(corrente.opzioni.get(1));
+            this.risposta3button.setText(corrente.opzioni.get(2));
+            this.risposta4button.setText(corrente.opzioni.get(3));
         }
     }
 
     private void DaLetturaARisposte() {
         this.FaseLettura.setVisible(false);
         this.FaseRisposte.setVisible(true);
-        this.NumeroDiDomande=this.sessione.getNumeroDomande();
+        this.NumeroDiDomande = this.sessione.getNumeroDomande();
+    }
+
+    private void gestisciRisposta(int indice) {
+        if (this.domande.isEmpty()) {
+            return;
+        }
+        disabilitaPulsantiRisposta(true);
+        try {
+            this.aggiornaPilaDopoLaRisposta(indice);
+            if (!this.domande.isEmpty()) {
+                this.sessione.salvaSessioneDiGioco();
+            }
+            this.cambioDomanda();
+        } finally {
+            deselezionaPulsantiRisposta();
+            disabilitaPulsantiRisposta(false);
+        }
+    }
+
+    private void disabilitaPulsantiRisposta(boolean disabilita) {
+        if (risposta1button != null) risposta1button.setDisable(disabilita);
+        if (risposta2button != null) risposta2button.setDisable(disabilita);
+        if (risposta3button != null) risposta3button.setDisable(disabilita);
+        if (risposta4button != null) risposta4button.setDisable(disabilita);
+    }
+
+    private void deselezionaPulsantiRisposta() {
+        if (risposta1button != null) risposta1button.setSelected(false);
+        if (risposta2button != null) risposta2button.setSelected(false);
+        if (risposta3button != null) risposta3button.setSelected(false);
+        if (risposta4button != null) risposta4button.setSelected(false);
     }
 
     @FXML
     private void risposta1(ActionEvent event) {
-        this.aggiornaPilaDopoLaRisposta(0);
-        this.risposta1button.setSelected(false);
-        this.cambioDomanda();
+        gestisciRisposta(0);
     }
 
     @FXML
     private void risposta2(ActionEvent event) {
-        this.aggiornaPilaDopoLaRisposta(1);
-        this.risposta2button.setSelected(false);
-        this.cambioDomanda();
+        gestisciRisposta(1);
     }
 
     @FXML
     private void risposta3(ActionEvent event) {
-        this.aggiornaPilaDopoLaRisposta(2);
-        this.risposta3button.setSelected(false);
-        this.cambioDomanda();
+        gestisciRisposta(2);
     }
 
     @FXML
     private void risposta4(ActionEvent event) {
-        this.aggiornaPilaDopoLaRisposta(3);
-        this.risposta4button.setSelected(false);
-        this.cambioDomanda();
+        gestisciRisposta(3);
     }
     
     private void aggiornaPilaDopoLaRisposta(int i){
@@ -290,12 +315,21 @@ public class SessionViewController implements Initializable {
 
     @FXML
     private void tornaAllaHome(ActionEvent event) throws IOException {
+        if (tm != null) {
+            tm.stop();
+        }
+        if (sessione != null && sessione.getUtente() != null && !domande.isEmpty()) {
+            sessione.salvaSessioneDiGioco();
+        }
         stato.setSessionViewHomeButton(true);
         App.setRoot("AppView");
     }
 
     @FXML
     private void continuaGioco(ActionEvent event) throws IOException {
+        if (tm != null) {
+            tm.stop();
+        }
         stato.setSessionViewContinuaButton(true);
         App.setRoot("AppView");
     }
@@ -322,7 +356,9 @@ public class SessionViewController implements Initializable {
     }
 
     private void handleTimeout() {
-        tm.stop();
+        if (tm != null) {
+            tm.stop();
+        }
         this.DaLetturaARisposte();
         this.cambioDomanda();
     }
@@ -337,21 +373,20 @@ public class SessionViewController implements Initializable {
     }
 
     private boolean eliminaSalvataggi() {
-        boolean f1 = new File("SalvataggioDi"+this.sessione.getUtente().getEmail()+".ser").delete();
-        boolean f2 =new File(("SalvataggioFaseGenerazioneDi"+this.sessione.getUtente().getEmail()+".ser")).delete();
-        return f1 && f2;
+        if (this.sessione != null && this.sessione.getUtente() != null) {
+            return SessioneDiGioco.eliminaSalvataggio(this.sessione.getUtente().getEmail());
+        } else if (stato.getUtente() != null) {
+            return SessioneDiGioco.eliminaSalvataggio(stato.getUtente().getEmail());
+        }
+        return false;
     }
 
     private void caricaSessioneDaFileSalvato() {
-         try {
-            sessione.caricaSessioneDiGioco("SalvataggioDi"+stato.getUtente().getEmail()+".ser");
+        try {
+            sessione.caricaSessioneDiGiocoPerEmail(stato.getUtente().getEmail());
         } catch (IOException ex) {
-            try {
-                sessione.caricaSessioneDiGioco("SalvataggioFaseGenerazioneDi"+stato.getUtente().getEmail()+".ser");
-            } catch (IOException ex1) {
-                System.getLogger(SessionViewController.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex1);
-                this.eliminaSalvataggi();
-            }
+            System.getLogger(SessionViewController.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+            this.eliminaSalvataggi();
         }
     }
     

@@ -6,6 +6,7 @@ import it.unisa.diem.wordageddong17.model.Classifica;
 import it.unisa.diem.wordageddong17.model.DocumentoDiTesto;
 import it.unisa.diem.wordageddong17.model.Lingua;
 import it.unisa.diem.wordageddong17.model.LivelloPartita;
+import it.unisa.diem.wordageddong17.model.SessioneDiGioco;
 import it.unisa.diem.wordageddong17.model.TipoUtente;
 import it.unisa.diem.wordageddong17.model.Utente;
 import java.io.ByteArrayInputStream;
@@ -392,6 +393,7 @@ public class AppViewController implements Initializable {
         chiudiTutto();
 
         if (appstate.isSessionViewHomeButton()) {
+            appstate.setSessionViewHomeButton(false);
             tornaAllaHome();
             this.configuraPulsantiAdmin();
             this.benvenutoLabel.setText("Benvenuto " + appstate.getUtente().getUsername());
@@ -399,6 +401,7 @@ public class AppViewController implements Initializable {
             this.pulisciTutto();
 
         } else if (appstate.isSessionViewContinuaButton()) {
+            appstate.setSessionViewContinuaButton(false);
             startOnAction(new ActionEvent());
         } else {
             schermataDiLogin.setVisible(true);
@@ -476,7 +479,11 @@ public class AppViewController implements Initializable {
             passaARegistratiButton.setDisable(false);
             loadingOverlay.setVisible(false);
 
-            mostraAlert("Errore", "Si è verificato un errore durante il login. Riprova più tardi.", Alert.AlertType.ERROR);
+            Throwable ex = loginService.getException();
+            String msg = (ex != null && ex.getMessage() != null)
+                    ? ex.getMessage()
+                    : "Si è verificato un errore durante la connessione al database. Verifica che PostgreSQL sia attivo.";
+            mostraAlert("Errore Connessione", msg, Alert.AlertType.ERROR);
         });
 
         loginService.start();
@@ -544,31 +551,17 @@ public class AppViewController implements Initializable {
      */
 
     private boolean verificaEsistenzaSalvataggio() {
-        return (new File("SalvataggioDi" + this.appstate.getUtente().getEmail() + ".ser").exists()) ||
-               (new File("SalvataggioFaseGenerazioneDi" + this.appstate.getUtente().getEmail() + ".ser").exists());
+        if (this.appstate.getUtente() == null) {
+            return false;
+        }
+        return SessioneDiGioco.esisteSalvataggio(this.appstate.getUtente().getEmail());
     }
 
-    
-    /**
-     * Elimina i file di salvataggio associati all'utente corrente.
-     *
-     * Il metodo tenta di cancellare due file di salvataggio dell'utente:
-     * <ul>
-     *   <li>{@code SalvataggioDi[email].ser}: File di salvataggio principale.</li>
-     *   <li>{@code SalvataggioFaseGenerazioneDi[email].ser}: File relativo alla fase di generazione del salvataggio.</li>
-     * </ul>
-     * 
-     * L'email dell'utente viene ottenuta tramite {@code appstate.getUtente().getEmail()}.
-     * I risultati dell'operazione vengono stampati sulla console per confermare l'eliminazione dei file.
-     *
-     * @return {@code true} se entrambi i file sono stati eliminati con successo, {@code false} altrimenti.
-     */
-
-
     private boolean eliminaSalvataggi() {
-        boolean f1 = new File("SalvataggioDi" + this.appstate.getUtente().getEmail() + ".ser").delete();
-        boolean f2 = new File("SalvataggioFaseGenerazioneDi" + this.appstate.getUtente().getEmail() + ".ser").delete();
-        return f1 && f2;
+        if (this.appstate.getUtente() == null) {
+            return false;
+        }
+        return SessioneDiGioco.eliminaSalvataggio(this.appstate.getUtente().getEmail());
     }
 
     
@@ -638,7 +631,7 @@ public class AppViewController implements Initializable {
      */
     @FXML
     private void logout(ActionEvent event) {
-       appstate.setUtente(null);
+       appstate.reset();
        chiudiTutto();
        pulisciTutto();
        fotoProfilo.setImage(getPlaceholderImage());
@@ -842,7 +835,11 @@ public class AppViewController implements Initializable {
             ius.setImmagineBytes(immagineBytes);
 
             ius.setOnFailed(ev -> {
-                mostraAlert("Errore", "Errore durante la registrazione.", Alert.AlertType.ERROR);
+                Throwable ex = ius.getException();
+                String msg = (ex != null && ex.getMessage() != null)
+                        ? ex.getMessage()
+                        : "Errore durante la registrazione.";
+                mostraAlert("Errore Registrazione", msg, Alert.AlertType.ERROR);
             });
 
             ius.setOnSucceeded(ev -> {
@@ -961,10 +958,23 @@ public class AppViewController implements Initializable {
         n_difficile.setText("");
         n_facile.setText("");
         n_medio.setText("");
+        if (migliore_facile != null) migliore_facile.setText("");
+        if (migliore_medio != null) migliore_medio.setText("");
+        if (migliore_difficile != null) migliore_difficile.setText("");
         dataInizio.getEditor().clear();
         dataFine.getEditor().clear();
         dataFine.setValue(null);
         dataInizio.setValue(null);
+        if (punteggioMinimo != null) punteggioMinimo.setText("");
+        if (punteggioMassimo != null) punteggioMassimo.setText("");
+        if (checkFacile != null) checkFacile.setSelected(false);
+        if (checkMedio != null) checkMedio.setSelected(false);
+        if (checkDifficile != null) checkDifficile.setSelected(false);
+        if (stopwordTextArea != null) stopwordTextArea.setText("");
+        if (pathTextField != null) pathTextField.setText("");
+        if (gestDocCheckFacile != null) gestDocCheckFacile.setSelected(false);
+        if (gestDocCheckMedia != null) gestDocCheckMedia.setSelected(false);
+        if (gestDocCheckDifficile != null) gestDocCheckDifficile.setSelected(false);
         immagineInfoUtente.setImage(new Image(getClass().getResource("/imgs/Profile_avatar_placeholder_large.png").toExternalForm()));
         imageView.setImage(new Image(getClass().getResource("/imgs/Profile_avatar_placeholder_large.png").toExternalForm()));
         gestDocBarraDiRicerca.setText("");
@@ -1280,15 +1290,17 @@ public class AppViewController implements Initializable {
     @FXML
     private void salvaStopwords(ActionEvent event) {
         String testo = this.stopwordTextArea.getText();
-        byte[] bytes = testo.getBytes();
+        byte[] bytes = testo != null ? testo.getBytes(StandardCharsets.UTF_8) : new byte[0];
         CaricaStopWordsService cs = new CaricaStopWordsService("ListaStopwords", this.appstate.getUtente().getEmail(), bytes);
 
         cs.setOnSucceeded(e -> {
-            mostraAlert("Avviso", "Stopwords caricate con successo.", Alert.AlertType.INFORMATION);
+            mostraAlert("Successo", "Stopwords salvate con successo.", Alert.AlertType.INFORMATION);
         });
 
         cs.setOnFailed(e -> {
-            mostraAlert("Avviso", "Stopwords non caricate correttamente.", Alert.AlertType.INFORMATION);
+            Throwable ex = cs.getException();
+            String msg = (ex != null && ex.getMessage() != null) ? ex.getMessage() : "Stopwords non caricate correttamente.";
+            mostraAlert("Errore Stopwords", msg, Alert.AlertType.ERROR);
         });
 
         cs.start();
@@ -1408,7 +1420,11 @@ public class AppViewController implements Initializable {
         });
 
         cts.setOnFailed(e -> {
-            mostraAlert("Errore", "Errore durante il caricamento del documento.", Alert.AlertType.INFORMATION);
+            Throwable ex = cts.getException();
+            String msg = (ex != null && ex.getMessage() != null)
+                    ? ex.getMessage()
+                    : "Errore durante il caricamento del documento.";
+            mostraAlert("Errore Caricamento", msg, Alert.AlertType.ERROR);
             pathTextField.clear();
             fileSelezionato = null;
         });
@@ -1432,7 +1448,12 @@ public class AppViewController implements Initializable {
         PrendiStopWordsService ps = new PrendiStopWordsService("ListaStopwords");
 
         ps.setOnSucceeded(e -> {
-            this.stopwordTextArea.setText(new String(ps.getValue()));
+            byte[] bytes = ps.getValue();
+            if (bytes != null) {
+                this.stopwordTextArea.setText(new String(bytes, StandardCharsets.UTF_8));
+            } else {
+                this.stopwordTextArea.setText("");
+            }
         });
 
         ps.setOnFailed(e -> {
@@ -1695,7 +1716,7 @@ public class AppViewController implements Initializable {
                                     (dataMax == null || !data.isAfter(dataMax));
 
                 Float punteggio = classifica.getPunti();
-                float min = parseSafeFloat(punteggioMinimo.getText(), Float.MIN_VALUE);
+                float min = parseSafeFloat(punteggioMinimo.getText(), 0.0f);
                 float max = parseSafeFloat(punteggioMassimo.getText(), Float.MAX_VALUE);
                 boolean matchPunteggio = punteggio >= min && punteggio <= max;
 
@@ -2155,7 +2176,11 @@ public class AppViewController implements Initializable {
 
         ets.setOnFailed(e -> {
             loadingOverlay.setVisible(false);
-            mostraAlert("Errore", "Errore durante l'eliminazione dei documenti", Alert.AlertType.ERROR);
+            Throwable ex = ets.getException();
+            String msg = (ex != null && ex.getMessage() != null)
+                    ? ex.getMessage()
+                    : "Errore durante l'eliminazione dei documenti.";
+            mostraAlert("Errore Eliminazione", msg, Alert.AlertType.ERROR);
         });
 
         ets.setOnCancelled(e -> {

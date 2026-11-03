@@ -1,17 +1,21 @@
 package it.unisa.diem.wordageddong17.model;
 
 import it.unisa.diem.wordageddong17.model.GeneratoreDomande.Domanda;
+import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -20,13 +24,15 @@ import java.util.logging.Logger;
  * 
  * La sessione di gioco incapsula le informazioni relative all'utente, alle domande, alle risposte fornite,
  * ai documenti utilizzati, ai punteggi, alla durata e al livello di difficoltà della partita.
- * Include inoltre funzionalità di salvataggio e caricamento della sessione in modo da consentire il ripristino
- * in caso di interruzioni inaspettate.
+ * Include inoltre funzionalità per il salvataggio esplicito e il caricamento della sessione
+ * all'interno della directory applicativa ~/.wordageddon/saves.
  *
  * @author Mattia Sanzari
  */
 public class SessioneDiGioco implements Serializable {
-    private static final long serialVersionUID = 3L; // Versione per serializzazione
+
+    private static final Logger LOGGER = Logger.getLogger(SessioneDiGioco.class.getName());
+    private static final long serialVersionUID = 4L;
 
     /** L'utente associato a questa sessione di gioco */
     private Utente utente;
@@ -34,19 +40,19 @@ public class SessioneDiGioco implements Serializable {
     /** Lista delle domande della sessione */
     private List<Domanda> Domande;
 
-    /** Mappa delle risposte date, associando ogni domanda al valore intero risposta */
+    /** Mappa delle risposte date, associando ogni domanda all'indice della risposta selezionata */
     private Map<Domanda, Integer> risposte;
 
     /** Documenti associati alla sessione: chiave = nome documento, valore = contenuto in byte */
     private Map<String, byte[]> Documenti;
 
-    /** Numero totale di domande per documento */
+    /** Numero totale di domande per la sessione */
     private int numeroDomande;
 
     /** Punteggio ottenuto nella sessione */
     private float punteggioFatto;
 
-    /** Durata della sessione di gioco (in secondi o altro unità) */
+    /** Durata rimanente della sessione in secondi */
     private int durata;
 
     /** Numero totale di documenti */
@@ -58,17 +64,11 @@ public class SessioneDiGioco implements Serializable {
     /** Durata iniziale della sessione */
     private int durataIniziale;
 
-    /** Livello della partita (es. facile, medio, difficile) */
+    /** Livello della partita (facile, medio, difficile) */
     private LivelloPartita livello;
 
-
     /**
-     * Costruttore di default.
-     * 
-     * Inizializza le liste e le mappe necessarie e imposta la durata a 0. 
-     * Aggiunge anche un shutdown hook per salvare automaticamente la sessione in caso di interruzione brusca,
-     * qualora non tutte le risposte siano state registrate.
-     * 
+     * Costruttore di default. Inizializza le strutture dati vuote.
      */
     public SessioneDiGioco() {
         this.Domande = new ArrayList<>();
@@ -76,41 +76,20 @@ public class SessioneDiGioco implements Serializable {
         this.risposte = new HashMap<>();
         this.durata = 0;
         this.durataIniziale = 0;
-        // Salvataggio automatico se la sessione viene interrotta bruscamente
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            Thread salva = new Thread(() -> {
-                this.salvaSessioneDiGioco("SalvataggioDi" + this.utente.getEmail() + ".ser");
-            });
-
-            // Salva la sessione solo se il numero di domande non corrisponde al numero di risposte registrate
-            if (this.numeroDomande != this.risposte.size())
-                salva.start();
-            try {
-                salva.join(1000);
-                if (salva.isAlive()) {
-                    salva.interrupt();
-                }
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-        }));
+        this.punteggioFatto = 0;
     }
 
     /**
      * Costruttore che inizializza la sessione con i parametri specificati.
      *
-     * @param numeroDomande   il numero di domande per documento
+     * @param numeroDomande   il numero di domande per la sessione
      * @param durata          la durata iniziale della sessione
      * @param utente          l'utente proprietario della sessione
      * @param numeroDocumenti il numero di documenti da utilizzare
      */
     public SessioneDiGioco(int numeroDomande, int durata, Utente utente, int numeroDocumenti) {
+        this();
         this.numeroDomande = numeroDomande;
-        this.Domande = new ArrayList<>();
-        this.Documenti = new HashMap<>();
-        this.risposte = new HashMap<>();
-        this.stopWords = null;
-        this.punteggioFatto = 0;
         this.durata = durata;
         this.durataIniziale = durata;
         this.utente = utente;
@@ -124,205 +103,229 @@ public class SessioneDiGioco implements Serializable {
      */
     public SessioneDiGioco(Utente utente) {
         this();
-        this.stopWords = null;
         this.utente = utente;
-        this.durata = 0;
-        this.durataIniziale = 0;
     }
 
-    /**
-     * Imposta il livello di difficoltà della sessione.
-     *
-     * @param livello il livello di partita da impostare
-     */
-    public void setLivello(LivelloPartita livello) {
-        this.livello = livello;
-    }
-
-    /**
-     * Restituisce il livello di difficoltà della sessione.
-     *
-     * @return il livello di partita
-     */
     public LivelloPartita getLivello() {
         return livello;
     }
 
-    /**
-     * Imposta il numero di domande per documento.
-     *
-     * @param numeroDomande il numero di domande
-     */
-    public void setNumeroDomande(int numeroDomande) {
-        this.numeroDomande = numeroDomande;
+    public void setLivello(LivelloPartita livello) {
+        this.livello = livello;
     }
 
-    /**
-     * Imposta il numero di documenti da utilizzare.
-     *
-     * @param numeroDocumenti il numero di documenti
-     */
-    public void setNumeroDocumenti(int numeroDocumenti) {
-        this.numeroDocumenti = numeroDocumenti;
-    }
-
-    /**
-     * Imposta la durata rimanente della sessione.
-     * 
-     * Se la durata corrente e quella iniziale sono entrambe pari a zero, imposta la durata iniziale.
-     * Questa operazione è sincronizzata per garantire la consistenza dei dati in un ambiente concorrente.
-     *
-     * @param durata la nuova durata della sessione
-     */
-    public synchronized void setDurata(int durata) {
-        if (this.durata == 0 && this.durataIniziale == 0)
-            this.durataIniziale = durata;
-        this.durata = durata;
-    }
-
-    /**
-     * Restituisce le stopwords associate alla sessione.
-     *
-     * @return un array di byte contenente le stopwords
-     */
-    public byte[] getStopWords() {
-        return stopWords;
-    }
-
-    /**
-     * Restituisce l'utente associato alla sessione.
-     *
-     * @return l'oggetto Utente della sessione
-     */
     public Utente getUtente() {
         return utente;
     }
 
-    /**
-     * Restituisce la durata rimanente della sessione.
-     *
-     * @return la durata in secondi
-     */
+    public void setUtente(Utente utente) {
+        this.utente = utente;
+    }
+
+    public void setNumeroDomande(int numeroDomande) {
+        this.numeroDomande = numeroDomande;
+    }
+
+    public void setPunteggioFatto(float punteggioFatto) {
+        this.punteggioFatto = punteggioFatto;
+    }
+
+    public void setDurata(int durata) {
+        this.durata = durata;
+    }
+
+    public void setNumeroDocumenti(int numeroDocumenti) {
+        this.numeroDocumenti = numeroDocumenti;
+    }
+
+    public byte[] getStopWords() {
+        return stopWords;
+    }
+
+    public void setStopWords(byte[] stopWords) {
+        this.stopWords = stopWords;
+    }
+
     public int getDurata() {
         return durata;
     }
 
-    /**
-     * Restituisce il numero di documenti utilizzati nella sessione.
-     *
-     * @return il numero di documenti
-     */
     public int getNumeroDocumenti() {
         return numeroDocumenti;
     }
 
-    /**
-     * Restituisce la mappa delle risposte fornite.
-     *
-     * @return una mappa in cui le chiavi sono le domande e i valori sono gli indici delle risposte selezionate
-     */
     public Map<Domanda, Integer> getRisposte() {
         return risposte;
     }
 
-    /**
-     * Restituisce il punteggio totale accumulato nella sessione.
-     *
-     * @return il punteggio fatto
-     */
     public float getPunteggioFatto() {
         return punteggioFatto;
     }
 
-    /**
-     * Restituisce la lista delle domande della sessione.
-     *
-     * @return la lista di Domanda
-     */
     public List<Domanda> getDomande() {
         return Domande;
     }
 
-    /**
-     * Restituisce la durata iniziale della sessione.
-     *
-     * @return la durata iniziale
-     */
     public int getDurataIniziale() {
         return durataIniziale;
     }
 
-    /**
-     * Imposta la mappa dei documenti della sessione.
-     *
-     * @param Documenti una mappa in cui la chiave è il nome del documento e il valore è il contenuto in byte
-     */
     public void setDocumenti(Map<String, byte[]> Documenti) {
         this.Documenti = Documenti;
     }
 
-    /**
-     * Imposta la lista delle domande della sessione.
-     *
-     * @param Domande la lista delle domande da impostare
-     */
     public void setDomande(List<Domanda> Domande) {
         this.Domande = Domande;
     }
 
-    /**
-     * Aggiunge un documento alla mappa dei documenti della sessione.
-     *
-     * @param chiave    il nome del documento
-     * @param Documento il contenuto del documento in byte
-     */
     public void addDocumenti(String chiave, byte[] Documento) {
         this.Documenti.put(chiave, Documento);
     }
 
-    /**
-     * Restituisce la mappa dei documenti della sessione.
-     *
-     * @return una mappa in cui le chiavi sono i nomi dei documenti e i valori sono i relativi contenuti in byte
-     */
     public Map<String, byte[]> getDocumenti() {
         return Documenti;
     }
 
-    /**
-     * Restituisce il numero di domande configurate per la sessione.
-     *
-     * @return il numero di domande
-     */
     public int getNumeroDomande() {
         return numeroDomande;
     }
 
+    public void setDurataIniziale(int durataIniziale) {
+        this.durataIniziale = durataIniziale;
+    }
+
+    // -------------------------------------------------------------------------
+    // Gestione Cartella di Salvataggio Applicativa (~/.wordageddon/saves)
+    // -------------------------------------------------------------------------
+
+    public static Path getSaveDirectory() {
+        String userHome = System.getProperty("user.home", ".");
+        Path dir = Paths.get(userHome, ".wordageddon", "saves");
+        try {
+            Files.createDirectories(dir);
+            return dir;
+        } catch (IOException e) {
+            return Paths.get(".");
+        }
+    }
+
+    public static File getSaveFile(String email) {
+        if (email == null) return new File("save_anonymous.ser");
+        String safeEmail = email.replaceAll("[^a-zA-Z0-9.-]", "_");
+        return getSaveDirectory().resolve("save_" + safeEmail + ".ser").toFile();
+    }
+
+    public static boolean esisteSalvataggio(String email) {
+        if (email == null) return false;
+        File appSave = getSaveFile(email);
+        if (appSave.exists() && appSave.length() > 0) return true;
+
+        // Retrocompatibilità con i salvataggi nella CWD
+        return new File("SalvataggioDi" + email + ".ser").exists() ||
+               new File("SalvataggioFaseGenerazioneDi" + email + ".ser").exists();
+    }
+
+    public static boolean eliminaSalvataggio(String email) {
+        if (email == null) return false;
+        boolean b1 = getSaveFile(email).delete();
+        boolean b2 = new File("SalvataggioDi" + email + ".ser").delete();
+        boolean b3 = new File("SalvataggioFaseGenerazioneDi" + email + ".ser").delete();
+        return b1 || b2 || b3;
+    }
+
     /**
-     * Salva la sessione di gioco su file, utilizzando il nome di file specificato.
-     *
-     * @param NomeFile il nome del file in cui salvare la sessione
+     * Salva esplicitamente lo stato della sessione su disco.
      */
-    public void salvaSessioneDiGioco(String NomeFile) {
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(NomeFile))) {
+    public synchronized void salvaSessioneDiGioco() {
+        if (this.utente == null || this.utente.getEmail() == null) {
+            LOGGER.warning("Impossibile salvare la sessione: utente o email non definiti.");
+            return;
+        }
+        File targetFile = getSaveFile(this.utente.getEmail());
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(targetFile))) {
             oos.writeObject(this);
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(SessioneDiGioco.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.info(() -> "Sessione salvata con successo in " + targetFile.getAbsolutePath());
         } catch (IOException ex) {
-            Logger.getLogger(SessioneDiGioco.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.log(Level.SEVERE, "Errore salvataggio sessione di gioco su file", ex);
         }
     }
 
     /**
-     * Salva la sessione di gioco su file, utilizzando un nome di file predefinito in base all'email dell'utente.
+     * Metodo di retrocompatibilità: accetta un nome file e salva nella directory designata.
      */
-    public void salvaSessioneDiGioco() {
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("SalvataggioFaseGenerazioneDi" + this.utente.getEmail() + ".ser"))) {
-            oos.writeObject(this);
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(SessioneDiGioco.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(SessioneDiGioco.class.getName()).log(Level.SEVERE, null, ex);
+    public synchronized void salvaSessioneDiGioco(String nomeFile) {
+        salvaSessioneDiGioco();
+    }
+
+    /**
+     * Carica lo stato della sessione dal file di salvataggio per l'utente specificato.
+     *
+     * @param email email dell'utente
+     * @throws IOException se il caricamento fallisce
+     */
+    public synchronized void caricaSessioneDiGiocoPerEmail(String email) throws IOException {
+        File fileDaLeggere = getSaveFile(email);
+        if (!fileDaLeggere.exists()) {
+            File fOld1 = new File("SalvataggioDi" + email + ".ser");
+            File fOld2 = new File("SalvataggioFaseGenerazioneDi" + email + ".ser");
+            if (fOld1.exists()) {
+                fileDaLeggere = fOld1;
+            } else if (fOld2.exists()) {
+                fileDaLeggere = fOld2;
+            }
+        }
+
+        if (!fileDaLeggere.exists()) {
+            throw new IOException("Nessun file di salvataggio trovato per l'utente " + email);
+        }
+
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(fileDaLeggere))) {
+            SessioneDiGioco s = (SessioneDiGioco) ois.readObject();
+            this.utente = s.getUtente();
+            this.Domande = s.getDomande() != null ? s.getDomande() : new ArrayList<>();
+            this.risposte = s.getRisposte() != null ? s.getRisposte() : new HashMap<>();
+            this.Documenti = s.getDocumenti() != null ? s.getDocumenti() : new HashMap<>();
+            this.numeroDomande = s.numeroDomande;
+            this.punteggioFatto = s.getPunteggioFatto();
+            this.durata = s.getDurata();
+            this.numeroDocumenti = s.getNumeroDocumenti();
+            this.stopWords = s.getStopWords();
+            this.durataIniziale = s.getDurataIniziale();
+            this.livello = s.getLivello();
+        } catch (ClassNotFoundException ex) {
+            LOGGER.log(Level.SEVERE, "Classe non trovata durante la deserializzazione della sessione", ex);
+            throw new IOException("Formato di salvataggio non compatibile", ex);
+        }
+    }
+
+    /**
+     * Retrocompatibilità: delega a caricaSessioneDiGiocoPerEmail estraendo l'email o usandola come path.
+     */
+    public synchronized void caricaSessioneDiGioco(String nomeFile) throws IOException {
+        if (this.utente != null && this.utente.getEmail() != null) {
+            caricaSessioneDiGiocoPerEmail(this.utente.getEmail());
+        } else {
+            File f = new File(nomeFile);
+            if (!f.exists()) {
+                f = getSaveDirectory().resolve(nomeFile).toFile();
+            }
+            try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(f))) {
+                SessioneDiGioco s = (SessioneDiGioco) ois.readObject();
+                this.utente = s.getUtente();
+                this.Domande = s.getDomande();
+                this.risposte = s.getRisposte();
+                this.Documenti = s.getDocumenti();
+                this.numeroDomande = s.numeroDomande;
+                this.punteggioFatto = s.getPunteggioFatto();
+                this.durata = s.getDurata();
+                this.numeroDocumenti = s.getNumeroDocumenti();
+                this.stopWords = s.getStopWords();
+                this.durataIniziale = s.getDurataIniziale();
+                this.livello = s.getLivello();
+            } catch (ClassNotFoundException ex) {
+                LOGGER.log(Level.SEVERE, "Errore deserializzazione", ex);
+                throw new IOException(ex);
+            }
         }
     }
 
@@ -332,28 +335,21 @@ public class SessioneDiGioco implements Serializable {
      * @param numeroDomanda l'indice della domanda nella lista
      * @param indiceRisposta l'indice della risposta selezionata
      */
-    public void aggiornaRisposte(int numeroDomanda, int indiceRisposta) {
-        this.risposte.put(this.Domande.get(numeroDomanda), indiceRisposta);
+    public synchronized void aggiornaRisposte(int numeroDomanda, int indiceRisposta) {
+        if (numeroDomanda >= 0 && numeroDomanda < this.Domande.size()) {
+            this.risposte.put(this.Domande.get(numeroDomanda), indiceRisposta);
+        }
     }
-    
-    //PARAMETRI REGOLABILI (possono essere modificati per bilanciare il gioco)
-    /** Punteggio attribuito ad ogni risposta corretta */
+
+    // PARAMETRI REGOLABILI
     private static final float PUNTI_BASE_PER_DOMANDA = 1000.0f;
-    /** Punteggio detratto per ogni risposta errata */
-    private static final float PENALITA_PER_ERRORE = 0.5f; // 0 = no penalty, 1 = full penalty
-    /** Limite superiore per il bonus attributo al tempo rimanente */
-    private static final float BONUS_TEMPO_MAX_PERC = 0.15f; // % del punteggio massimo
-    /** Andamento del bonus per il tempo rimanente */
-    private static final float ESPONENTE_BONUS_TEMPO = 0.5f; // 0.5=sqrt, 1=lineare, 2=quadratico
-    /** Limite inferiore per l'attribuzione del bonus basato sulla precisione */
-    private static final float SOGLIA_MINIMA_PRECISIONE = 0.01f; // Precisione minima per avere bonus
-    
+    private static final float PENALITA_PER_ERRORE = 0.5f;
+    private static final float BONUS_TEMPO_MAX_PERC = 0.15f;
+    private static final float ESPONENTE_BONUS_TEMPO = 0.5f;
+    private static final float SOGLIA_MINIMA_PRECISIONE = 0.01f;
+
     /**
      * Aggiorna il punteggio fatto dall'utente in base alle risposte corrette e al tempo rimanente.
-     * 
-     * Il metodo itera sulle domande della sessione e verifica se la risposta fornita corrisponde a quella corretta.
-     * In base al numero di risposte corrette, calcola un punteggio di base e un bonus in base al tempo rimanente.
-     * Se nessuna risposta è corretta, il punteggio viene impostato a zero.
      *
      * @param tempoRimasto il tempo rimasto (in secondi) al termine della sessione
      */
@@ -364,28 +360,25 @@ public class SessioneDiGioco implements Serializable {
             return;
         }
 
-        // Calcolo risposte corrette/errate (tutte le domande hanno risposta)
         int numRisposteCorrette = 0;
         for (Domanda d : this.Domande) {
-            if (this.risposte.get(d) == d.rispostaCorretta) {
+            Integer data = this.risposte.get(d);
+            if (data != null && data == d.rispostaCorretta) {
                 numRisposteCorrette++;
             }
         }
         int numRisposteSbagliate = numDomande - numRisposteCorrette;
 
-        // 1. CALCOLO PRECISIONE CON PENALITÀ REGOLABILE
         float precisioneLorda = (float) numRisposteCorrette / numDomande;
         float penalizzazione = (float) numRisposteSbagliate / numDomande * PENALITA_PER_ERRORE;
         float punteggioNetto = Math.max(0f, precisioneLorda - penalizzazione);
 
-        // 2. PUNTEGGIO BASE SCALABILE
         float puntiMassimi = PUNTI_BASE_PER_DOMANDA * numDomande;
         float puntBase = puntiMassimi * punteggioNetto;
 
-        // 3. BONUS TEMPO CON PARAMETRI REGOLABILI
         float bonusTempo = 0;
         if (this.durataIniziale > 0 && punteggioNetto >= SOGLIA_MINIMA_PRECISIONE) {
-            float tempoRatio = (float) tempoRimasto / this.durataIniziale;
+            float tempoRatio = Math.max(0f, (float) tempoRimasto / this.durataIniziale);
             float fattoreTempo = (float) Math.pow(tempoRatio, ESPONENTE_BONUS_TEMPO);
             bonusTempo = puntiMassimi * BONUS_TEMPO_MAX_PERC * fattoreTempo * punteggioNetto;
         }
@@ -393,66 +386,14 @@ public class SessioneDiGioco implements Serializable {
         this.punteggioFatto = Math.round(puntBase + bonusTempo);
     }
 
-    /**
-     * Carica la sessione di gioco da un file serializzato.
-     *
-     * @param NomeFile il nome del file da cui caricare la sessione
-     * @throws IOException se si verifica un errore durante la lettura del file
-     */
-    public void caricaSessioneDiGioco(String NomeFile) throws IOException {
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(NomeFile))) {
-            SessioneDiGioco s = (SessioneDiGioco) ois.readObject();
-            this.utente = s.getUtente();
-            this.Domande = s.getDomande();
-            this.risposte = s.getRisposte();
-            this.Documenti = s.getDocumenti();
-            this.numeroDomande = s.numeroDomande;
-            this.punteggioFatto = s.getPunteggioFatto();
-            this.durata = s.getDurata();
-            this.numeroDocumenti = s.getNumeroDocumenti();
-            this.stopWords = s.getStopWords();
-            this.durataIniziale = s.getDurataIniziale();
-            this.livello = s.getLivello();
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(SessioneDiGioco.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-    
-    /**
-     * Salva un documento in locale come file.
-     * 
-     * Questo metodo è attualmente non utilizzato; può essere eliminato in futuro se non necessario.
-     *
-     * @param nomedoc    il nome del file da creare
-     * @param documento  il contenuto del documento da salvare in byte
-     */
-    private void SalvaDocumentiInLocale(String nomedoc, byte[] documento) {
-        try (FileOutputStream fos = new FileOutputStream(nomedoc)) {
-            fos.write(documento);
-        } catch (IOException e) {
-            Logger.getLogger(SessioneDiGioco.class.getName()).log(Level.SEVERE, null, e);
-        }
-    }
-
-    /**
-     * Restituisce una rappresentazione stringa della sessione di gioco.
-     *
-     * @return una stringa contenente i dettagli della sessione, inclusi utente, domande, risposte, documenti, punteggio e durata.
-     */
     @Override
     public String toString() {
         return "SessioneDiGioco{" +
-               "utente=" + utente +
-               ", Domande=" + Domande +
-               ", risposte=" + risposte +
-               ", Documenti=" + Documenti +
-               ", numeroDomande=" + numeroDomande +
-               ", punteggioFatto=" + punteggioFatto +
-               ", durata=" + durata +
-               ", numeroDocumenti=" + numeroDocumenti +
-               ", stopWords=" + stopWords +
-               ", durataIniziale=" + durataIniziale +
-               ", livello=" + livello +
-               '}';
+                "utente=" + (utente != null ? utente.getEmail() : "null") +
+                ", numeroDomande=" + numeroDomande +
+                ", punteggioFatto=" + punteggioFatto +
+                ", durata=" + durata +
+                ", livello=" + livello +
+                '}';
     }
 }

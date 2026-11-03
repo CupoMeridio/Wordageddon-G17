@@ -1,16 +1,30 @@
 package it.unisa.diem.wordageddong17.model;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.EnumMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Random;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
  * Classe che si occupa di generare domande a risposta multipla basate
  * sull'analisi di un documento. Le domande sono di vario tipo: frequenza
- * assoluta, confronto, esclusione.
+ * assoluta, confronto, esclusione, parola più/meno frequente.
  *
- * Ogni domanda è rappresentata dalla classe interna Domanda.
- *
+ * <p>La classe garantisce i seguenti invarianti:</p>
+ * <ul>
+ *   <li>ogni domanda ha esattamente 4 opzioni di risposta distinte;</li>
+ *   <li>esiste esattamente una sola risposta corretta priva di ambiguità (nessun pareggio per il massimo/minimo);</li>
+ *   <li>la raccolta di domande non contiene mai valori nulli.</li>
+ * </ul>
  */
 public class GeneratoreDomande {
 
@@ -20,355 +34,385 @@ public class GeneratoreDomande {
     /**
      * Costruttore del generatore di domande.
      *
-     * @param analisi Oggetto AnalisiDocumenti già popolato con i dati del
-     * documento
+     * @param analisi Oggetto AnalisiDocumenti già popolato con i dati del documento
      */
     public GeneratoreDomande(AnalisiDocumenti analisi) {
-        this.analisi = analisi;
+        this.analisi = Objects.requireNonNull(analisi, "L'analisi dei documenti non può essere nulla");
     }
 
     /**
-     * Classe che rappresenta una domanda a risposta multipla. Contiene il testo
-     * della domanda, le opzioni e l'indice della risposta corretta.
+     * Classe immutabile che rappresenta una domanda a risposta multipla.
      */
     public static class Domanda implements Serializable {
+        private static final long serialVersionUID = 1L;
 
-        /**
-         * Testo della domanda
-         */
+        /** Testo della domanda */
         public final String testo;
-        /**
-         * Lista delle opzioni di risposta
-         */
+
+        /** Lista immutabile delle 4 opzioni di risposta */
         public final List<String> opzioni;
-        /**
-         * Indice (0-3) della risposta corretta nella lista delle opzioni
-         */
+
+        /** Indice (0-3) della risposta corretta nella lista delle opzioni */
         public final int rispostaCorretta;
 
         /**
          * Costruttore della domanda.
          *
          * @param testo Testo della domanda
-         * @param opzioni Lista delle opzioni di risposta
-         * @param rispostaCorretta Indice della risposta corretta
+         * @param opzioni Lista delle opzioni di risposta (deve contenere esattamente 4 elementi)
+         * @param rispostaCorretta Indice della risposta corretta (0..3)
          */
         public Domanda(String testo, List<String> opzioni, int rispostaCorretta) {
-            this.testo = testo;
-            this.opzioni = opzioni;
+            this.testo = Objects.requireNonNull(testo, "Il testo non può essere nullo");
+            if (opzioni == null || opzioni.size() != 4) {
+                throw new IllegalArgumentException("La domanda deve avere esattamente 4 opzioni");
+            }
+            if (rispostaCorretta < 0 || rispostaCorretta >= opzioni.size()) {
+                throw new IndexOutOfBoundsException("Indice risposta corretta non valido: " + rispostaCorretta);
+            }
+            this.opzioni = Collections.unmodifiableList(new ArrayList<>(opzioni));
             this.rispostaCorretta = rispostaCorretta;
         }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Domanda domanda = (Domanda) o;
+            return rispostaCorretta == domanda.rispostaCorretta &&
+                    Objects.equals(testo, domanda.testo) &&
+                    Objects.equals(opzioni, domanda.opzioni);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(testo, opzioni, rispostaCorretta);
+        }
+
+        @Override
+        public String toString() {
+            return "Domanda{" +
+                    "testo='" + testo + '\'' +
+                    ", opzioni=" + opzioni +
+                    ", rispostaCorretta=" + rispostaCorretta +
+                    '}';
+        }
+    }
+
+    /**
+     * Pulisce il nome del file rimuovendo l'estensione per una visualizzazione gradevole nel testo del quiz.
+     */
+    private static String stripExtension(String nomeDocumento) {
+        if (nomeDocumento == null) return "";
+        int dotIdx = nomeDocumento.lastIndexOf('.');
+        return dotIdx > 0 ? nomeDocumento.substring(0, dotIdx) : nomeDocumento;
     }
 
     /**
      * Genera una domanda sulla frequenza assoluta di una parola nel documento.
      * Esempio: "Quante volte compare la parola 'X' nel documento?"
      *
-     * @param nomeDocumento Nome del documento su cui basare la domanda
-     * @return Oggetto Domanda, oppure null se non ci sono parole disponibili
+     * @param nomeDocumento Nome del documento
+     * @return Domanda valida con 4 opzioni numeriche, oppure null se il documento è vuoto
      */
     private Domanda domandaFrequenzaAssoluta(String nomeDocumento) {
         Map<String, Integer> parole = analisi.restituisciDocumento(nomeDocumento);
-        
         if (parole == null || parole.isEmpty()) {
             return null;
         }
+
         List<String> paroleDoc = new ArrayList<>(parole.keySet());
         String parola = paroleDoc.get(rnd.nextInt(paroleDoc.size()));
         int freq = parole.get(parola);
 
-        // Opzioni plausibili
+        // Genera 3 distrattori numerici distinti e non negativi
         Set<Integer> opzioniSet = new HashSet<>();
         opzioniSet.add(freq);
+
+        int delta = 1;
         while (opzioniSet.size() < 4) {
-            int fake = Math.max(0, freq + rnd.nextInt(5) - 2);
-            opzioniSet.add(fake);
+            int candidata1 = freq + delta;
+            int candidata2 = Math.max(0, freq - delta);
+            if (candidata1 != freq) opzioniSet.add(candidata1);
+            if (opzioniSet.size() < 4 && candidata2 != freq) opzioniSet.add(candidata2);
+            delta++;
         }
+
         List<Integer> opzioniNum = new ArrayList<>(opzioniSet);
         Collections.shuffle(opzioniNum);
         int idx = opzioniNum.indexOf(freq);
 
         List<String> opzioni = opzioniNum.stream().map(String::valueOf).collect(Collectors.toList());
-        String nomeSenzaEstensione = nomeDocumento.endsWith(".txt") ? nomeDocumento.substring(0, nomeDocumento.lastIndexOf(".txt")) : nomeDocumento;
-        String testo = String.format("Quante volte compare la parola \"%s\" nel documento \"%s\"?", parola, nomeSenzaEstensione);
+        String testo = String.format("Quante volte compare la parola \"%s\" nel documento \"%s\"?",
+                parola, stripExtension(nomeDocumento));
         return new Domanda(testo, opzioni, idx);
     }
 
     /**
-     * Genera una domanda sulla parola più frequente nel documento. Esempio:
-     * "Quale parola compare più spesso nel documento?"
-     *
-     * @param nomeDocumento Nome del documento su cui basare la domanda
-     * @return Oggetto Domanda, oppure null se non ci sono parole disponibili
+     * Genera una domanda sulla parola più frequente nel documento.
+     * Garantisce che la parola corretta abbia una frequenza strettamente maggiore dei 3 distrattori.
      */
     private Domanda domandaParolaPiuFrequente(String nomeDocumento) {
         Map<String, Integer> parole = analisi.restituisciDocumento(nomeDocumento);
-        
-        if (parole == null || parole.isEmpty()) {
-            return null;
-        }
-        String parolaMax = Collections.max(parole.entrySet(), Map.Entry.comparingByValue()).getKey();
-
-        List<String> paroleDoc = new ArrayList<>(parole.keySet());
-        paroleDoc.remove(parolaMax);
-        Collections.shuffle(paroleDoc);
-        List<String> opzioni = new ArrayList<>();
-        opzioni.add(parolaMax);
-        for (int i = 0; i < 3 && i < paroleDoc.size(); i++) {
-            opzioni.add(paroleDoc.get(i));
-        }
-        Collections.shuffle(opzioni);
-        int idx = opzioni.indexOf(parolaMax);
-        String nomeSenzaEstensione = nomeDocumento.endsWith(".txt") ? nomeDocumento.substring(0, nomeDocumento.lastIndexOf(".txt")) : nomeDocumento;
-        String testo = String.format("Quale parola compare più spesso nel documento \"%s\"?", nomeSenzaEstensione);
-        return new Domanda(testo, opzioni, idx);
-    }
-
-   /**
-    * Dizionario multilingua per domandaParolaMaiComparsa
-    * (Parole convertite in minuscolo per coerenza)
-    */
-    private static final Map<Lingua, List<String>> DIZIONARIO_PAROLE = new EnumMap<>(Lingua.class);
-    static {
-        // Dizionario italiano (convertito in minuscolo)
-
-
-        // Italiano
-        List<String> italiano = Arrays.asList(
-            "CASA", "LIBRO", "TAVOLO", "SEDIA", "FINESTRA", "PORTA", "GIARDINO", "ALBERO",
-            "FIORE", "SOLE", "LUNA", "STELLA", "MARE", "MONTAGNA", "FIUME", "LAGO",
-            "CANE", "GATTO", "UCCELLO", "PESCE", "CAVALLO", "MUCCA", "PECORA", "MAIALE",
-            "AUTO", "TRENO", "AEREO", "BICICLETTA", "MOTO", "NAVE", "AUTOBUS", "TRAM",
-            "SCUOLA", "UNIVERSITÀ", "OSPEDALE", "CINEMA", "TEATRO", "MUSEO", "BIBLIOTECA",
-            "RISTORANTE", "BAR", "NEGOZIO", "MERCATO", "BANCA", "UFFICIO", "FABBRICA",
-            "ROSSO", "BLU", "VERDE", "GIALLO", "NERO", "BIANCO", "GRIGIO", "VIOLA",
-            "GRANDE", "PICCOLO", "ALTO", "BASSO", "LUNGO", "CORTO", "VELOCE", "LENTO",
-            "BELLO", "BRUTTO", "BUONO", "CATTIVO", "FACILE", "DIFFICILE", "NUOVO", "VECCHIO",
-            "MANGIARE", "BERE", "DORMIRE", "CAMMINARE", "CORRERE", "SALTARE", "VOLARE", "NUOTARE",
-            "PARLARE", "SENTIRE", "VEDERE", "TOCCARE", "ANNUSARE", "PENSARE", "RICORDARE", "DIMENTICARE",
-            "AMORE", "ODIO", "FELICITÀ", "TRISTEZZA", "PAURA", "CORAGGIO", "SPERANZA", "DISPERAZIONE",
-            "AMICO", "NEMICO", "FAMIGLIA", "MADRE", "PADRE", "FIGLIO", "FIGLIA", "FRATELLO", "SORELLA",
-            "TEMPO", "SPAZIO", "VITA", "MORTE", "NASCITA", "CRESCITA", "CAMBIO", "STABILITÀ"
-        );
-        DIZIONARIO_PAROLE.put(Lingua.ITALIANO, italiano);
-
-        // Inglese
-        List<String> inglese = Arrays.asList(
-            "HOUSE", "BOOK", "COMPUTER", "CHAIR", "WINDOW", "DOOR", "GARDEN", "TREE",
-            "FLOWER", "SUN", "MOON", "STAR", "OCEAN", "MOUNTAIN", "RIVER", "LAKE",
-            "DOG", "CAT", "BIRD", "FISH", "HORSE", "COW", "SHEEP", "PIG",
-            "CAR", "TRAIN", "AIRPLANE", "BICYCLE", "MOTORCYCLE", "SHIP", "BUS", "SUBWAY",
-            "SCHOOL", "UNIVERSITY", "HOSPITAL", "CINEMA", "THEATER", "MUSEUM", "LIBRARY",
-            "RESTAURANT", "CAFE", "STORE", "MARKET", "BANK", "OFFICE", "FACTORY",
-            "RED", "BLUE", "GREEN", "YELLOW", "BLACK", "WHITE", "GRAY", "PURPLE",
-            "BIG", "SMALL", "TALL", "SHORT", "LONG", "BRIEF", "FAST", "SLOW",
-            "BEAUTIFUL", "UGLY", "GOOD", "BAD", "EASY", "HARD", "NEW", "OLD",
-            "EAT", "DRINK", "SLEEP", "WALK", "RUN", "JUMP", "FLY", "SWIM",
-            "TALK", "HEAR", "SEE", "TOUCH", "SMELL", "THINK", "REMEMBER", "FORGET",
-            "LOVE", "HATE", "HAPPINESS", "SADNESS", "FEAR", "COURAGE", "HOPE", "DESPAIR",
-            "FRIEND", "ENEMY", "FAMILY", "MOTHER", "FATHER", "SON", "DAUGHTER", "BROTHER", "SISTER",
-            "TIME", "SPACE", "LIFE", "DEATH", "BIRTH", "GROWTH", "CHANGE", "STABILITY"
-        );
-        DIZIONARIO_PAROLE.put(Lingua.INGLESE, inglese);
-
-        // Francese
-        List<String> francese = Arrays.asList(
-            "MAISON", "LIVRE", "TABLE", "CHAISE", "FENÊTRE", "PORTE", "JARDIN", "ARBRE",
-            "FLEUR", "SOLEIL", "LUNE", "ÉTOILE", "MER", "MONTAGNE", "RIVIÈRE", "LAC",
-            "CHIEN", "CHAT", "OISEAU", "POISSON", "CHEVAL", "VACHE", "MOUTON", "COCHON",
-            "VOITURE", "TRAIN", "AVION", "VÉLO", "MOTO", "BATEAU", "BUS", "MÉTRO",
-            "ÉCOLE", "UNIVERSITÉ", "HÔPITAL", "CINÉMA", "THÉÂTRE", "MUSÉE", "BIBLIOTHÈQUE",
-            "RESTAURANT", "CAFÉ", "MAGASIN", "MARCHÉ", "BANQUE", "BUREAU", "USINE",
-            "ROUGE", "BLEU", "VERT", "JAUNE", "NOIR", "BLANC", "GRIS", "VIOLET",
-            "GRAND", "PETIT", "HAUT", "BAS", "LONG", "COURT", "RAPIDE", "LENT",
-            "BEAU", "LAID", "BON", "MAUVAIS", "FACILE", "DIFFICILE", "NOUVEAU", "VIEUX",
-            "MANGER", "BOIRE", "DORMIR", "MARCHER", "COURIR", "SAUTER", "VOLER", "NAGER",
-            "PARLER", "ENTENDRE", "VOIR", "TOUCHER", "SENTIR", "PENSER", "SOUVENIR", "OUBLIER",
-            "AMOUR", "HAINE", "BONHEUR", "TRISTESSE", "PEUR", "COURAGE", "ESPOIR", "DÉSESPOIR",
-            "AMI", "ENNEMI", "FAMILLE", "MÈRE", "PÈRE", "FILS", "FILLE", "FRÈRE", "SŒUR",
-            "TEMPS", "ESPACE", "VIE", "MORT", "NAISSANCE", "CROISSANCE", "CHANGEMENT", "STABILITÉ"
-        );
-        DIZIONARIO_PAROLE.put(Lingua.FRANCESE, francese);
-
-        // Tedesco
-        List<String> tedesco = Arrays.asList(
-            "HAUS", "BUCH", "TISCH", "STUHL", "FENSTER", "TÜR", "GARTEN", "BAUM",
-            "BLUME", "SONNE", "MOND", "STERN", "MEER", "BERG", "FLUSS", "SEE",
-            "HUND", "KATZE", "VOGEL", "FISCH", "PFERD", "KUH", "SCHAF", "SCHWEIN",
-            "AUTO", "ZUG", "FLUGZEUG", "FAHRRAD", "MOTORRAD", "SCHIFF", "BUS", "BAHN",
-            "SCHULE", "UNIVERSITÄT", "KRANKENHAUS", "KINO", "THEATER", "MUSEUM", "BIBLIOTHEK",
-            "RESTAURANT", "CAFÉ", "GESCHÄFT", "MARKT", "BANK", "BÜRO", "FABRIK",
-            "ROT", "BLAU", "GRÜN", "GELB", "SCHWARZ", "WEIß", "GRAU", "LILA",
-            "GROß", "KLEIN", "HOCH", "NIEDRIG", "LANG", "KURZ", "SCHNELL", "LANGSAM",
-            "SCHÖN", "HÄSSLICH", "GUT", "SCHLECHT", "EINFACH", "SCHWIERIG", "NEU", "ALT",
-            "ESSEN", "TRINKEN", "SCHLAFEN", "GEHEN", "LAUFEN", "SPRINGEN", "FLIEGEN", "SCHWIMMEN",
-            "SPRECHEN", "HÖREN", "SEHEN", "BERÜHREN", "RIECHEN", "DENKEN", "ERINNERN", "VERGESSEN",
-            "LIEBE", "HASS", "GLÜCK", "TRAURIGKEIT", "ANGST", "MUT", "HOFFNUNG", "VERZWEIFLUNG",
-            "FREUND", "FEIND", "FAMILIE", "MUTTER", "VATER", "SOHN", "TOCHTER", "BRUDER", "SCHWESTER",
-            "ZEIT", "RAUM", "LEBEN", "TOD", "GEBURT", "WACHSTUM", "ÄNDERUNG", "STABILITÄT"
-        );
-        DIZIONARIO_PAROLE.put(Lingua.TEDESCO, tedesco);
-
-        // Spagnolo
-        List<String> spagnolo = Arrays.asList(
-            "CASA", "LIBRO", "MESA", "SILLA", "VENTANA", "PUERTA", "JARDÍN", "ÁRBOL",
-            "FLOR", "SOL", "LUNA", "ESTRELLA", "MAR", "MONTAÑA", "RÍO", "LAGO",
-            "PERRO", "GATO", "PÁJARO", "PEZ", "CABALLO", "VACA", "OVEJA", "CERDO",
-            "COCHE", "TREN", "AVIÓN", "BICICLETA", "MOTO", "BARCO", "AUTOBÚS", "TRANVÍA",
-            "ESCUELA", "UNIVERSIDAD", "HOSPITAL", "CINE", "TEATRO", "MUSEO", "BIBLIOTECA",
-            "RESTAURANTE", "CAFETERÍA", "TIENDA", "MERCADO", "BANCO", "OFICINA", "FÁBRICA",
-            "ROJO", "AZUL", "VERDE", "AMARILLO", "NEGRO", "BLANCO", "GRIS", "MORADO",
-            "GRANDE", "PEQUEÑO", "ALTO", "BAJO", "LARGO", "CORTO", "RÁPIDO", "LENTO",
-            "HERMOSO", "FEO", "BUENO", "MALO", "FÁCIL", "DIFÍCIL", "NUEVO", "VIEJO",
-            "COMER", "BEBER", "DORMIR", "CAMINAR", "CORRER", "SALTAR", "VOLAR", "NADAR",
-            "HABLAR", "OÍR", "VER", "TOCAR", "OLER", "PENSAR", "RECORDAR", "OLVIDAR",
-            "AMOR", "ODIO", "FELICIDAD", "TRISTEZA", "MIEDO", "CORAGE", "ESPERANZA", "DESESPERACIÓN",
-            "AMIGO", "ENEMIGO", "FAMILIA", "MADRE", "PADRE", "HIJO", "HIJA", "HERMANO", "HERMANA",
-            "TIEMPO", "ESPACIO", "VIDA", "MUERTE", "NACIMIENTO", "CRECIMIENTO", "CAMBIO", "ESTABILIDAD"
-        );
-        DIZIONARIO_PAROLE.put(Lingua.SPAGNOLO, spagnolo);
-    }
-
-    
-    /**
-    * Genera una domanda su una parola assente nel documento.
-    * 
-    * @param nomeDocumento Nome del documento da analizzare
-    * @param l Lingua del documento
-    * @return Oggetto Domanda o null se non possibile generare
-    */
-   private Domanda domandaParolaMaiComparsa(String nomeDocumento, Lingua l) {
-       Map<String, Integer> parole = analisi.restituisciDocumento(nomeDocumento);
-       if (parole == null || parole.isEmpty()) {
-           return null;
-       }
-
-       // Controlla se la lingua è supportata
-       if (!DIZIONARIO_PAROLE.containsKey(l)) {
-           return null;
-       }
-       List<String> dizionario = DIZIONARIO_PAROLE.get(l);
-
-       // Trova parole del dizionario non presenti nel documento
-       List<String> paroleAssenti = dizionario.stream()
-               .filter(parola -> !parole.containsKey(parola))
-               .collect(Collectors.toList());
-
-       if (paroleAssenti.isEmpty()) {
-           return null;
-       }
-
-       // Seleziona una parola assente casuale
-       String parolaCorretta = paroleAssenti.get(rnd.nextInt(paroleAssenti.size()));
-
-       // Prepara le opzioni (1 assente + 3 presenti)
-       List<String> opzioni = new ArrayList<>();
-       opzioni.add(parolaCorretta); // Parola assente
-
-       // Seleziona 3 parole presenti dal documento
-       List<String> parolePresenti = new ArrayList<>(parole.keySet());
-       if (parolePresenti.size() < 3) {
-           return null; // Non abbastanza parole presenti
-       }
-       Collections.shuffle(parolePresenti);
-       opzioni.addAll(parolePresenti.subList(0, 3));
-
-       // Mescola le opzioni e trova l'indice della risposta corretta
-       Collections.shuffle(opzioni);
-       int indiceCorretto = opzioni.indexOf(parolaCorretta);
-
-       // Costruisci il testo della domanda
-       String nomeDoc = nomeDocumento.replace(".txt", "");
-       String testoDomanda = String.format(
-           "Quale di queste parole NON è presente nel documento \"%s\"?",
-           nomeDoc
-       );
-
-       return new Domanda(testoDomanda, opzioni, indiceCorretto);
-   }
-
-    /**
-     * Genera una domanda di confronto tra frequenze di parole. "Quale tra
-     * queste parole è la più frequente nel documento?"
-     *
-     * @param nomeDocumento Nome del documento su cui basare la domanda
-     * @return Oggetto Domanda, oppure null se non ci sono abbastanza parole
-     * disponibili
-     */
-    private Domanda domandaConfrontoFrequenze(String nomeDocumento) {
-        Map<String, Integer> parole = analisi.restituisciDocumento(nomeDocumento);
-        
         if (parole == null || parole.size() < 4) {
             return null;
         }
-        List<String> paroleDoc = new ArrayList<>(parole.keySet());
-        Collections.shuffle(paroleDoc);
-        List<String> scelte = new ArrayList<>(paroleDoc.subList(0, 4));
-        String parolaMax = scelte.stream().max(Comparator.comparingInt(parole::get)).get(); // viene creato uno stream di parole, e si trova quella con frequenza massima
-        int idx = scelte.indexOf(parolaMax); // indice della parola più frequente
 
-        String nomeSenzaEstensione = nomeDocumento.endsWith(".txt") ? nomeDocumento.substring(0, nomeDocumento.lastIndexOf(".txt")) : nomeDocumento;
-        String testo = String.format("Quale tra queste parole è la più frequente nel documento \"%s\"?", nomeSenzaEstensione);
-        return new Domanda(testo, scelte, idx);
-    }
+        int maxFreq = Collections.max(parole.values());
+        List<String> paroleMax = parole.entrySet().stream()
+                .filter(e -> e.getValue() == maxFreq)
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
 
-    /**
-     * Genera una domanda sulla parola meno frequente nel documento. Esempio:
-     * "Quale parola compare meno spesso nel documento?"
-     *
-     * @param nomeDocumento Nome del documento su cui basare la domanda
-     * @return Oggetto Domanda, oppure null se non ci sono parole disponibili
-     */
-    private Domanda domandaParolaMenoFrequente(String nomeDocumento) {
-        Map<String, Integer> parole = analisi.restituisciDocumento(nomeDocumento);
-        if (parole == null || parole.isEmpty()) {
+        // Se troppe parole hanno la frequenza massima e non ci sono almeno 3 parole con frequenza inferiore,
+        // la domanda risulterebbe ambigua.
+        List<String> paroleMinori = parole.entrySet().stream()
+                .filter(e -> e.getValue() < maxFreq)
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
+
+        if (paroleMinori.size() < 3) {
             return null;
         }
 
-        // Trova la parola con frequenza minima
-        String parolaMin = Collections.min(parole.entrySet(), Map.Entry.comparingByValue()).getKey();
-
-        List<String> paroleDoc = new ArrayList<>(parole.keySet());
-        paroleDoc.remove(parolaMin);
-        Collections.shuffle(paroleDoc);
+        String parolaScelta = paroleMax.get(rnd.nextInt(paroleMax.size()));
+        Collections.shuffle(paroleMinori);
 
         List<String> opzioni = new ArrayList<>();
-        opzioni.add(parolaMin);
-        for (int i = 0; i < 3 && i < paroleDoc.size(); i++) {
-            opzioni.add(paroleDoc.get(i));
-        }
+        opzioni.add(parolaScelta);
+        opzioni.add(paroleMinori.get(0));
+        opzioni.add(paroleMinori.get(1));
+        opzioni.add(paroleMinori.get(2));
+
         Collections.shuffle(opzioni);
-        int idx = opzioni.indexOf(parolaMin);
-        
-        String nomeSenzaEstensione = nomeDocumento.endsWith(".txt") ? nomeDocumento.substring(0, nomeDocumento.lastIndexOf(".txt")) : nomeDocumento;
-        String testo = String.format("Quale parola compare meno spesso nel documento \"%s\"?", nomeSenzaEstensione);
+        int idx = opzioni.indexOf(parolaScelta);
+
+        String testo = String.format("Quale parola compare più spesso nel documento \"%s\"?",
+                stripExtension(nomeDocumento));
         return new Domanda(testo, opzioni, idx);
     }
 
     /**
-     * Restituisce una lista di domande generate da un documento specificato.
+     * Genera una domanda sulla parola meno frequente nel documento.
+     * Garantisce che la parola corretta abbia una frequenza strettamente minore dei 3 distrattori.
+     */
+    private Domanda domandaParolaMenoFrequente(String nomeDocumento) {
+        Map<String, Integer> parole = analisi.restituisciDocumento(nomeDocumento);
+        if (parole == null || parole.size() < 4) {
+            return null;
+        }
+
+        int minFreq = Collections.min(parole.values());
+        List<String> paroleMin = parole.entrySet().stream()
+                .filter(e -> e.getValue() == minFreq)
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
+
+        List<String> paroleMaggiori = parole.entrySet().stream()
+                .filter(e -> e.getValue() > minFreq)
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
+
+        if (paroleMaggiori.size() < 3) {
+            return null;
+        }
+
+        String parolaScelta = paroleMin.get(rnd.nextInt(paroleMin.size()));
+        Collections.shuffle(paroleMaggiori);
+
+        List<String> opzioni = new ArrayList<>();
+        opzioni.add(parolaScelta);
+        opzioni.add(paroleMaggiori.get(0));
+        opzioni.add(paroleMaggiori.get(1));
+        opzioni.add(paroleMaggiori.get(2));
+
+        Collections.shuffle(opzioni);
+        int idx = opzioni.indexOf(parolaScelta);
+
+        String testo = String.format("Quale parola compare meno spesso nel documento \"%s\"?",
+                stripExtension(nomeDocumento));
+        return new Domanda(testo, opzioni, idx);
+    }
+
+    /**
+     * Genera una domanda di confronto tra 4 parole del documento.
+     * Garantisce che tra le 4 parole selezionate ci sia una sola vincitrice assoluta
+     * con frequenza strettamente maggiore delle altre 3 (nessun pareggio per il primo posto).
+     */
+    private Domanda domandaConfrontoFrequenze(String nomeDocumento) {
+        Map<String, Integer> parole = analisi.restituisciDocumento(nomeDocumento);
+        if (parole == null || parole.size() < 4) {
+            return null;
+        }
+
+        List<String> paroleDoc = new ArrayList<>(parole.keySet());
+
+        // Tenta fino a 10 volte di estrarre una quaterna con un unico massimo non ambiguo
+        for (int tentativi = 0; tentativi < 10; tentativi++) {
+            Collections.shuffle(paroleDoc);
+            List<String> scelte = new ArrayList<>(paroleDoc.subList(0, 4));
+
+            // Trova la frequenza massima nella quaterna
+            int maxFreq = scelte.stream().mapToInt(parole::get).max().orElse(-1);
+            long countMax = scelte.stream().filter(w -> parole.get(w) == maxFreq).count();
+
+            // Se esattamente una parola ha maxFreq, abbiamo una risposta univoca e priva di ambiguità
+            if (countMax == 1) {
+                String parolaMax = scelte.stream().filter(w -> parole.get(w) == maxFreq).findFirst().get();
+                int idx = scelte.indexOf(parolaMax);
+                String testo = String.format("Quale tra queste parole è la più frequente nel documento \"%s\"?",
+                        stripExtension(nomeDocumento));
+                return new Domanda(testo, scelte, idx);
+            }
+        }
+        return null;
+    }
+
+    /** Dizionario multilingua di supporto per le parole assenti */
+    private static final Map<Lingua, List<String>> DIZIONARIO_PAROLE = new EnumMap<>(Lingua.class);
+    static {
+        DIZIONARIO_PAROLE.put(Lingua.ITALIANO, Arrays.asList(
+                "CASA", "LIBRO", "TAVOLO", "SEDIA", "FINESTRA", "PORTA", "GIARDINO", "ALBERO",
+                "FIORE", "SOLE", "LUNA", "STELLA", "MARE", "MONTAGNA", "FIUME", "LAGO",
+                "CANE", "GATTO", "UCCELLO", "PESCE", "CAVALLO", "MUCCA", "PECORA", "MAIALE",
+                "AUTO", "TRENO", "AEREO", "BICICLETTA", "MOTO", "NAVE", "AUTOBUS", "TRAM",
+                "SCUOLA", "UNIVERSITÀ", "OSPEDALE", "CINEMA", "TEATRO", "MUSEO", "BIBLIOTECA",
+                "AMORE", "ODIO", "FELICITÀ", "TRISTEZZA", "PAURA", "CORAGGIO", "SPERANZA", "TEMPO"
+        ));
+        DIZIONARIO_PAROLE.put(Lingua.INGLESE, Arrays.asList(
+                "HOUSE", "BOOK", "COMPUTER", "CHAIR", "WINDOW", "DOOR", "GARDEN", "TREE",
+                "FLOWER", "SUN", "MOON", "STAR", "OCEAN", "MOUNTAIN", "RIVER", "LAKE",
+                "DOG", "CAT", "BIRD", "FISH", "HORSE", "COW", "SHEEP", "PIG",
+                "CAR", "TRAIN", "AIRPLANE", "BICYCLE", "MOTORCYCLE", "SHIP", "BUS", "SUBWAY",
+                "SCHOOL", "UNIVERSITY", "HOSPITAL", "CINEMA", "THEATER", "MUSEUM", "LIBRARY",
+                "LOVE", "HATE", "HAPPINESS", "SADNESS", "FEAR", "COURAGE", "HOPE", "TIME"
+        ));
+        DIZIONARIO_PAROLE.put(Lingua.FRANCESE, Arrays.asList(
+                "MAISON", "LIVRE", "TABLE", "CHAISE", "FENÊTRE", "PORTE", "JARDIN", "ARBRE",
+                "FLEUR", "SOLEIL", "LUNE", "ÉTOILE", "MER", "MONTAGNE", "RIVIÈRE", "LAC",
+                "CHIEN", "CHAT", "OISEAU", "POISSON", "CHEVAL", "VACHE", "MOUTON", "COCHON",
+                "VOITURE", "TRAIN", "AVION", "VÉLO", "MOTO", "BATEAU", "BUS", "MÉTRO",
+                "ÉCOLE", "UNIVERSITÉ", "HÔPITAL", "CINÉMA", "THÉÂTRE", "MUSÉE", "BIBLIOTHÈQUE",
+                "AMOUR", "HAINE", "BONHEUR", "TRISTESSE", "PEUR", "COURAGE", "ESPOIR", "TEMPS"
+        ));
+        DIZIONARIO_PAROLE.put(Lingua.TEDESCO, Arrays.asList(
+                "HAUS", "BUCH", "TISCH", "STUHL", "FENSTER", "TÜR", "GARTEN", "BAUM",
+                "BLUME", "SONNE", "MOND", "STERN", "MEER", "BERG", "FLUSS", "SEE",
+                "HUND", "KATZE", "VOGEL", "FISCH", "PFERD", "KUH", "SCHAF", "SCHWEIN",
+                "AUTO", "ZUG", "FLUGZEUG", "FAHRRAD", "MOTORRAD", "SCHIFF", "BUS", "BAHN",
+                "SCHULE", "UNIVERSITÄT", "KRANKENHAUS", "KINO", "THEATER", "MUSEUM", "BIBLIOTHEK",
+                "LIEBE", "HASS", "GLÜCK", "TRAURIGKEIT", "ANGST", "MUT", "HOFFNUNG", "ZEIT"
+        ));
+        DIZIONARIO_PAROLE.put(Lingua.SPAGNOLO, Arrays.asList(
+                "CASA", "LIBRO", "MESA", "SILLA", "VENTANA", "PUERTA", "JARDÍN", "ÁRBOL",
+                "FLOR", "SOL", "LUNA", "ESTRELLA", "MAR", "MONTAÑA", "RÍO", "LAGO",
+                "PERRO", "GATO", "PÁJARO", "PEZ", "CABALLO", "VACA", "OVEJA", "CERDO",
+                "COCHE", "TREN", "AVIÓN", "BICICLETA", "MOTO", "BARCO", "AUTOBÚS", "TRANVÍA",
+                "ESCUELA", "UNIVERSIDAD", "HOSPITAL", "CINE", "TEATRO", "MUSEO", "BIBLIOTECA",
+                "AMOR", "ODIO", "FELICIDAD", "TRISTEZA", "MIEDO", "CORAJE", "ESPERANZA", "TIEMPO"
+        ));
+    }
+
+    /**
+     * Genera una domanda su una parola non presente nel documento.
+     * 1 opzione assente (corretta) + 3 opzioni presenti (errate).
+     */
+    private Domanda domandaParolaMaiComparsa(String nomeDocumento, Lingua l) {
+        Map<String, Integer> parole = analisi.restituisciDocumento(nomeDocumento);
+        if (parole == null || parole.size() < 3) {
+            return null;
+        }
+
+        Lingua linguaEffettiva = (l != null && DIZIONARIO_PAROLE.containsKey(l)) ? l : Lingua.ITALIANO;
+        List<String> dizionario = DIZIONARIO_PAROLE.get(linguaEffettiva);
+        if (dizionario == null || dizionario.isEmpty()) {
+            return null;
+        }
+
+        List<String> paroleAssenti = dizionario.stream()
+                .filter(parola -> !parole.containsKey(parola))
+                .collect(Collectors.toList());
+
+        if (paroleAssenti.isEmpty()) {
+            return null;
+        }
+
+        String parolaCorretta = paroleAssenti.get(rnd.nextInt(paroleAssenti.size()));
+
+        List<String> parolePresenti = new ArrayList<>(parole.keySet());
+        Collections.shuffle(parolePresenti);
+
+        List<String> opzioni = new ArrayList<>();
+        opzioni.add(parolaCorretta);
+        opzioni.add(parolePresenti.get(0));
+        opzioni.add(parolePresenti.get(1));
+        opzioni.add(parolePresenti.get(2));
+
+        Collections.shuffle(opzioni);
+        int idx = opzioni.indexOf(parolaCorretta);
+
+        String testo = String.format("Quale di queste parole NON è presente nel documento \"%s\"?",
+                stripExtension(nomeDocumento));
+        return new Domanda(testo, opzioni, idx);
+    }
+
+    /**
+     * Genera una domanda di fallback sicura quando i requisiti per le domande complesse non sono soddisfatti.
+     */
+    private Domanda creaDomandaFallback(String nomeDocumento) {
+        Map<String, Integer> parole = analisi.restituisciDocumento(nomeDocumento);
+        if (parole != null && !parole.isEmpty()) {
+            Domanda d = domandaFrequenzaAssoluta(nomeDocumento);
+            if (d != null) return d;
+        }
+
+        // Caso limite: documento privo di parole dopo il filtraggio
+        String nome = stripExtension(nomeDocumento);
+        return new Domanda(
+                String.format("Quante parole uniche rimangono nel testo \"%s\" dopo il filtro stopwords?", nome),
+                Arrays.asList("0", "1", "2", "3"),
+                0
+        );
+    }
+
+    /**
+     * Restituisce una raccolta di domande valide generate dal documento specificato.
+     * Garantisce che la lista contenga esattamente {@code num} elementi,
+     * tutti non nulli e ciascuno con esattamente 4 opzioni.
      *
-     * @param num il numero massimo di domande da generare
-     * @param nomeDocumento il nome del documento da cui estrarre le domande
-     * @param l lingua del documento
-     * @return una lista di oggetti {@link Domanda}
+     * @param num il numero di domande da generare
+     * @param nomeDocumento il nome del documento
+     * @param l la lingua del documento
+     * @return lista di oggetti {@link Domanda} garantiti privi di null
      */
     public List<Domanda> getRaccoltaDiDomande(int num, String nomeDocumento, Lingua l) {
         List<Domanda> lista = new ArrayList<>();
+        if (num <= 0 || nomeDocumento == null) {
+            return lista;
+        }
+
         for (int i = 0; i < num; i++) {
-            switch (this.rnd.nextInt(5)) {
+            Domanda d = null;
+            int tipoPartenza = rnd.nextInt(5);
 
-                case 0 -> lista.add(this.domandaConfrontoFrequenze(nomeDocumento));
-                case 1 -> lista.add(this.domandaFrequenzaAssoluta(nomeDocumento));
-                case 2 -> lista.add(this.domandaParolaMenoFrequente(nomeDocumento));
-                case 3 -> lista.add(this.domandaParolaMaiComparsa(nomeDocumento, l));
-
-                default -> lista.add(this.domandaParolaPiuFrequente(nomeDocumento));
+            // Prova fino a 5 strategie diverse prima di usare il fallback
+            for (int tentativo = 0; tentativo < 5 && d == null; tentativo++) {
+                int strategia = (tipoPartenza + tentativo) % 5;
+                d = switch (strategia) {
+                    case 0 -> domandaConfrontoFrequenze(nomeDocumento);
+                    case 1 -> domandaFrequenzaAssoluta(nomeDocumento);
+                    case 2 -> domandaParolaMenoFrequente(nomeDocumento);
+                    case 3 -> domandaParolaMaiComparsa(nomeDocumento, l);
+                    default -> domandaParolaPiuFrequente(nomeDocumento);
+                };
             }
 
-            
+            if (d == null) {
+                d = creaDomandaFallback(nomeDocumento);
+            }
+
+            lista.add(d);
         }
         return lista;
     }
-
 }

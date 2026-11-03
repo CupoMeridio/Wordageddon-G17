@@ -47,6 +47,18 @@ public class AppState {
     private boolean sessioneSalvata = false;
 
     /**
+     * Resetta completamente lo stato globale dell'applicazione (usato al logout).
+     */
+    public void reset() {
+        this.utente = null;
+        this.difficoltà = null;
+        this.sessionViewHomeButton = false;
+        this.sessionViewContinuaButton = false;
+        this.lingue = null;
+        this.sessioneSalvata = false;
+    }
+
+    /**
      * Imposta lo stato di salvataggio della sessione corrente.
      *
      * @param sessioneSalvata {@code true} se la sessione è stata salvata, {@code false} altrimenti

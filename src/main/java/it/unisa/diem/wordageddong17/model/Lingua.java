@@ -55,6 +55,10 @@ public enum Lingua {
     public String getCodice() {
         return codice;
     }
+
+    public String getDbValue() {
+        return codice;
+    }
     
     /**
      * Converte un codice stringa nell'enum Lingua corrispondente.
@@ -83,5 +87,9 @@ public enum Lingua {
             }
         }
         throw new IllegalArgumentException("Codice lingua non valido: '" + codice + "'");
+    }
+
+    public static Lingua fromDbValue(String dbValue) {
+        return fromCodice(dbValue);
     }
 }

@@ -41,6 +41,13 @@ public class Classifica {
         this.punti = punti;
         this.difficolta = difficolta;
     }
+
+    /**
+     * Costruttore per la cronologia personale dell'utente (username opzionale).
+     */
+    public Classifica(Timestamp data, float punti, LivelloPartita difficolta) {
+        this("", data, punti, difficolta);
+    }
     
     /**
      * Restituisce il nome utente del giocatore.

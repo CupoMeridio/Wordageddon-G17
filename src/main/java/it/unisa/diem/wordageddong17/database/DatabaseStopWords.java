@@ -6,72 +6,65 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Implementazione del DAO per la gestione della lista di stop words.
- * 
- * Questa classe si occupa di fornire l'accesso ai dati relativi alle stop words,
- * utilizzate per filtrare parole non significative nei documenti di testo.
- * Adotta il pattern Singleton per garantire una singola istanza condivisa
- * durante l'esecuzione dell'applicazione.
- * 
- * @see DAOListaStopWords
  */
 public class DatabaseStopWords implements DAOListaStopWords {
-    
-    private Database db;
-    
-    private DatabaseStopWords(){
-        db = Database.getInstance();
+
+    private static final Logger LOGGER = Logger.getLogger(DatabaseStopWords.class.getName());
+    private final Database db;
+
+    private DatabaseStopWords() {
+        this.db = Database.getInstance();
     }
+
     /**
-     * Carica o aggiorna un file di stopwords nel database.
-     * 
-     * Se un file con lo stesso nome esiste già, viene aggiornato con il nuovo contenuto.
-     * Utilizza la clausola ON CONFLICT per gestire i duplicati.
-     * 
-     * @param listaStopWords il modello contenente le informazioni della lista di stopwords
-     * @param documentoStopwords il contenuto del file di stopwords come array di byte
-     * @return {@code true} se l'operazione è stata eseguita con successo, {@code false} altrimenti
-     * 
+     * Carica le stopwords nel database, aggiornando il record se già esistente.
+     *
+     * @param listaStopWords metadati della lista
+     * @param documentoStopwords contenuto in byte del file di stopwords
+     * @return true se l'operazione ha avuto successo
      */
     @Override
     public boolean caricareStopwords(ListaStopWords listaStopWords, byte[] documentoStopwords) {
-        String query= "INSERT INTO stopwords(\n" +
-        "nome_file, documento, id_amministratore)\n" +
-        "VALUES (?, ?, ?) ON conflict(nome_file) DO UPDATE SET documento=?,id_amministratore=?";
-        
-        boolean risultato= false;
+        String query = """
+                       INSERT INTO stopwords (nome_file, documento, id_amministratore)
+                       VALUES (?, ?, ?)
+                       ON CONFLICT(nome_file) DO UPDATE SET documento = ?, id_amministratore = ?, data_ultima_modifica = CURRENT_TIMESTAMP
+                       """;
+
         try (Connection conn = db.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(query)) {
-            pstmt.setString(1, listaStopWords.getNomeFile()); // inserisce il nome nella prima posizione del preparestatment
+            pstmt.setString(1, listaStopWords.getNomeFile());
             pstmt.setBytes(2, documentoStopwords);
             pstmt.setString(3, listaStopWords.getAmministratore());
             pstmt.setBytes(4, documentoStopwords);
             pstmt.setString(5, listaStopWords.getAmministratore());
-            risultato= pstmt.executeUpdate()==1;// esegue il prepare statment
-            
-            } catch (SQLException ex) { 
-            System.getLogger(DatabaseStopWords.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
-        }
-        return risultato;
-    }
-    
-    /**
-     * Recupera il contenuto di un file di stopwords dal database.
-     * 
-     * Cerca il file specificato nella tabella stopwords e restituisce il suo contenuto
-     * sotto forma di array di byte.
-     * 
-     * @param nomeFile il nome del file di stopwords da recuperare
-     * @return l'array di byte contenente il documento, oppure {@code null} se il file non esiste
-     * 
-     */
 
+            int rows = pstmt.executeUpdate();
+            if (rows == 0) {
+                throw new DataAccessException("Nessun record aggiornato per la lista di stopwords.");
+            }
+            return true;
+        } catch (SQLException ex) {
+            LOGGER.log(Level.SEVERE, "Errore caricamento stopwords", ex);
+            throw new DataAccessException("Impossibile salvare le stopwords nel database: " + ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * Recupera il contenuto delle stopwords dato il nome file.
+     *
+     * @param nomeFile il nome identificativo del file di stopwords
+     * @return byte[] del documento o null se non trovato
+     */
     @Override
     public byte[] prendiStopwords(String nomeFile) {
         String query = "SELECT documento FROM stopwords WHERE nome_file = ?;";
-        byte[] risultato = null;
 
         try (Connection conn = db.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(query)) {
@@ -81,61 +74,47 @@ public class DatabaseStopWords implements DAOListaStopWords {
                     return r.getBytes("documento");
                 }
             }
+            return null;
         } catch (SQLException ex) {
-            System.getLogger(DatabaseStopWords.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+            LOGGER.log(Level.SEVERE, "Errore lettura stopwords", ex);
+            throw new DataAccessException("Impossibile leggere le stopwords dal database: " + nomeFile, ex);
         }
-
-        return null;
     }
 
     /**
-     * Recupera le informazioni sulla lista di stopwords dal database.
-     * 
-     * @param nomeFile il nome del file contenente le stopwords da recuperare
-     * @return un oggetto ListaStopWords contenente le informazioni sulla lista di stopwords oppure {@code null} se non viene trovato
+     * Recupera i metadati della lista di stopwords.
+     *
+     * @param nomeFile il nome del file
+     * @return istanza di ListaStopWords o null se non trovato
      */
     @Override
     public ListaStopWords prendiInfoStopwords(String nomeFile) {
         String query = "SELECT nome_file, id_amministratore, data_ultima_modifica FROM stopwords WHERE nome_file = ?;";
-        ListaStopWords risultato = null;
 
         try (Connection conn = db.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setString(1, nomeFile);
             try (ResultSet r = pstmt.executeQuery()) {
                 if (r.next()) {
-                    risultato = new ListaStopWords(
-                        r.getString("nome_file"),
-                        r.getString("id_amministratore"),
-                        r.getTimestamp("data_ultima_modifica")
+                    return new ListaStopWords(
+                            r.getString("nome_file"),
+                            r.getString("id_amministratore"),
+                            r.getTimestamp("data_ultima_modifica")
                     );
                 }
             }
+            return null;
         } catch (SQLException ex) {
-            System.getLogger(DatabaseStopWords.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+            LOGGER.log(Level.SEVERE, "Errore lettura metadati stopwords", ex);
+            throw new DataAccessException("Impossibile recuperare i metadati delle stopwords: " + nomeFile, ex);
         }
-
-        return risultato;
     }
 
     private static class Holder {
         private static final DatabaseStopWords INSTANCE = new DatabaseStopWords();
     }
-    
-    
-    /**
-     * Restituisce l'unica istanza di {@code DatabaseStopWords} secondo il pattern Singleton.
-     * <p>
-     * Il metodo garantisce che venga creata una sola istanza di {@code DatabaseStopWords} durante
-     * l'intera esecuzione dell'applicazione. L'istanza viene gestita tramite una classe interna statica,
-     * assicurando un'inizializzazione lazy e thread-safe.
-     * </p>
-     *
-     * @return l'istanza singleton di {@code DatabaseStopWords}
-     */
+
     public static DatabaseStopWords getInstance() {
-        return DatabaseStopWords.Holder.INSTANCE;
+        return Holder.INSTANCE;
     }
-    
-    
 }

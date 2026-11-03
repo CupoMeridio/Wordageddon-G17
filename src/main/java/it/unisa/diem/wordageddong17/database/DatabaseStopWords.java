@@ -2,10 +2,10 @@ package it.unisa.diem.wordageddong17.database;
 
 import it.unisa.diem.wordageddong17.interfaccia.DAOListaStopWords;
 import it.unisa.diem.wordageddong17.model.ListaStopWords;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 
 /**
  * Implementazione del DAO per la gestione della lista di stop words.
@@ -42,7 +42,8 @@ public class DatabaseStopWords implements DAOListaStopWords {
         "VALUES (?, ?, ?) ON conflict(nome_file) DO UPDATE SET documento=?,id_amministratore=?";
         
         boolean risultato= false;
-        try (PreparedStatement pstmt = db.getConnection().prepareStatement(query)) {
+        try (Connection conn = db.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setString(1, listaStopWords.getNomeFile()); // inserisce il nome nella prima posizione del preparestatment
             pstmt.setBytes(2, documentoStopwords);
             pstmt.setString(3, listaStopWords.getAmministratore());
@@ -72,7 +73,8 @@ public class DatabaseStopWords implements DAOListaStopWords {
         String query = "SELECT documento FROM stopwords WHERE nome_file = ?;";
         byte[] risultato = null;
 
-        try (PreparedStatement pstmt = db.getConnection().prepareStatement(query)) {
+        try (Connection conn = db.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setString(1, nomeFile);
             try (ResultSet r = pstmt.executeQuery()) {
                 if (r.next()) {
@@ -97,7 +99,8 @@ public class DatabaseStopWords implements DAOListaStopWords {
         String query = "SELECT nome_file, id_amministratore, data_ultima_modifica FROM stopwords WHERE nome_file = ?;";
         ListaStopWords risultato = null;
 
-        try (PreparedStatement pstmt = db.getConnection().prepareStatement(query)) {
+        try (Connection conn = db.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setString(1, nomeFile);
             try (ResultSet r = pstmt.executeQuery()) {
                 if (r.next()) {

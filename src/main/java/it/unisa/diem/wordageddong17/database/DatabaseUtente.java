@@ -34,7 +34,8 @@ public class DatabaseUtente implements DAOUtente {
         String query = "UPDATE utente SET username=? WHERE email=?";
         boolean risultato = false;
 
-        try (PreparedStatement pstmt = db.getConnection().prepareStatement(query)) {
+        try (Connection conn = db.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setString(1, utente.getUsername());
             pstmt.setString(2, utente.getEmail());
             int updated = pstmt.executeUpdate();
@@ -56,12 +57,11 @@ public class DatabaseUtente implements DAOUtente {
      */
     @Override
     public boolean modificaFotoProfilo(Utente utente) {
-        Connection conn = db.getConnection();
+        String sql = "UPDATE utente SET foto_profilo = ? WHERE email = ?";
 
-        try {
+        try (Connection conn = db.getConnection()) {
             conn.setAutoCommit(false); // Inizia la transazione
 
-            String sql = "UPDATE utente SET foto_profilo = ? WHERE email = ?";
             try (PreparedStatement stmt = conn.prepareStatement(sql)) {
                 if (utente.getFotoProfilo() != null) {
                     stmt.setBytes(1, utente.getFotoProfilo()); // Usa setBytes direttamente con byte[]
@@ -81,44 +81,10 @@ public class DatabaseUtente implements DAOUtente {
             return true;
 
         } catch (SQLException e) {
-            try {
-                conn.rollback();
-            } catch (SQLException ex) {
-                Logger.getLogger(DatabaseUtente.class.getName()).log(Level.SEVERE, "Errore durante rollback", ex);
-            }
             Logger.getLogger(DatabaseUtente.class.getName()).log(Level.SEVERE, "Errore aggiornamento foto", e);
             return false;
-
-        } finally {
-            try {
-                conn.setAutoCommit(true);
-            } catch (SQLException e) {
-                Logger.getLogger(DatabaseUtente.class.getName()).log(Level.WARNING, "Errore ripristino autoCommit", e);
-            }
         }
     }
-    
-    /**
-     * Recupera la foto profilo di un utente tramite la sua email.
-     *
-     * @param email l'email dell'utente
-     * @param conn la connessione al database da usare per la query
-     * @return un array di byte contenente la foto profilo, oppure null se non presente
-     * @throws SQLException in caso di errori durante l'accesso al database
-     */
-    private byte[] getFotoProfilo(String email, Connection conn) throws SQLException {
-        String sql = "SELECT foto_profilo FROM utente WHERE email = ?";
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, email);
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getBytes("foto_profilo");
-                }
-            }
-        }
-        return null;
-    }
-
     
     /**
      * Inserisce un nuovo utente nel database.
@@ -138,7 +104,8 @@ public class DatabaseUtente implements DAOUtente {
         String passwordCriptata = this.hashPassword(password);
         String query= "Insert into utente(username, email, password, foto_profilo) values (?,?,?,?) ";
         
-            try (PreparedStatement pstmt = db.getConnection().prepareStatement(query)) {
+        try (Connection conn = db.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setString(1, utente.getUsername()); // inserisce l' utente nella prima posizione del preparestatment
             pstmt.setString(2, utente.getEmail());
             pstmt.setString(3, passwordCriptata);
@@ -148,9 +115,9 @@ public class DatabaseUtente implements DAOUtente {
                 pstmt.setNull(4, java.sql.Types.BINARY);
             }
             pstmt.execute();// esegue il prepare statment
-    }   catch (SQLException ex) {  
+        } catch (SQLException ex) {
             System.getLogger(DatabaseUtente.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
-        }  
+        }
     }
     
     /**
@@ -168,7 +135,8 @@ public class DatabaseUtente implements DAOUtente {
     public String prendiUsername(String email) {
         String query = "SELECT username FROM utente WHERE email = ?";
 
-        try (PreparedStatement pstmt = db.getConnection().prepareStatement(query)) {
+        try (Connection conn = db.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setString(1, email);
             try (ResultSet result = pstmt.executeQuery()) {
                 if (result.next()) {
@@ -198,7 +166,8 @@ public class DatabaseUtente implements DAOUtente {
     public boolean verificaPassword(String email, String password) {
         String query = "SELECT password FROM utente WHERE email = ?";
 
-        try (PreparedStatement pstmt = db.getConnection().prepareStatement(query)) {
+        try (Connection conn = db.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setString(1, email);
             try (ResultSet result = pstmt.executeQuery()) {
                 if (result.next()) {
@@ -260,7 +229,8 @@ public class DatabaseUtente implements DAOUtente {
         Utente u = null;
         String query = "SELECT username, email, foto_profilo, tipo FROM utente WHERE email = ?;";
 
-        try (PreparedStatement pstmt = db.getConnection().prepareStatement(query)) {
+        try (Connection conn = db.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setString(1, email);
             try (ResultSet result = pstmt.executeQuery()) {
                 if (result.next()) {

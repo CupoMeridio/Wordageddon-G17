@@ -3,6 +3,7 @@ package it.unisa.diem.wordageddong17.database;
 import it.unisa.diem.wordageddong17.model.DocumentoDiTesto;
 import it.unisa.diem.wordageddong17.model.Lingua;
 import it.unisa.diem.wordageddong17.model.LivelloPartita;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -36,7 +37,8 @@ public class DatabaseDocumentoDiTesto implements DAODocumentoDiTesto{
     public boolean cancellaTesto(String nomeDocumento) {
        String query="DELETE FROM public.testo WHERE nome_file= ?;";
        boolean risultato=false;
-        try (PreparedStatement pstmt = db.getConnection().prepareStatement(query)) {
+        try (Connection conn = db.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setString(1, nomeDocumento); // cancella il documento con questo nome
             risultato = pstmt.executeUpdate()>0;
             } catch (SQLException ex) {
@@ -65,7 +67,8 @@ public class DatabaseDocumentoDiTesto implements DAODocumentoDiTesto{
                       """;
         
         boolean risultato= false;
-        try (PreparedStatement pstmt = db.getConnection().prepareStatement(query)) {
+        try (Connection conn = db.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setString(1, documento.nomeFile()); // inserisce l' utente nella prima posizione del preparestatment
             pstmt.setString(2, documento.emailAmministratore());
             pstmt.setString(3, documento.difficolta().getDbValue());
@@ -93,7 +96,8 @@ public class DatabaseDocumentoDiTesto implements DAODocumentoDiTesto{
         String query = "SELECT documento FROM testo WHERE nome_file = ?;";
         byte[] risultato = null;
 
-        try (PreparedStatement pstmt = db.getConnection().prepareStatement(query)) {
+        try (Connection conn = db.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setString(1, nomeDocumento);
             try (ResultSet r = pstmt.executeQuery()) {
                 if (r.next()) {
@@ -124,7 +128,8 @@ public class DatabaseDocumentoDiTesto implements DAODocumentoDiTesto{
         ArrayList<DocumentoDiTesto> L = new ArrayList<>();
         String query = "SELECT nome_file, id_amministratore, difficolta, lingua FROM testo";
 
-        try (PreparedStatement pstmt = db.getConnection().prepareStatement(query);
+        try (Connection conn = db.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query);
              ResultSet result = pstmt.executeQuery()) {
 
             while (result.next()) {
@@ -175,7 +180,8 @@ public class DatabaseDocumentoDiTesto implements DAODocumentoDiTesto{
         String placeholdersPerLingue = placeholdersBuilder.toString();
         String query = "SELECT nome_file,lingua FROM testo WHERE difficolta = ? AND lingua IN (" + placeholdersPerLingue + ")";
 
-        try (PreparedStatement pstmt = db.getConnection().prepareStatement(query)) {
+        try (Connection conn = db.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
             // Imposta il parametro relativo al livello
             pstmt.setString(1, livello.getDbValue());
 

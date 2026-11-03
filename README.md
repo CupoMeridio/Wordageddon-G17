@@ -1,126 +1,155 @@
 # Wordageddon-G17
+
 <div align="center">
   <img src="src/main/resources/imgs/Logo_senza_sfondo.png" alt="Wordageddon Logo" width="300"/>
 </div>
 
-Un'applicazione desktop ludico-educativa sviluppata in JavaFX per testare la memoria sulle parole più frequenti in documenti testuali.
-
-## 🚀 Funzionalità principali
-
-- 🎮 **Sistema di gioco multi-livello**: Facile, Medio, Difficile  
-- ❓ **4 tipologie di quiz**:
-  - Selezione della parola con **frequenza assoluta** maggiore in un documento
-  - Riconoscimento della parola con **frequenza relativa** più alta
-  - Identificazione della **parola non presente** nel documento
-  - Scelta della **parola più ricorrente** in uno specifico documento
-- 🌍 Supporto multilingua per i documenti:
-  - Prima di iniziare una sessione, l'utente può scegliere la lingua dei documenti con cui giocare
-  - Le lingue attualmente supportate sono: italiano, inglese, spagnolo, francese, tedesco
-- 👤 **Gestione utenti**:
-  - Gli utenti possono registrarsi e accedere tramite login
-  - Le credenziali sono memorizzate in modo sicuro nel database (hashing con bcrypt)
-  - Sono previsti **account amministratore** (creabili solo esternamente via database)
-  - Gli amministratori hanno accesso a funzionalità avanzate:
-    - Gestione dei documenti testuali
-    - Modifica della lista di *stopwords*
-- 🏆 **Classifiche e storico punteggi**
-- 💾 Ripresa delle partite interrotte:
-  - Il sistema salva automaticamente lo stato corrente della partita
-  - Alla successiva autenticazione, l'utente può decidere se riprendere o iniziare una nuova sessione di gioco
+Un'applicazione desktop ludico-educativa sviluppata in **JavaFX** per testare la memoria e l'intuizione lessicale sulle parole e sulle loro frequenze in documenti testuali multilingua.
 
 ---
 
-## ⚙️ Requisiti tecnici
-
-- **JDK 17+**
-- **[NetBeans 26](https://netbeans.apache.org/front/main/index.html)**
-- **Maven**
-- Sistema operativo: multipiattaforma (testato su Windows e Linux)
+> [!NOTE]
+> ### 📌 Nota sulle versioni del repository
+> - **Branch `consegna-esame`**: conserva lo stato esatto del progetto così come consegnato e presentato per l'esame accademico (aprile 2026).
+> - **Branch `main`**: accoglie l'evoluzione del progetto, il consolidamento architetturale, l'eliminazione del debito tecnico e la rimozione delle vulnerabilità di sicurezza (Fase 0: Docker, pool di connessioni, schema e seed SQL puliti, hardening della build).
 
 ---
 
-## 🗃️ Database
+## 🚀 Panoramica del gioco
 
-Il progetto utilizza **[PostgreSQL 17](https://www.postgresql.org)** come sistema di gestione del database relazionale.  
-Per l'amministrazione e la gestione dei dati è stato utilizzato **pgAdmin 4**.
+Wordageddon sfida il giocatore ad analizzare mentalmente testi letterari in diverse lingue (italiano, inglese, spagnolo, francese, tedesco) e a rispondere a domande a scelta multipla nel minor tempo possibile.
 
-Il database è stato **ospitato in cloud** mediante i servizi forniti da [**Aiven**](https://aiven.io/), garantendo accessibilità remota e maggiore affidabilità durante lo sviluppo collaborativo.
+### Tipologie di quiz implementate:
+1. **Parola più frequente**: individuare la parola con il maggior numero di occorrenze nel documento.
+2. **Parola meno frequente**: riconoscere la parola presente con la frequenza minima.
+3. **Parola mai comparsa**: distinguere la parola che non appare mai nel testo analizzato.
+4. **Confronto tra due parole**: confrontare le occorrenze di due parole e scegliere quella che appare più spesso.
+5. **Frequenza assoluta di una parola**: indicare l'esatto conteggio di una determinata parola.
 
-Le **credenziali di accesso** sono gestite tramite un file `.env` (non incluso nel repository).
+### Livelli di difficoltà:
+- **Facile**: testi brevi e quiz basilari.
+- **Medio**: testi di media lunghezza e vocabolario più articolato.
+- **Difficile**: testi complessi e distrometri lessicali più serrati.
 
-Struttura attesa del file `.env`:
+### Ruoli utente:
+- **Giocatore**: registrazione, login con credenziali protette da BCrypt, scelta della partita, salvataggio/ripresa, visualizzazione della classifica globale e dello storico personale.
+- **Amministratore**: oltre al gameplay, gestione e caricamento di nuovi testi (.txt) nel database e aggiornamento della lista di *stopwords*.
 
-```env
-DBNAME=nome_del_database
-USER=nome_utente
-PASSWORD=password_utente
+---
+
+## ⚡ Avvio rapido con Docker Compose
+
+Il modo più rapido per avviare il database locale completo di schema e dati dimostrativi:
+
+```bash
+# 1. Avvia PostgreSQL 17 locale pre-popolato (schema + seed + utenti dimostrativi)
+docker compose up -d
+
+# 2. Compila ed esegui l'applicazione JavaFX
+mvn javafx:run
+```
+
+Se preferisci creare un fat JAR eseguibile con tutte le dipendenze:
+```bash
+mvn clean package
+java -jar target/WordageddonG17-1.0-SNAPSHOT-jar-with-dependencies.jar
 ```
 
 ---
 
-## 📦 Tecnologie e dipendenze
+## 🗄️ Database e Configurazione
 
-Questo progetto utilizza le seguenti librerie e plugin esterni, **gestiti automaticamente tramite Maven** (non è necessario scaricare nulla manualmente):
+Il database utilizzato è **PostgreSQL 17**.
 
-- [JavaFX](https://openjfx.io/) — UI framework principale per la realizzazione dell'interfaccia grafica.
-- [dotenv-java](https://github.com/cdimascio/dotenv-java) — Gestione delle variabili d'ambiente (`.env`) per una configurazione sicura, ad esempio per la connessione al database.
-- [jBCrypt](https://github.com/jeremyh/jBCrypt) — Crittografia sicura delle password con algoritmo BCrypt.
-- [PostgreSQL JDBC Driver](https://jdbc.postgresql.org/) — Driver per la connessione al database PostgreSQL.
-- [Maven Shade Plugin](https://maven.apache.org/plugins/maven-shade-plugin/) — Permette la creazione di un JAR eseguibile contenente tutte le dipendenze.
+La classe di connessione (`Database.java`) adotta un connection pool ad alte prestazioni **HikariCP** e determina la configurazione secondo questa priorità:
+1. **Variabili d'ambiente di sistema**: `DB_URL`, `DB_USER`, `DB_PASSWORD`
+2. **File `.env`** nella directory corrente (può essere creato a partire da `.env.example`)
+3. **Default per lo sviluppo locale** (allineati a `docker-compose.yml`):
+   - `DB_URL`: `jdbc:postgresql://localhost:5432/wordageddon`
+   - `DB_USER`: `wordageddon`
+   - `DB_PASSWORD`: `wordageddon`
 
-Tutte le dipendenze sono dichiarate nel file [`pom.xml`](./pom.xml).
+### File `.env` (opzionale):
+```bash
+cp .env.example .env
+```
+Contenuto tipo:
+```env
+DB_URL=jdbc:postgresql://localhost:5432/wordageddon
+DB_USER=wordageddon
+DB_PASSWORD=wordageddon
+```
+
+### Utenti preconfigurati nel seed:
+All'avvio tramite `docker compose` sono già presenti due utenti di test:
+| Ruolo | Email | Password | Descrizione |
+|---|---|---|---|
+| **Amministratore** | `admin@wordageddon.it` | `admin123` | Può caricare testi e aggiornare stopwords |
+| **Giocatore** | `player@wordageddon.it` | `player123` | Utente con punteggi di test in classifica |
 
 ---
 
-## 📁 Struttura del progetto
+## 📦 Tecnologie e Dipendenze
 
-Il progetto segue il pattern architetturale **MVC (Model-View-Controller)**, supportato da un livello di **Service** per le operazioni asincrone e un pattern **DAO (Data Access Object)** per la persistenza.
+- **Java 17+** (supporta Java 21)
+- **JavaFX 17** (Controls, FXML)
+- **HikariCP 5.1.0** — Connection pooling thread-safe e performante
+- **PostgreSQL JDBC Driver 42.7.5**
+- **jBCrypt 0.4** — Hashing sicuro delle password (salt a 12 round)
+- **dotenv-java 3.1.2** — Caricamento variabili d'ambiente opzionali
+- **SLF4J / JDK14** — Logging unificato
+
+---
+
+## 📁 Struttura del Progetto
 
 ```text
 Wordageddon-G17/
+├── docker/
+│   └── init/
+│       ├── 01_schema.sql         # DDL con tabelle, constraint, enum e trigger PostgreSQL
+│       └── 02_seed.sql           # Utenti seed, stopwords e testi dimostrativi
+├── docker-compose.yml            # PostgreSQL 17 pronto all'uso con volumi persistenti
+├── docs/                         # Documentazione, relazione accademica e diagrammi UML
+│   ├── Relazione di progetto - Gruppo 17.pdf
+│   ├── Presentazione progetto.pptx
+│   └── DiagrammiDelleClassi/     # Diagrammi UML divisi per modulo (EasyUML e PlantUML)
 ├── src/main/java/it/unisa/diem/wordageddong17/
-│   ├── controller/      # Gestori degli eventi JavaFX e logica di presentazione
-│   ├── model/           # Core business logic e classi di dominio (Utente, Partita, Analisi)
-│   ├── service/         # Servizi per operazioni asincrone e task in background
-│   ├── database/        # Implementazioni concrete per l'accesso ai dati (PostgreSQL)
-│   ├── interfaccia/     # Interfacce DAO per il disaccoppiamento della persistenza
-│   ├── App.java         # Classe principale dell'applicazione JavaFX
-│   └── RunMain.java     # Launcher ausiliario per l'eseguibile JAR
+│   ├── controller/               # Controller JavaFX (AppViewController, SessionViewController)
+│   ├── model/                    # Logica di dominio, sessione di gioco e tokenizer
+│   ├── service/                  # Servizi asincroni JavaFX (Task/Service in background)
+│   ├── database/                 # Implementazioni DAO PostgreSQL con pool HikariCP
+│   ├── interfaccia/              # Interfacce contrattuali DAO
+│   ├── App.java                  # Classe di avvio JavaFX (Stage, Scene e caricamento FXML)
+│   └── RunMain.java              # Entry point privo di estensioni per fat JAR
 ├── src/main/resources/
-│   ├── fxml/            # Definizioni dell'interfaccia utente (Scene Builder)
-│   ├── styles/          # Fogli di stile CSS per il look & feel dell'app
-│   ├── imgs/            # Asset grafici, loghi e diagrammi UML esportati
-│   └── UML/             # Sorgenti dei diagrammi delle classi e casi d'uso
-├── .env                 # Variabili d’ambiente (NON incluso nel repository)
-├── Documentazione javadoc/  # Cartella contenente la documentazione javadoc completa
-├── pom.xml              # File di configurazione Maven e gestione dipendenze
-├── Schema database.sql  # Script SQL per l'inizializzazione del database
-└── Relazione...pdf      # Documentazione completa dell'analisi e progettazione
+│   ├── fxml/                     # Viste FXML dell'interfaccia utente
+│   ├── styles/                   # Fogli di stile CSS
+│   └── imgs/                     # Asset grafici di runtime (loghi, icone, avatar)
+├── .env.example                  # Template per variabili di configurazione
+├── pom.xml                       # Descrittore di build Maven
+└── README.md
 ```
 
 ---
 
-## 📚 Documentazione e Release
-- La **documentazione Javadoc** completa è disponibile nel repository e può essere generata tramite NetBeans
-- È presente un **documento PDF** con la relazione di progetto contenente:
-  - Analisi dei requisiti
-  - Casi d'uso
-  - Diagrammi delle classi
-  - Diagrammi delle sequenze
-  - Mockup dell'interfaccia
-- Nella sezione **[Releases](https://github.com/CupoMeridio/Wordageddon-G17/releases)** è disponibile il file JAR eseguibile pronto all'uso
-- Il JAR può essere generato anche localmente tramite il comando `mvn clean package` o le funzioni di build dell'IDE
+## 📖 Documentazione e Javadoc
+
+Per generare la documentazione Javadoc aggiornata senza sporcare il repository git:
+```bash
+mvn javadoc:javadoc
+```
+I file HTML saranno generati in `target/site/apidocs/index.html`.
+
+La relazione formale e la presentazione sono archiviate nella cartella [`docs/`](./docs/).
 
 ---
 
-## 👨‍💻 Membri del team
+## 👨‍💻 Membri del Team originario
 - [Vittorio Postiglione](https://github.com/CupoMeridio)
 - [Mattia Sanzari](https://github.com/Mattia-Sanzari)
 - [Alessandro Scandone](https://github.com/alescand1)
 - [Sharon Schiavano](https://github.com/sharon-schiavano)
 
-## 🎓 Contesto accademico
-Questo progetto è stato realizzato come parte dell’esame di Java Avanzato presso l’Università degli Studi di Salerno.
-<div align="center">
-  <img src="https://www.opisalerno.it/wp-content/uploads/2016/11/logo-unisa-png-768x432.png" width="400" alt="Unisa Logo"/>
-</div>
+## 🎓 Contesto Accademico
+Progetto d'esame sviluppato per il corso di **Java Avanzato** presso l'**Università degli Studi di Salerno**.

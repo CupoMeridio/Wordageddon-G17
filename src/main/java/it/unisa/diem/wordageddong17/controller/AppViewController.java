@@ -1,8 +1,6 @@
 package it.unisa.diem.wordageddong17.controller;
 
 import it.unisa.diem.wordageddong17.App;
-import it.unisa.diem.wordageddong17.database.DatabaseStopWords;
-import it.unisa.diem.wordageddong17.interfaccia.DAOListaStopWords;
 import it.unisa.diem.wordageddong17.model.AppState;
 import it.unisa.diem.wordageddong17.model.Classifica;
 import it.unisa.diem.wordageddong17.model.DocumentoDiTesto;
@@ -334,7 +332,6 @@ public class AppViewController implements Initializable {
     private ObservableList<Classifica> listaCronologiaPartite;
     private ObservableList<DocumentoDiTesto> listaDocumenti;
     private File fileSelezionato;
-    private final DAOListaStopWords dbSW = DatabaseStopWords.getInstance();
 
 
 

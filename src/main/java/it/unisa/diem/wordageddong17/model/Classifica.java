@@ -1,6 +1,5 @@
 package it.unisa.diem.wordageddong17.model;
 
-import it.unisa.diem.wordageddong17.database.DatabaseClassifica;
 import java.sql.Timestamp;
 
 /**
@@ -25,7 +24,6 @@ public class Classifica {
     private final Timestamp data;
     private final float punti;
     private final LivelloPartita difficolta;
-    private final DatabaseClassifica sbc = DatabaseClassifica.getInstance();
 
     /**
      * Costruttore per creare una nuova entry della classifica.

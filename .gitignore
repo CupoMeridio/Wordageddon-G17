@@ -1,2 +1,28 @@
+# Target di compilazione Maven
 /target/
+dependency-reduced-pom.xml
+
+# Variabili d'ambiente locali (contengono credenziali)
 .env
+
+# Sessioni di gioco serializzate (.ser)
+*.ser
+
+# File di configurazione IDE (IntelliJ, Eclipse, NetBeans, VS Code)
+.idea/
+*.iml
+.vscode/
+.project
+.classpath
+.settings/
+nbproject/private/
+nbactions.xml
+
+# File di sistema operativo e scorciatoie
+.DS_Store
+Thumbs.db
+desktop.ini
+*.lnk
+
+# Documentazione generata a runtime/build
+docs/generated/

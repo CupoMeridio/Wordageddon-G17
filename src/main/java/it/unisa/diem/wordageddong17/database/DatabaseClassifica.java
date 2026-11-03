@@ -3,6 +3,7 @@ package it.unisa.diem.wordageddong17.database;
 import it.unisa.diem.wordageddong17.interfaccia.DAOClassifica;
 import it.unisa.diem.wordageddong17.model.Classifica;
 import it.unisa.diem.wordageddong17.model.LivelloPartita;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -72,7 +73,8 @@ public class DatabaseClassifica implements DAOClassifica {
             ORDER BY miglior_punteggio DESC;
             """;
 
-        try (PreparedStatement pstmt = db.getConnection().prepareStatement(query)) {
+        try (Connection conn = db.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setString(1, difficolta.getDbValue());
             try (ResultSet result = pstmt.executeQuery()) {
                 while (result.next()) {
@@ -135,7 +137,8 @@ public class DatabaseClassifica implements DAOClassifica {
             ORDER BY data DESC;
             """;
 
-        try (PreparedStatement pstmt = db.getConnection().prepareStatement(query)) {
+        try (Connection conn = db.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setString(1, email);
             try (ResultSet result = pstmt.executeQuery()) {
                 while (result.next()) {
@@ -174,7 +177,8 @@ public class DatabaseClassifica implements DAOClassifica {
               AND difficolta = ?
             """;
 
-        try (PreparedStatement pstmt = db.getConnection().prepareStatement(query)) {
+        try (Connection conn = db.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setString(1, email);
             pstmt.setString(2, difficoltà);
 
@@ -209,7 +213,8 @@ public class DatabaseClassifica implements DAOClassifica {
               AND difficolta = ?
             """;
         
-        try (PreparedStatement pstmt = db.getConnection().prepareStatement(query)) {
+        try (Connection conn = db.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setString(1, email);
             pstmt.setString(2, difficoltà);
 
@@ -237,7 +242,8 @@ public class DatabaseClassifica implements DAOClassifica {
     @Override
     public void inserisciPunteggio(String email, float punteggio, LivelloPartita difficoltà) {
         String query = "INSERT INTO punteggio(email_utente, punti, difficolta) VALUES (?,?,?);";
-        try (PreparedStatement pstmt = db.getConnection().prepareStatement(query)) {
+        try (Connection conn = db.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setString(1, email);
             pstmt.setFloat(2, punteggio);
             pstmt.setString(3, difficoltà.getDbValue());

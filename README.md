@@ -9,16 +9,13 @@ Un'applicazione desktop ludico-educativa sviluppata in **JavaFX** per testare la
 ---
 
 > [!NOTE]
-> ### 📌 Nota sulle versioni del repository
-> - **Branch `consegna-esame`**: conserva lo stato esatto del progetto così come consegnato e presentato per l'esame accademico (aprile 2026).
-> - **Branch `main`**: accoglie l'evoluzione del progetto, il consolidamento architetturale e l'eliminazione del debito tecnico:
->   - **Fase 0**: Docker Compose, pool di connessioni HikariCP, schema e seed SQL puliti, rimozione di credenziali hardcoded e hardening della build.
->   - **Fase 1**: Risoluzione bug di analisi (tokenizzazione Unicode UTF-8 per parole accentate), garanzia invarianti quiz (4 opzioni distinte, nessun pareggio o null), propagazione eccezioni DB con `DataAccessException`, salvataggio sicuro sessioni in directory applicativa, rimozione leak timer.
->   - **Fase 2**: Decomposizione del monolite `AppViewController` (~2.300 righe) in 9 controller modulari e viste FXML dedicate coordinate dal `NavigationService`, estrazione del layer `util` (immagini, validazione, dialoghi), eliminazione di codice morto in Model e pipeline di Continuous Integration GitHub Actions (JDK 17 & 21).
+> ### Versioni del repository
+> - **Branch `consegna-esame`**: conserva lo stato originale del progetto così come consegnato e presentato per l'esame accademico (aprile 2026).
+> - **Branch `main`**: versione consolidata ed evoluta del progetto, con refactoring dell'architettura frontend, eliminazione del debito tecnico, supporto per database locale via Docker e pipeline di Continuous Integration.
 
 ---
 
-## 🚀 Panoramica del gioco
+## Panoramica del gioco
 
 Wordageddon sfida il giocatore ad analizzare mentalmente testi letterari in diverse lingue (italiano, inglese, spagnolo, francese, tedesco) e a rispondere a domande a scelta multipla nel minor tempo possibile.
 
@@ -36,13 +33,13 @@ Wordageddon sfida il giocatore ad analizzare mentalmente testi letterari in dive
 
 ### Ruoli utente:
 - **Giocatore**: registrazione, login con credenziali protette da BCrypt, scelta della partita, salvataggio/ripresa, visualizzazione della classifica globale e dello storico personale.
-- **Amministratore**: oltre al gameplay, gestione e caricamento di nuovi testi (.txt) nel database e aggiornamento della lista di *stopwords*.
+- **Amministratore**: oltre al gameplay, gestione e caricamento di nuovi testi (.txt) nel database e aggiornamento della lista di stopwords.
 
 ---
 
-## 📥 Download e Release Eseguibili (Continuous Build)
+## Download e Release Eseguibili (Continuous Build)
 
-I pacchetti eseguibili e pronti all'uso vengono compilati e aggiornati automaticamente ad ogni commit sul ramo principale tramite GitHub Actions nella sezione **[Latest Release](https://github.com/CupoMeridio/Wordageddon-G17/releases/tag/latest)**:
+I pacchetti compilati e pronti all'uso vengono generati e aggiornati automaticamente ad ogni commit sul ramo `main` tramite GitHub Actions nella sezione **[Latest Release](https://github.com/CupoMeridio/Wordageddon-G17/releases/tag/latest)**:
 
 | Pacchetto | Descrizione | Requisiti |
 |---|---|---|
@@ -52,71 +49,88 @@ I pacchetti eseguibili e pronti all'uso vengono compilati e aggiornati automatic
 
 ---
 
-## ⚡ Avvio rapido con Docker Compose
+## Come Avviare il Sistema Completo
 
-Il modo più rapido per avviare il database locale completo di schema e dati dimostrativi:
+Per eseguire l'applicazione completa è necessario disporre di un database PostgreSQL (locale o remoto). Di seguito sono illustrate le due modalità supportate.
 
-```bash
-# 1. Avvia PostgreSQL 17 locale pre-popolato (schema + seed + utenti dimostrativi)
-docker compose up -d
+### Opzione 1: Database locale con Docker (Consigliata)
 
-# 2. Compila ed esegui l'applicazione JavaFX
-mvn javafx:run
-```
+È il metodo più rapido per eseguire l'applicazione in locale senza configurazioni manuali.
 
-Se preferisci creare un fat JAR eseguibile con tutte le dipendenze:
-```bash
-mvn clean package
-java -jar target/WordageddonG17-1.0-SNAPSHOT-jar-with-dependencies.jar
-```
+1. **Avviare il database PostgreSQL 17**:
+   Dalla cartella del progetto:
+   ```bash
+   docker compose up -d
+   ```
+   Il container si avvia automaticamente con lo schema applicato (`01_schema.sql`) e i dati dimostrativi precaricati (`02_seed.sql`).
+
+2. **Avviare l'applicazione**:
+   - **Su Windows**: avviare l'eseguibile `Wordageddon.exe` (dalla versione portabile o installata via `.msi`).
+   - **Su Linux / macOS**: eseguire il Fat JAR:
+     ```bash
+     java -jar target/WordageddonG17-1.0-SNAPSHOT-jar-with-dependencies.jar
+     ```
+   - **Da codice sorgente**:
+     ```bash
+     mvn javafx:run
+     ```
+   L'applicazione si collegherà automaticamente al database locale su `localhost:5432`.
+
+### Opzione 2: Con Database Remoto (Cloud PostgreSQL)
+
+Se si desidera utilizzare l'applicazione senza Docker collegandola a un'istanza PostgreSQL remota (es. Neon, Supabase, Aiven):
+
+1. Eseguire sul database remoto gli script SQL:
+   - `docker/init/01_schema.sql` (struttura tabelle, enum, trigger)
+   - `docker/init/02_seed.sql` (stopwords, testi e utenti dimostrativi)
+2. Creare un file `.env` nella directory di esecuzione dell'applicazione:
+   ```env
+   DB_URL=jdbc:postgresql://host-remoto:5432/nomedb?sslmode=require
+   DB_USER=tuo_username
+   DB_PASSWORD=tua_password
+   ```
+3. Avviare l'applicazione (`Wordageddon.exe`, `.jar` o `mvn javafx:run`).
 
 ---
 
-## 🗄️ Database e Configurazione
+## Credenziali di Accesso Dimostrative
 
-Il database utilizzato è **PostgreSQL 17**.
+Nel database preconfigurato sono disponibili due account di prova:
 
-La classe di connessione (`Database.java`) adotta un connection pool ad alte prestazioni **HikariCP** e determina la configurazione secondo questa priorità:
+| Ruolo | Email | Password | Funzionalità disponibili |
+|---|---|---|---|
+| **Giocatore** | `player@wordageddon.it` | `player123` | Sessioni di gioco, salvataggi, classifiche e cronologia |
+| **Amministratore** | `admin@wordageddon.it` | `admin123` | Gameplay completo + gestione documenti (.txt) e modifica stopwords |
+
+In alternativa, è sempre possibile registrare un nuovo account direttamente dalla schermata di registrazione.
+
+---
+
+## Database e Configurazione
+
+La classe `Database.java` adotta un connection pool **HikariCP** e determina la configurazione secondo questa priorità:
 1. **Variabili d'ambiente di sistema**: `DB_URL`, `DB_USER`, `DB_PASSWORD`
-2. **File `.env`** nella directory corrente (può essere creato a partire da `.env.example`)
-3. **Default per lo sviluppo locale** (allineati a `docker-compose.yml`):
+2. **File `.env`** nella directory corrente (template disponibile in `.env.example`)
+3. **Default per lo sviluppo locale**:
    - `DB_URL`: `jdbc:postgresql://localhost:5432/wordageddon`
    - `DB_USER`: `wordageddon`
    - `DB_PASSWORD`: `wordageddon`
 
-### File `.env` (opzionale):
-```bash
-cp .env.example .env
-```
-Contenuto tipo:
-```env
-DB_URL=jdbc:postgresql://localhost:5432/wordageddon
-DB_USER=wordageddon
-DB_PASSWORD=wordageddon
-```
-
-### Utenti preconfigurati nel seed:
-All'avvio tramite `docker compose` sono già presenti due utenti di test:
-| Ruolo | Email | Password | Descrizione |
-|---|---|---|---|
-| **Amministratore** | `admin@wordageddon.it` | `admin123` | Può caricare testi e aggiornare stopwords |
-| **Giocatore** | `player@wordageddon.it` | `player123` | Utente con punteggi di test in classifica |
-
 ---
 
-## 📦 Tecnologie e Dipendenze
+## Tecnologie e Dipendenze
 
 - **Java 17+** (supporta Java 21)
 - **JavaFX 17** (Controls, FXML)
-- **HikariCP 5.1.0** — Connection pooling thread-safe e performante
+- **HikariCP 5.1.0** — Connection pooling thread-safe
 - **PostgreSQL JDBC Driver 42.7.5**
 - **jBCrypt 0.4** — Hashing sicuro delle password (salt a 12 round)
-- **dotenv-java 3.1.2** — Caricamento variabili d'ambiente opzionali
+- **dotenv-java 3.2.0** — Gestione variabili d'ambiente opzionali
 - **SLF4J / JDK14** — Logging unificato
 
 ---
 
-## 📁 Struttura del Progetto
+## Struttura del Progetto
 
 ```text
 Wordageddon-G17/
@@ -154,9 +168,9 @@ Wordageddon-G17/
 
 ---
 
-## 📖 Documentazione e Javadoc
+## Documentazione e Javadoc
 
-Per generare la documentazione Javadoc aggiornata senza sporcare il repository git:
+Per generare la documentazione Javadoc aggiornata:
 ```bash
 mvn javadoc:javadoc
 ```
@@ -166,11 +180,11 @@ La relazione formale e la presentazione sono archiviate nella cartella [`docs/`]
 
 ---
 
-## 👨‍💻 Membri del Team originario
+## Membri del Team originario
 - [Vittorio Postiglione](https://github.com/CupoMeridio)
 - [Mattia Sanzari](https://github.com/Mattia-Sanzari)
 - [Alessandro Scandone](https://github.com/alescand1)
 - [Sharon Schiavano](https://github.com/sharon-schiavano)
 
-## 🎓 Contesto Accademico
+## Contesto Accademico
 Progetto d'esame sviluppato per il corso di **Java Avanzato** presso l'**Università degli Studi di Salerno**.

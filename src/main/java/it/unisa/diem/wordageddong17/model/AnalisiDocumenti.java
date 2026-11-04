@@ -1,12 +1,6 @@
 package it.unisa.diem.wordageddong17.model;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -15,7 +9,6 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -31,8 +24,6 @@ import java.util.stream.Collectors;
  * - Analisi di documenti testuali con conteggio delle parole
  * - Filtraggio delle stopwords tramite lookup O(1) con Set
  * - Gestione corretta dei caratteri Unicode (inclusi accenti ed elisioni)
- * - Ricerca di documenti contenenti parole specifiche
- * - Persistenza dei dati su file serializzato
  * 
  * @author Mattia Sanzari
  */
@@ -110,25 +101,6 @@ public class AnalisiDocumenti implements Serializable {
     }
 
     /**
-     * Trova tutti i documenti che contengono una parola specifica.
-     * 
-     * @param parola la parola da cercare nei documenti (case-insensitive)
-     * @return Map contenente i nomi dei documenti come chiavi e la frequenza
-     *         della parola in ciascun documento come valore
-     */
-    public Map<String, Integer> restituisciDocumentiContenenteParola(String parola) {
-        Map<String, Integer> risultato = new HashMap<>();
-        if (parola == null || parola.isBlank()) {
-            return risultato;
-        }
-        String pUpper = parola.toUpperCase(Locale.ROOT);
-        Matrice.entrySet().stream()
-                .filter(e -> e.getValue().containsKey(pUpper))
-                .forEach(e -> risultato.put(e.getKey(), e.getValue().get(pUpper)));
-        return risultato;
-    }
-
-    /**
      * Restituisce l'intera matrice dei documenti analizzati.
      * 
      * @return Map completa contenente tutti i documenti analizzati
@@ -181,42 +153,6 @@ public class AnalisiDocumenti implements Serializable {
                 .collect(Collectors.toMap(parola -> parola, parola -> 1, Integer::sum));
 
         this.aggiungiDocumento(nomeDocumento, documento);
-    }
-
-    /**
-     * Salva la matrice corrente su file serializzato.
-     */
-    public void salvaMatrice() {
-        try (ObjectOutputStream o = new ObjectOutputStream(new FileOutputStream("salvaMatrice.ser"))) {
-            o.writeObject(this.Matrice);
-        } catch (IOException ex) {
-            LOGGER.log(Level.SEVERE, "Errore salvataggio matrice", ex);
-        }
-    }
-
-    /**
-     * Carica e sostituisce la matrice corrente con quella salvata su file.
-     */
-    @SuppressWarnings("unchecked")
-    public void sovrascriviMatriceDaSalvataggio() {
-        try (ObjectInputStream o = new ObjectInputStream(new FileInputStream("salvaMatrice.ser"))) {
-            this.Matrice = (HashMap<String, Map<String, Integer>>) o.readObject();
-        } catch (IOException | ClassNotFoundException ex) {
-            LOGGER.log(Level.SEVERE, "Errore caricamento matrice da file", ex);
-        }
-    }
-
-    /**
-     * Effettua il merge tra la matrice corrente e quella salvata su file.
-     */
-    @SuppressWarnings("unchecked")
-    public void mergeTraMatriceeSalvataggio() {
-        try (ObjectInputStream o = new ObjectInputStream(new FileInputStream("salvaMatrice.ser"))) {
-            HashMap<String, Map<String, Integer>> matriceDiAppoggio = (HashMap<String, Map<String, Integer>>) o.readObject();
-            matriceDiAppoggio.forEach(this::aggiungiDocumento);
-        } catch (IOException | ClassNotFoundException ex) {
-            LOGGER.log(Level.SEVERE, "Errore merge matrice", ex);
-        }
     }
 
     @Override

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane fx:id="schermataHome" maxHeight="Infinity" maxWidth="Infinity" prefHeight="400.0" prefWidth="600.0" stylesheets="@../styles/appview.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unisa.diem.wordageddong17.controller.HomeController">
+    <children>
+        <!-- Contenuto principale -->
+        <VBox fx:id="contenutoHome" alignment="CENTER" spacing="20.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <children>
+                <ImageView fitHeight="150.0" fitWidth="250.0" pickOnBounds="true" preserveRatio="true">
+                    <image>
+                        <Image url="@../imgs/Logo_senza_sfondo.png" />
+                    </image>
+                </ImageView>
+                <VBox alignment="CENTER" spacing="20">
+                    <children>
+                        <Button fx:id="startButton" onAction="#startOnAction" prefHeight="45" prefWidth="200" text="Start" />
+                        <Button fx:id="classificheButton" onAction="#classificheOnAction" prefHeight="45" prefWidth="200" text="Classifiche" />
+                    </children>
+                </VBox>
+            </children>
+        </VBox>
+
+        <!-- Header -->
+        <HBox fx:id="quickInfoUtente" alignment="CENTER_RIGHT" spacing="10" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
+            <children>
+                <Label fx:id="benvenutoLabel" text="Benvenuto NomeUtente" />
+                <ImageView fx:id="fotoProfilo" fitHeight="40" fitWidth="40" onMouseClicked="#toggleDashboard" pickOnBounds="true" preserveRatio="true">
+                    <image>
+                        <Image url="@../imgs/person.png" />
+                    </image>
+                </ImageView>
+            </children>
+        </HBox>
+
+        <!-- Dashboard Menu -->
+        <VBox fx:id="dashboardMenu" alignment="CENTER" spacing="10.0" style="-fx-background-color: white; -fx-padding: 15; -fx-border-color: gray; -fx-border-width: 1;" visible="false" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="55.0">
+            <children>
+                <Button fx:id="infoProfiloButton" onAction="#passaAInfoProfilo" prefHeight="35" prefWidth="200" text="Info profilo" />
+                <Button fx:id="newDocument" onAction="#mostraGestioneDocumenti" prefHeight="35" prefWidth="260" text="Gestione documenti" />
+                <Button fx:id="stopwordList" onAction="#mostraGestioneStopwords" prefHeight="35" prefWidth="200" text="Stopwords" />
+                <Button onAction="#logout" prefHeight="35" prefWidth="200" styleClass="logout-button" text="Logout" />
+            </children>
+        </VBox>
+    </children>
+</AnchorPane>

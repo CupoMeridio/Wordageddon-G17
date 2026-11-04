@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<ScrollPane fx:id="schermataSelezioneDifficoltà" fitToHeight="true" fitToWidth="true" stylesheets="@../styles/appview.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unisa.diem.wordageddong17.controller.GameSetupController">
+    <VBox alignment="CENTER" maxWidth="Infinity" spacing="25.0" style="-fx-padding: 30;">
+        <children>
+            <Label style="-fx-font-size: 28px; -fx-font-weight: bold;" text="Seleziona livello di difficoltà" />
+            <HBox alignment="TOP_CENTER" maxWidth="Infinity" spacing="20.0">
+                <children>
+                    <!-- Facile -->
+                    <VBox alignment="TOP_CENTER" spacing="15.0" HBox.hgrow="ALWAYS">
+                        <children>
+                            <Label style="-fx-font-size: 20px; -fx-font-weight: bold;" text="Facile" />
+                            <TextArea editable="false" prefHeight="240" prefWidth="270" text="Numero di documenti: 2&#10;&#10;Lunghezza del testo: 80-100 parole&#10;&#10;Tempo di lettura: ~200-240 secondi&#10;(~1 parola al secondo con margine)" wrapText="true" HBox.hgrow="ALWAYS" />
+                            <RadioButton fx:id="radioFacile" mnemonicParsing="false" text="Facile">
+                                <toggleGroup>
+                                    <ToggleGroup fx:id="difficoltà" />
+                                </toggleGroup>
+                            </RadioButton>
+                        </children>
+                    </VBox>
+
+                    <!-- Medio -->
+                    <VBox alignment="TOP_CENTER" spacing="15.0" HBox.hgrow="ALWAYS">
+                        <children>
+                            <Label style="-fx-font-size: 20px; -fx-font-weight: bold;" text="Medio" />
+                            <TextArea editable="false" prefHeight="240" prefWidth="270" text="Numero di documenti: 2&#10;&#10;Lunghezza per testo: 200-250 parole&#10;&#10;Tempo di lettura totale: ~300 secondi &#10;(~1.5 parole/secondo)&#10;&#10;" wrapText="true" HBox.hgrow="ALWAYS" />
+                            <RadioButton fx:id="radioMedio" mnemonicParsing="false" text="Medio" toggleGroup="$difficoltà" />
+                        </children>
+                    </VBox>
+
+                    <!-- Difficile -->
+                    <VBox alignment="TOP_CENTER" spacing="15.0" HBox.hgrow="ALWAYS">
+                        <children>
+                            <Label style="-fx-font-size: 20px; -fx-font-weight: bold;" text="Difficile" />
+                            <TextArea editable="false" prefHeight="240" prefWidth="270" text="Numero di documenti: 3&#10;&#10;Lunghezza per testo: 200-250 parole&#10;&#10;Tempo di lettura totale: ~340 secondi &#10;(~2 parole/secondo)&#10;&#10;" wrapText="true" HBox.hgrow="ALWAYS" />
+                            <RadioButton fx:id="radioDifficile" mnemonicParsing="false" text="Difficile" toggleGroup="$difficoltà" />
+                        </children>
+                    </VBox>
+                </children>
+            </HBox>
+            <Label style="-fx-font-size: 18px;" text="Seleziona le lingue dei documenti con cui vuoi giocare" />
+            <HBox alignment="CENTER" maxWidth="Infinity" spacing="25.0">
+                <children>
+                    <CheckBox fx:id="checkIT" mnemonicParsing="false" text="IT" />
+                    <CheckBox fx:id="checkEN" mnemonicParsing="false" text="EN" />
+                    <CheckBox fx:id="checkFR" mnemonicParsing="false" text="FR" />
+                    <CheckBox fx:id="checkDE" mnemonicParsing="false" text="DE" />
+                    <CheckBox fx:id="checkES" mnemonicParsing="false" text="ES" />
+                </children>
+            </HBox>
+            <HBox alignment="CENTER" maxWidth="Infinity" spacing="30.0">
+                 <children>
+                     <Button fx:id="indietroSelezione" mnemonicParsing="false" onAction="#tornaAllaHome" prefHeight="50" prefWidth="150" text="Indietro" />
+                     <Button fx:id="iniziaPartita" mnemonicParsing="false" onAction="#iniziaPartitaOnAction" prefHeight="50" prefWidth="250" text="Inizia!" />
+                 </children>
+             </HBox>
+        </children>
+    </VBox>
+</ScrollPane>

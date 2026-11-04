@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<ScrollPane fx:id="schermataDiRegistrazione" fitToHeight="true" fitToWidth="true" stylesheets="@../styles/appview.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unisa.diem.wordageddong17.controller.RegistrationController">
+    <HBox alignment="CENTER" maxWidth="Infinity" spacing="60" style="-fx-padding: 40;">
+        <children>
+            <!-- Form di registrazione -->
+            <VBox alignment="CENTER" maxWidth="450" spacing="20" HBox.hgrow="ALWAYS">
+                <children>
+                    <Label style="-fx-font-size: 28px; -fx-font-weight: bold;" text="Registrazione" />
+                    
+                    <VBox spacing="8">
+                        <children>
+                            <Label fx:id="usernameLabel" text="Username" />
+                            <TextField fx:id="username" minHeight="35" prefWidth="350" promptText="Username..." />
+                        </children>
+                    </VBox>
+
+                    <VBox spacing="8">
+                        <children>
+                            <Label fx:id="emailLabel" text="E-mail" />
+                            <TextField fx:id="email" minHeight="35" prefWidth="350" promptText="mariorossi@gmail.com" />
+                        </children>
+                    </VBox>
+
+                    <VBox spacing="8">
+                        <children>
+                            <Label fx:id="passwordLabel" text="Password" />
+                            <PasswordField fx:id="password" minHeight="35" prefWidth="350" promptText="Password" />
+                        </children>
+                    </VBox>
+
+                    <VBox spacing="8">
+                        <children>
+                            <Label fx:id="repeatLabel" text="Repeat password" />
+                            <PasswordField fx:id="repeatPassword" minHeight="35" prefWidth="350" promptText="Repeat password" />
+                        </children>
+                    </VBox>
+
+                    <VBox alignment="CENTER" spacing="15">
+                        <children>
+                            <Button fx:id="registerButton" onAction="#registerButtonOnAction" prefHeight="45" prefWidth="200" style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-weight: bold;" text="Registrati" />
+                            <Button fx:id="registerPageLogin" onAction="#passaALogin" prefHeight="40" prefWidth="420" style="-fx-background-color: #f44336; -fx-text-fill: white;" text="Hai già un account? Effettua il login" />
+                        </children>
+                        <VBox.margin>
+                            <Insets top="15" />
+                        </VBox.margin>
+                    </VBox>
+                </children>
+            </VBox>
+
+            <!-- Immagine profilo -->
+            <VBox alignment="CENTER" maxWidth="350" HBox.hgrow="ALWAYS">
+                <children>
+                    <Label style="-fx-font-size: 18px; -fx-font-weight: bold;" text="Foto profilo" />
+                    <ImageView fx:id="imageView" fitHeight="208" fitWidth="208" onMouseClicked="#caricaIMG" pickOnBounds="true" preserveRatio="true">
+                        <image>
+                            <Image url="@../imgs/Profile_avatar_placeholder_large.png" />
+                        </image>
+                        <VBox.margin>
+                            <Insets top="15" />
+                        </VBox.margin>
+                    </ImageView>
+                </children>
+            </VBox>
+        </children>
+    </HBox>
+</ScrollPane>

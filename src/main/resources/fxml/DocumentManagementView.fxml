@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ContextMenu?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<ScrollPane fx:id="gestioneDocumentiView" fitToHeight="true" fitToWidth="true" stylesheets="@../styles/appview.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unisa.diem.wordageddong17.controller.DocumentManagementController">
+    <VBox alignment="CENTER" maxWidth="Infinity" spacing="12" style="-fx-padding: 30;">
+        <children>
+            <Label style="-fx-font-size: 28px; -fx-font-weight: bold;" text="Gestione Documenti" />
+            
+            <TableView fx:id="gestDocTabella" editable="true" maxWidth="Infinity" prefHeight="220" VBox.vgrow="ALWAYS">
+                <columns>
+                    <TableColumn fx:id="gestDocColNomeFile" prefWidth="250.0" minWidth="200.0" text="Nome file" />
+                    <TableColumn fx:id="gestDocColDifficoltà" prefWidth="100.0" minWidth="80.0" text="Difficoltà" />
+                    <TableColumn fx:id="gestDocColInserito" prefWidth="150.0" minWidth="120.0" text="Inserito da:" />
+                    <TableColumn fx:id="gestDocColLingua" prefWidth="100.0" minWidth="80.0" text="Lingua" />
+                    <TableColumn fx:id="gestDocColDocumento" prefWidth="60.0" minWidth="50.0" style="-fx-alignment: CENTER;" text="Documento" />
+                </columns>
+                <contextMenu>
+                    <ContextMenu>
+                        <items>
+                            <MenuItem fx:id="eliminaDocItem" mnemonicParsing="false" onAction="#eliminaDoc" text="Elimina" />
+                        </items>
+                    </ContextMenu>
+                </contextMenu>
+                <columnResizePolicy>
+                    <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                </columnResizePolicy>
+            </TableView>
+            
+            <VBox alignment="CENTER" maxWidth="Infinity" spacing="10">
+                <children>
+                    <Label text="Barra di ricerca" />
+                    <TextField fx:id="gestDocBarraDiRicerca" minHeight="35" prefWidth="450" />
+                    
+                    <VBox alignment="CENTER" spacing="8">
+                        <children>
+                            <Label text="Seleziona difficoltà" />
+                            <HBox alignment="CENTER" maxWidth="Infinity" spacing="25.0">
+                                <children>
+                                    <CheckBox fx:id="gestDocCheckFacile" mnemonicParsing="false" text="Facile" />
+                                    <CheckBox fx:id="gestDocCheckMedia" mnemonicParsing="false" text="Media" />
+                                    <CheckBox fx:id="gestDocCheckDifficile" mnemonicParsing="false" text="Difficile" />
+                                </children>
+                            </HBox>
+                        </children>
+                    </VBox>
+                    
+                    <VBox alignment="CENTER" spacing="8">
+                        <children>
+                            <Label text="Seleziona lingua" />
+                            <HBox alignment="CENTER" maxWidth="Infinity" spacing="20.0">
+                                <children>
+                                    <CheckBox fx:id="gestDocIT" mnemonicParsing="false" text="Italiano" />
+                                    <CheckBox fx:id="gestDocCheckEN" mnemonicParsing="false" text="Inglese" />
+                                    <CheckBox fx:id="gestDocCheckES" mnemonicParsing="false" text="Spagnolo" />
+                                    <CheckBox fx:id="gestDocCheckFR" mnemonicParsing="false" text="Francese" />
+                                    <CheckBox fx:id="gestDocCheckDE" mnemonicParsing="false" text="Tedesco" />
+                                </children>
+                            </HBox>
+                        </children>
+                    </VBox>
+                    
+                    <HBox alignment="CENTER" maxWidth="Infinity" spacing="25.0">
+                        <children>
+                            <Button fx:id="gestDocNuovoButton" mnemonicParsing="false" onAction="#gestDocNuovoButtonOnAction" prefHeight="45" prefWidth="340" text="Inserisci nuovo documento" />
+                            <Button fx:id="gestDocButtonTornaAllaHome" mnemonicParsing="false" onAction="#tornaAllaHomeFromGestDoc" prefHeight="45" prefWidth="300" text="Torna alla homepage" />
+                        </children>
+                    </HBox>
+                </children>
+            </VBox>
+        </children>
+    </VBox>
+</ScrollPane>

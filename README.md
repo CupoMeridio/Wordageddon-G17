@@ -11,7 +11,10 @@ Un'applicazione desktop ludico-educativa sviluppata in **JavaFX** per testare la
 > [!NOTE]
 > ### 📌 Nota sulle versioni del repository
 > - **Branch `consegna-esame`**: conserva lo stato esatto del progetto così come consegnato e presentato per l'esame accademico (aprile 2026).
-> - **Branch `main`**: accoglie l'evoluzione del progetto, il consolidamento architetturale, l'eliminazione del debito tecnico e la rimozione delle vulnerabilità di sicurezza (Fase 0: Docker, pool di connessioni, schema e seed SQL puliti, hardening della build).
+> - **Branch `main`**: accoglie l'evoluzione del progetto, il consolidamento architetturale e l'eliminazione del debito tecnico:
+>   - **Fase 0**: Docker Compose, pool di connessioni HikariCP, schema e seed SQL puliti, rimozione di credenziali hardcoded e hardening della build.
+>   - **Fase 1**: Risoluzione bug di analisi (tokenizzazione Unicode UTF-8 per parole accentate), garanzia invarianti quiz (4 opzioni distinte, nessun pareggio o null), propagazione eccezioni DB con `DataAccessException`, salvataggio sicuro sessioni in directory applicativa, rimozione leak timer.
+>   - **Fase 2**: Decomposizione del monolite `AppViewController` (~2.300 righe) in 9 controller modulari e viste FXML dedicate coordinate dal `NavigationService`, estrazione del layer `util` (immagini, validazione, dialoghi), eliminazione di codice morto in Model e pipeline di Continuous Integration GitHub Actions (JDK 17 & 21).
 
 ---
 
@@ -105,6 +108,9 @@ All'avvio tramite `docker compose` sono già presenti due utenti di test:
 
 ```text
 Wordageddon-G17/
+├── .github/
+│   └── workflows/
+│       └── ci.yml                # GitHub Actions CI (build e test su JDK 17 e 21)
 ├── docker/
 │   └── init/
 │       ├── 01_schema.sql         # DDL con tabelle, constraint, enum e trigger PostgreSQL
@@ -115,17 +121,19 @@ Wordageddon-G17/
 │   ├── Presentazione progetto.pptx
 │   └── DiagrammiDelleClassi/     # Diagrammi UML divisi per modulo (EasyUML e PlantUML)
 ├── src/main/java/it/unisa/diem/wordageddong17/
-│   ├── controller/               # Controller JavaFX (AppViewController, SessionViewController)
-│   ├── model/                    # Logica di dominio, sessione di gioco e tokenizer
-│   ├── service/                  # Servizi asincroni JavaFX (Task/Service in background)
+│   ├── controller/               # Controller JavaFX modulari (Login, Home, Leaderboard, Setup, Profile, ecc.)
+│   ├── model/                    # Logica di dominio, sessione di gioco, analisi testi e quiz generator
+│   ├── service/                  # Servizi asincroni JavaFX e NavigationService centralizzato
 │   ├── database/                 # Implementazioni DAO PostgreSQL con pool HikariCP
 │   ├── interfaccia/              # Interfacce contrattuali DAO
+│   ├── util/                     # Helper riutilizzabili (ImageUtils, ValidationUtils, AlertUtils)
 │   ├── App.java                  # Classe di avvio JavaFX (Stage, Scene e caricamento FXML)
 │   └── RunMain.java              # Entry point privo di estensioni per fat JAR
 ├── src/main/resources/
-│   ├── fxml/                     # Viste FXML dell'interfaccia utente
+│   ├── fxml/                     # Viste FXML modulari (LoginView, HomeView, ProfileView, ecc.)
 │   ├── styles/                   # Fogli di stile CSS
 │   └── imgs/                     # Asset grafici di runtime (loghi, icone, avatar)
+├── src/test/java/                # Suite di test unitari JUnit 5
 ├── .env.example                  # Template per variabili di configurazione
 ├── pom.xml                       # Descrittore di build Maven
 └── README.md

@@ -51,16 +51,21 @@ I pacchetti compilati e pronti all'uso vengono generati e aggiornati automaticam
 
 ## Come Avviare il Sistema Completo
 
-Per eseguire l'applicazione completa è necessario disporre di un database PostgreSQL (locale o remoto). Di seguito sono illustrate le due modalità supportate.
+Per eseguire l'applicazione completa è necessario disporre di un database PostgreSQL (locale tramite Docker, locale nativo o remoto su cloud). Di seguito sono illustrate le modalità supportate.
 
 ### Opzione 1: Database locale con Docker (Consigliata)
 
-È il metodo più rapido per eseguire l'applicazione in locale senza configurazioni manuali.
+È il metodo più rapido per eseguire l'applicazione in locale senza configurazioni manuali del database.
 
 #### Prerequisito: Installazione di Docker (se non già presente)
 
 - **Windows**:
-  - Scaricare e installare [Docker Desktop](https://www.docker.com/products/docker-desktop/). Durante l'installazione verificare che sia selezionata l'opzione "Use WSL 2 instead of Hyper-V" (impostazione predefinita). All'avvio di Docker Desktop, il comando `docker compose` è subito disponibile nel terminale PowerShell o CMD.
+  - Scaricare e installare [Docker Desktop](https://www.docker.com/products/docker-desktop/). Durante l'installazione verificare che sia selezionata l'opzione "Use WSL 2 instead of Hyper-V".
+  - *Nota*: se WSL risulta disabilitato sul sistema, aprire PowerShell come Amministratore ed eseguire:
+    ```powershell
+    wsl --install --no-distribution
+    ```
+    quindi riavviare il computer prima di avviare Docker Desktop.
 - **Linux (Debian, Ubuntu e derivate)**:
   - Installare Docker Engine e il plugin Compose da terminale:
     ```bash
@@ -68,7 +73,7 @@ Per eseguire l'applicazione completa è necessario disporre di un database Postg
     sudo apt install -y docker.io docker-compose-v2
     sudo usermod -aG docker $USER
     ```
-    (effettuare il logout e login dalla sessione utente per applicare il gruppo `docker` ed eseguire i comandi senza `sudo`).
+    (effettuare il logout e login dalla sessione utente per applicare il gruppo `docker`).
 
 Verificare la corretta installazione con:
 ```bash
@@ -96,20 +101,45 @@ docker compose version
      ```
    L'applicazione si collegherà automaticamente al database locale su `localhost:5432`.
 
-### Opzione 2: Con Database Remoto (Cloud PostgreSQL)
+### Opzione 2: PostgreSQL nativo locale (Senza Docker né WSL)
 
-Se si desidera utilizzare l'applicazione senza Docker collegandola a un'istanza PostgreSQL remota (es. Neon, Supabase, Aiven):
+Per chi non desidera o non può abilitare WSL/Docker sul proprio sistema:
 
-1. Eseguire sul database remoto gli script SQL:
-   - `docker/init/01_schema.sql` (struttura tabelle, enum, trigger)
-   - `docker/init/02_seed.sql` (stopwords, testi e utenti dimostrativi)
-2. Creare un file `.env` nella directory di esecuzione dell'applicazione:
+1. **Installare PostgreSQL nativo**:
+   - **Su Windows**: scaricare ed eseguire l'installer ufficiale `.exe` da [postgresql.org/download/windows](https://www.postgresql.org/download/windows/) (installa PostgreSQL come normale servizio Windows, senza bisogno di virtualizzazione o WSL).
+   - **Su Linux**: installare PostgreSQL con il package manager:
+     ```bash
+     sudo apt install -y postgresql postgresql-contrib
+     ```
+2. **Inizializzare il database**:
+   - Creare un database denominato `wordageddon`.
+   - Tramite **pgAdmin** (incluso nell'installer Windows) oppure da terminale con `psql`, aprire ed eseguire in sequenza:
+     1. `docker/init/01_schema.sql` (tabelle, enum, indici e vincoli)
+     2. `docker/init/02_seed.sql` (testi multilingua, stopwords e utenti)
+3. **Configurazione credenziali (se diverse dal default)**:
+   Se durante l'installazione di PostgreSQL è stata impostata una password diversa da `wordageddon`, creare un file `.env` accanto all'applicazione:
+   ```env
+   DB_URL=jdbc:postgresql://localhost:5432/wordageddon
+   DB_USER=postgres
+   DB_PASSWORD=la_tua_password
+   ```
+4. **Avviare l'applicazione** (`Wordageddon.exe`, `.jar` o `mvn javafx:run`).
+
+### Opzione 3: Database Remoto Cloud (Zero installazioni locali)
+
+Per eseguire l'applicazione senza installare alcun servizio database sul computer:
+
+1. Creare un'istanza PostgreSQL gratuita su un provider cloud (es. Neon.tech, Supabase, Aiven).
+2. Eseguire sulla console SQL del provider gli script:
+   - `docker/init/01_schema.sql`
+   - `docker/init/02_seed.sql`
+3. Creare il file `.env` nella directory di esecuzione dell'applicazione:
    ```env
    DB_URL=jdbc:postgresql://host-remoto:5432/nomedb?sslmode=require
    DB_USER=tuo_username
    DB_PASSWORD=tua_password
    ```
-3. Avviare l'applicazione (`Wordageddon.exe`, `.jar` o `mvn javafx:run`).
+4. Avviare l'applicazione (`Wordageddon.exe`, `.jar` o `mvn javafx:run`).
 
 ---
 

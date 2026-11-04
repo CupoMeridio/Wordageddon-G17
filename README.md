@@ -40,6 +40,18 @@ Wordageddon sfida il giocatore ad analizzare mentalmente testi letterari in dive
 
 ---
 
+## 📥 Download e Release Eseguibili (Continuous Build)
+
+I pacchetti eseguibili e pronti all'uso vengono compilati e aggiornati automaticamente ad ogni commit sul ramo principale tramite GitHub Actions nella sezione **[Latest Release](https://github.com/CupoMeridio/Wordageddon-G17/releases/tag/latest)**:
+
+| Pacchetto | Descrizione | Requisiti |
+|---|---|---|
+| **`Wordageddon-*.msi`** | Installer guidato per Windows con icona e collegamenti su Desktop e Menu Start | Nessuno (Java Runtime integrato) |
+| **`Wordageddon-Windows-Portable.zip`** | Versione portabile per Windows (estrai ed esegui `Wordageddon.exe`) | Nessuno (Java Runtime integrato) |
+| **`Wordageddon.jar`** | Fat JAR eseguibile multipiattaforma (Linux, macOS, Windows) | Java 17 o superiore |
+
+---
+
 ## ⚡ Avvio rapido con Docker Compose
 
 Il modo più rapido per avviare il database locale completo di schema e dati dimostrativi:
@@ -110,7 +122,8 @@ All'avvio tramite `docker compose` sono già presenti due utenti di test:
 Wordageddon-G17/
 ├── .github/
 │   └── workflows/
-│       └── ci.yml                # GitHub Actions CI (build e test su JDK 17 e 21)
+│       ├── ci.yml                # GitHub Actions CI (build e test su JDK 17 e 21)
+│       └── release.yml           # Rolling Release automatica con jpackage (MSI, Portable ZIP, JAR)
 ├── docker/
 │   └── init/
 │       ├── 01_schema.sql         # DDL con tabelle, constraint, enum e trigger PostgreSQL

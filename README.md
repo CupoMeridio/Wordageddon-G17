@@ -57,12 +57,32 @@ Per eseguire l'applicazione completa è necessario disporre di un database Postg
 
 È il metodo più rapido per eseguire l'applicazione in locale senza configurazioni manuali.
 
+#### Prerequisito: Installazione di Docker (se non già presente)
+
+- **Windows**:
+  - Scaricare e installare [Docker Desktop](https://www.docker.com/products/docker-desktop/). Durante l'installazione verificare che sia selezionata l'opzione "Use WSL 2 instead of Hyper-V" (impostazione predefinita). All'avvio di Docker Desktop, il comando `docker compose` è subito disponibile nel terminale PowerShell o CMD.
+- **Linux (Debian, Ubuntu e derivate)**:
+  - Installare Docker Engine e il plugin Compose da terminale:
+    ```bash
+    sudo apt update
+    sudo apt install -y docker.io docker-compose-v2
+    sudo usermod -aG docker $USER
+    ```
+    (effettuare il logout e login dalla sessione utente per applicare il gruppo `docker` ed eseguire i comandi senza `sudo`).
+
+Verificare la corretta installazione con:
+```bash
+docker compose version
+```
+
+#### Procedura di avvio
+
 1. **Avviare il database PostgreSQL 17**:
-   Dalla cartella del progetto:
+   Dalla cartella principale del progetto:
    ```bash
    docker compose up -d
    ```
-   Il container si avvia automaticamente con lo schema applicato (`01_schema.sql`) e i dati dimostrativi precaricati (`02_seed.sql`).
+   Il container si avvia in background con lo schema applicato (`01_schema.sql`) e i dati dimostrativi precaricati (`02_seed.sql`). Per arrestare il database al termine dell'utilizzo: `docker compose down`.
 
 2. **Avviare l'applicazione**:
    - **Su Windows**: avviare l'eseguibile `Wordageddon.exe` (dalla versione portabile o installata via `.msi`).

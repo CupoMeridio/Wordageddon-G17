@@ -19,15 +19,27 @@ public class NavigationService {
 
     private static final Logger LOGGER = Logger.getLogger(NavigationService.class.getName());
 
+    /**
+     * Enumerazione delle schermate dell'applicazione con il relativo percorso FXML.
+     */
     public enum View {
+        /** Schermata di autenticazione utente. */
         LOGIN("/fxml/LoginView.fxml"),
+        /** Schermata di registrazione nuovo profilo. */
         REGISTRATION("/fxml/RegistrationView.fxml"),
+        /** Schermata principale (dashboard giocatore / admin). */
         HOME("/fxml/HomeView.fxml"),
+        /** Schermata della classifica globale e filtri. */
         LEADERBOARD("/fxml/LeaderboardView.fxml"),
+        /** Schermata di configurazione nuova partita. */
         GAME_SETUP("/fxml/GameSetupView.fxml"),
+        /** Schermata del profilo utente e statistiche. */
         PROFILE("/fxml/ProfileView.fxml"),
+        /** Schermata di gestione dei documenti di testo (admin). */
         DOCUMENT_MANAGEMENT("/fxml/DocumentManagementView.fxml"),
+        /** Schermata di caricamento nuovi documenti (admin). */
         DOCUMENT_UPLOAD("/fxml/DocumentUploadView.fxml"),
+        /** Schermata di gestione e modifica stopwords (admin). */
         STOPWORDS("/fxml/StopwordsView.fxml");
 
         private final String fxmlPath;
@@ -36,6 +48,11 @@ public class NavigationService {
             this.fxmlPath = fxmlPath;
         }
 
+        /**
+         * Restituisce il percorso della risorsa FXML associata alla vista.
+         *
+         * @return percorso relativo della risorsa FXML nel classpath
+         */
         public String getFxmlPath() {
             return fxmlPath;
         }
@@ -49,6 +66,11 @@ public class NavigationService {
 
     private NavigationService() {}
 
+    /**
+     * Restituisce l'istanza singleton di {@link NavigationService}.
+     *
+     * @return istanza condivisa
+     */
     public static NavigationService getInstance() {
         return INSTANCE;
     }

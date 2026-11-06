@@ -192,6 +192,11 @@ public class DatabaseDocumentoDiTesto implements DAODocumentoDiTesto {
         private static final DatabaseDocumentoDiTesto INSTANCE = new DatabaseDocumentoDiTesto();
     }
 
+    /**
+     * Restituisce l'istanza singleton di {@link DatabaseDocumentoDiTesto}.
+     *
+     * @return istanza condivisa
+     */
     public static DatabaseDocumentoDiTesto getInstance() {
         return Holder.INSTANCE;
     }

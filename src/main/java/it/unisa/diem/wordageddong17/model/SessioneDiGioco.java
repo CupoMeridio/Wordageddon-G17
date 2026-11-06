@@ -106,90 +106,201 @@ public class SessioneDiGioco implements Serializable {
         this.utente = utente;
     }
 
+    /**
+     * Restituisce il livello di difficoltà della partita.
+     *
+     * @return il livello di gioco impostato
+     */
     public LivelloPartita getLivello() {
         return livello;
     }
 
+    /**
+     * Imposta il livello di difficoltà della partita.
+     *
+     * @param livello il livello di gioco da impostare
+     */
     public void setLivello(LivelloPartita livello) {
         this.livello = livello;
     }
 
+    /**
+     * Restituisce l'utente associato a questa sessione.
+     *
+     * @return l'utente corrente
+     */
     public Utente getUtente() {
         return utente;
     }
 
+    /**
+     * Associa un utente alla sessione di gioco.
+     *
+     * @param utente l'utente da associare
+     */
     public void setUtente(Utente utente) {
         this.utente = utente;
     }
 
+    /**
+     * Imposta il numero totale di domande della sessione.
+     *
+     * @param numeroDomande numero di quesiti
+     */
     public void setNumeroDomande(int numeroDomande) {
         this.numeroDomande = numeroDomande;
     }
 
+    /**
+     * Imposta il punteggio totalizzato fino a questo momento.
+     *
+     * @param punteggioFatto punteggio cumulativo
+     */
     public void setPunteggioFatto(float punteggioFatto) {
         this.punteggioFatto = punteggioFatto;
     }
 
+    /**
+     * Imposta la durata residua della sessione in secondi.
+     *
+     * @param durata durata residua del timer
+     */
     public void setDurata(int durata) {
         this.durata = durata;
     }
 
+    /**
+     * Imposta il numero di documenti di testo utilizzati per generare le domande.
+     *
+     * @param numeroDocumenti numero di testi
+     */
     public void setNumeroDocumenti(int numeroDocumenti) {
         this.numeroDocumenti = numeroDocumenti;
     }
 
+    /**
+     * Restituisce l'archivio ZIP contenente le stopwords serializzate.
+     *
+     * @return array di byte del file stopwords
+     */
     public byte[] getStopWords() {
         return stopWords;
     }
 
+    /**
+     * Imposta l'archivio contenente le stopwords.
+     *
+     * @param stopWords array di byte delle stopwords
+     */
     public void setStopWords(byte[] stopWords) {
         this.stopWords = stopWords;
     }
 
+    /**
+     * Restituisce la durata residua in secondi.
+     *
+     * @return secondi rimanenti
+     */
     public int getDurata() {
         return durata;
     }
 
+    /**
+     * Restituisce il numero di documenti di testo caricati nella sessione.
+     *
+     * @return quantità di documenti
+     */
     public int getNumeroDocumenti() {
         return numeroDocumenti;
     }
 
+    /**
+     * Restituisce la mappa delle risposte date dal giocatore per ciascuna domanda.
+     *
+     * @return mappa con associazione domanda - indice risposta
+     */
     public Map<Domanda, Integer> getRisposte() {
         return risposte;
     }
 
+    /**
+     * Restituisce il punteggio maturato finora nella partita.
+     *
+     * @return punteggio attuale
+     */
     public float getPunteggioFatto() {
         return punteggioFatto;
     }
 
+    /**
+     * Restituisce l'elenco delle domande generate per la sessione.
+     *
+     * @return lista di domande
+     */
     public List<Domanda> getDomande() {
         return Domande;
     }
 
+    /**
+     * Restituisce la durata iniziale in secondi assegnata alla partita in base alla difficoltà.
+     *
+     * @return durata iniziale in secondi
+     */
     public int getDurataIniziale() {
         return durataIniziale;
     }
 
+    /**
+     * Imposta la mappa dei documenti caricati per l'analisi.
+     *
+     * @param Documenti mappa titolo - contenuto binario dei documenti
+     */
     public void setDocumenti(Map<String, byte[]> Documenti) {
         this.Documenti = Documenti;
     }
 
+    /**
+     * Imposta l'elenco delle domande della partita.
+     *
+     * @param Domande lista di domande
+     */
     public void setDomande(List<Domanda> Domande) {
         this.Domande = Domande;
     }
 
+    /**
+     * Aggiunge un documento di testo alla mappa dei documenti della sessione.
+     *
+     * @param chiave titolo o identificativo del documento
+     * @param Documento contenuto binario del testo
+     */
     public void addDocumenti(String chiave, byte[] Documento) {
         this.Documenti.put(chiave, Documento);
     }
 
+    /**
+     * Restituisce la mappa dei documenti di testo della sessione.
+     *
+     * @return mappa titolo - contenuto binario
+     */
     public Map<String, byte[]> getDocumenti() {
         return Documenti;
     }
 
+    /**
+     * Restituisce il numero complessivo di domande previste dal quiz.
+     *
+     * @return numero di quesiti
+     */
     public int getNumeroDomande() {
         return numeroDomande;
     }
 
+    /**
+     * Imposta la durata iniziale in secondi assegnata alla partita.
+     *
+     * @param durataIniziale durata di partenza
+     */
     public void setDurataIniziale(int durataIniziale) {
         this.durataIniziale = durataIniziale;
     }
@@ -198,6 +309,11 @@ public class SessioneDiGioco implements Serializable {
     // Gestione Cartella di Salvataggio Applicativa (~/.wordageddon/saves)
     // -------------------------------------------------------------------------
 
+    /**
+     * Restituisce il percorso della cartella applicativa dedicata ai salvataggi utente.
+     *
+     * @return percorso directory salvataggi
+     */
     public static Path getSaveDirectory() {
         String userHome = System.getProperty("user.home", ".");
         Path dir = Paths.get(userHome, ".wordageddon", "saves");
@@ -209,12 +325,24 @@ public class SessioneDiGioco implements Serializable {
         }
     }
 
+    /**
+     * Restituisce il descrittore del file di salvataggio associato a una determinata email.
+     *
+     * @param email indirizzo email del giocatore
+     * @return file del salvataggio serializzato
+     */
     public static File getSaveFile(String email) {
         if (email == null) return new File("save_anonymous.ser");
         String safeEmail = email.replaceAll("[^a-zA-Z0-9.-]", "_");
         return getSaveDirectory().resolve("save_" + safeEmail + ".ser").toFile();
     }
 
+    /**
+     * Verifica l'esistenza di un salvataggio valido su disco per l'utente specificato.
+     *
+     * @param email indirizzo email dell'utente
+     * @return {@code true} se esiste un salvataggio non vuoto, {@code false} altrimenti
+     */
     public static boolean esisteSalvataggio(String email) {
         if (email == null) return false;
         File appSave = getSaveFile(email);
@@ -225,6 +353,12 @@ public class SessioneDiGioco implements Serializable {
                new File("SalvataggioFaseGenerazioneDi" + email + ".ser").exists();
     }
 
+    /**
+     * Elimina il file di salvataggio dell'utente da disco al termine o annullamento della partita.
+     *
+     * @param email indirizzo email dell'utente
+     * @return {@code true} se almeno un file di salvataggio è stato cancellato con successo
+     */
     public static boolean eliminaSalvataggio(String email) {
         if (email == null) return false;
         boolean b1 = getSaveFile(email).delete();
@@ -252,6 +386,8 @@ public class SessioneDiGioco implements Serializable {
 
     /**
      * Metodo di retrocompatibilità: accetta un nome file e salva nella directory designata.
+     *
+     * @param nomeFile nome o percorso del file di destinazione (ignorato in favore del path standard applicativo)
      */
     public synchronized void salvaSessioneDiGioco(String nomeFile) {
         salvaSessioneDiGioco();
@@ -300,6 +436,9 @@ public class SessioneDiGioco implements Serializable {
 
     /**
      * Retrocompatibilità: delega a caricaSessioneDiGiocoPerEmail estraendo l'email o usandola come path.
+     *
+     * @param nomeFile nome o percorso del file di salvataggio da cui caricare lo stato
+     * @throws IOException se si verifica un errore durante la lettura o il caricamento del file
      */
     public synchronized void caricaSessioneDiGioco(String nomeFile) throws IOException {
         if (this.utente != null && this.utente.getEmail() != null) {

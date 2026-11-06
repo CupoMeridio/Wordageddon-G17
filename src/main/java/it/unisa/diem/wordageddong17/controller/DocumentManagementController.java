@@ -47,6 +47,11 @@ public class DocumentManagementController implements Initializable {
 
     private static final Logger LOGGER = Logger.getLogger(DocumentManagementController.class.getName());
 
+    /**
+     * Costruttore predefinito utilizzato da FXMLLoader.
+     */
+    public DocumentManagementController() {}
+
     @FXML
     private TableView<DocumentoDiTesto> gestDocTabella;
     @FXML

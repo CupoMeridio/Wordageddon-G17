@@ -220,13 +220,18 @@ Wordageddon-G17/
 
 ## Documentazione e Javadoc
 
-Per generare la documentazione Javadoc aggiornata:
-```bash
-mvn javadoc:javadoc
-```
-I file HTML saranno generati in `target/site/apidocs/index.html`.
+La documentazione delle API e i riferimenti formali di progetto sono fruibili in diverse modalità:
 
-La relazione formale e la presentazione sono archiviate nella cartella [`docs/`](./docs/).
+- **Consultazione Online (GitHub Pages)**: [cupomeridio.github.io/Wordageddon-G17](https://cupomeridio.github.io/Wordageddon-G17/)  
+  *(Compilata e aggiornata automaticamente ad ogni push sul branch `main`)*
+- **Pacchetto Offline**: allegato come `Wordageddon-javadoc.jar` nella sezione **[Latest Release](https://github.com/CupoMeridio/Wordageddon-G17/releases/tag/latest)**.
+- **Generazione manuale da sorgenti**:
+  ```bash
+  mvn javadoc:javadoc
+  ```
+  I file HTML generati saranno disponibili localmente in `target/reports/apidocs/index.html`.
+
+La relazione accademica formale, le slide e i diagrammi UML delle classi sono archiviati nella cartella [`docs/`](./docs/).
 
 ---
 

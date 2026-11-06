@@ -28,6 +28,11 @@ public class DocumentUploadController {
 
     private static final Logger LOGGER = Logger.getLogger(DocumentUploadController.class.getName());
 
+    /**
+     * Costruttore predefinito utilizzato da FXMLLoader.
+     */
+    public DocumentUploadController() {}
+
     @FXML
     private TextField pathTextField;
 

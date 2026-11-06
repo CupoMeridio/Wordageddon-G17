@@ -26,6 +26,11 @@ import javafx.scene.layout.VBox;
  */
 public class HomeController implements Initializable {
 
+    /**
+     * Costruttore predefinito utilizzato da FXMLLoader.
+     */
+    public HomeController() {}
+
     @FXML
     private AnchorPane schermataHome;
 

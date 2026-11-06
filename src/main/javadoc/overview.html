@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>Wordageddon G17 - Overview</title>
+</head>
+<body>
+    <h1>Wordageddon G17 - Specifiche e Documentazione API</h1>
+    <p>
+        <strong>Wordageddon</strong> &egrave; un'applicazione desktop ludico-educativa sviluppata in 
+        <strong>JavaFX</strong> e <strong>PostgreSQL</strong> per testare la memoria di lavoro, la comprensione testuale
+        e la velocit&agrave; di elaborazione linguistica attraverso quiz a scelta multipla generati dinamicamente
+        da testi letterari in diverse lingue (italiano, inglese, spagnolo, francese, tedesco).
+    </p>
+
+    <h2>Architettura del Sistema</h2>
+    <p>
+        Il progetto &egrave; strutturato secondo il pattern architetturale <strong>Model-View-Controller (MVC)</strong> 
+        disaccoppiato mediante il pattern <strong>Data Access Object (DAO)</strong> e supportato da servizi centralizzati:
+    </p>
+    <ul>
+        <li><code>it.unisa.diem.wordageddong17</code>: Punti di ingresso dell'applicazione e ciclo di vita JavaFX.</li>
+        <li><code>it.unisa.diem.wordageddong17.controller</code>: Controller FXML modulari per la gestione delle interazioni utente.</li>
+        <li><code>it.unisa.diem.wordageddong17.database</code>: Gestione del database PostgreSQL con connection pooling <strong>HikariCP</strong>.</li>
+        <li><code>it.unisa.diem.wordageddong17.interfaccia</code>: Contratti e interfacce DAO per l'accesso ai dati.</li>
+        <li><code>it.unisa.diem.wordageddong17.model</code>: Modello di dominio, generazione quiz e sessione di gioco.</li>
+        <li><code>it.unisa.diem.wordageddong17.service</code>: Servizi di navigazione e gestione overlay (<code>NavigationService</code>).</li>
+        <li><code>it.unisa.diem.wordageddong17.util</code>: Classi helper per validazione, finestre di dialogo e immagini.</li>
+    </ul>
+</body>
+</html>

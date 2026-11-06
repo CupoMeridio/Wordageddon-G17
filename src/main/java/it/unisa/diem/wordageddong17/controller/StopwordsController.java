@@ -21,6 +21,11 @@ import javafx.scene.control.TextArea;
  */
 public class StopwordsController implements Initializable {
 
+    /**
+     * Costruttore predefinito utilizzato da FXMLLoader.
+     */
+    public StopwordsController() {}
+
     @FXML
     private TextArea stopwordTextArea;
 

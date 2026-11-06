@@ -27,7 +27,7 @@ jobs:
           cache: 'maven'
 
       - name: Compilazione e creazione Fat JAR con Maven
-        run: mvn clean package -DskipTests
+        run: mvn clean package javadoc:jar -DskipTests
 
       - name: Preparazione artefatti ed eseguibili con jpackage
         shell: pwsh
@@ -37,6 +37,12 @@ jobs:
           $fatJar = Get-Item "target/*-jar-with-dependencies.jar", "target/*-shaded.jar" -ErrorAction SilentlyContinue | Select-Object -First 1
           Copy-Item $fatJar.FullName -Destination "target/jpackage-input/Wordageddon.jar"
           Copy-Item $fatJar.FullName -Destination "target/Wordageddon.jar"
+
+          # 1b. Copia l'archivio Javadoc con nome normalizzato
+          $javadocJar = Get-Item "target/*-javadoc.jar" -ErrorAction SilentlyContinue | Select-Object -First 1
+          if ($javadocJar) {
+            Copy-Item $javadocJar.FullName -Destination "target/Wordageddon-javadoc.jar"
+          }
 
           # 2. Crea il pacchetto autonomo portatile (Cartella con .exe + Java Runtime integrato)
           jpackage --type app-image `
@@ -77,7 +83,8 @@ jobs:
             - **`Wordageddon-Windows-Portable.zip`**: Versione portabile per Windows (apri lo zip ed avvia `Wordageddon.exe`, **non richiede Java preinstallato**).
             - **`Wordageddon-*.msi`**: Pacchetto di installazione guidata per Windows (crea collegamenti sul Desktop e nel Menu Start, **non richiede Java preinstallato**).
             - **`Wordageddon.jar`**: File JAR eseguibile multipiattaforma (richiede Java 17 o superiore).
-          artifacts: "target/Wordageddon.jar,target/Wordageddon-Windows-Portable.zip,target/*.msi"
+            - **`Wordageddon-javadoc.jar`**: Archivio completo della documentazione API Javadoc per consultazione offline.
+          artifacts: "target/Wordageddon.jar,target/Wordageddon-javadoc.jar,target/Wordageddon-Windows-Portable.zip,target/*.msi"
           allowUpdates: true
           removeArtifacts: true
           replacesArtifacts: true

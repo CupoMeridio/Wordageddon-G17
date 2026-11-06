@@ -173,6 +173,26 @@
                     <argLine>--enable-native-access=ALL-UNNAMED</argLine>
                 </configuration>
             </plugin>
+
+            <!-- Plugin per la generazione della documentazione Javadoc -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.11.2</version>
+                <configuration>
+                    <release>${maven.compiler.release}</release>
+                    <encoding>UTF-8</encoding>
+                    <charset>UTF-8</charset>
+                    <docencoding>UTF-8</docencoding>
+                    <windowtitle>Wordageddon G17 - Documentazione API</windowtitle>
+                    <doctitle>Wordageddon G17 - Specifiche delle API di Progetto</doctitle>
+                    <overview>${project.basedir}/src/main/javadoc/overview.html</overview>
+                    <show>protected</show>
+                    <links>
+                        <link>https://docs.oracle.com/en/java/javase/17/docs/api/</link>
+                    </links>
+                </configuration>
+            </plugin>
         </plugins>
 
         <resources>

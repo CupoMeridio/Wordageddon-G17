@@ -19,6 +19,11 @@ import javafx.scene.control.TextField;
  */
 public class LoginController {
 
+    /**
+     * Costruttore predefinito utilizzato da FXMLLoader.
+     */
+    public LoginController() {}
+
     @FXML
     private TextField emailTextField;
 

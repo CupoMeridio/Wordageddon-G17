@@ -25,6 +25,11 @@ import javafx.scene.control.ToggleGroup;
  */
 public class GameSetupController implements Initializable {
 
+    /**
+     * Costruttore predefinito utilizzato da FXMLLoader.
+     */
+    public GameSetupController() {}
+
     @FXML
     private RadioButton radioFacile;
 

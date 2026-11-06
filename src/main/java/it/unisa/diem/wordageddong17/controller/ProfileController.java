@@ -48,6 +48,11 @@ public class ProfileController implements Initializable {
 
     private static final Logger LOGGER = Logger.getLogger(ProfileController.class.getName());
 
+    /**
+     * Costruttore predefinito utilizzato da FXMLLoader.
+     */
+    public ProfileController() {}
+
     @FXML
     private Label usernameInfoUtente;
     @FXML

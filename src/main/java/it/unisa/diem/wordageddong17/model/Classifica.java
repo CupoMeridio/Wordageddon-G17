@@ -44,6 +44,10 @@ public class Classifica {
 
     /**
      * Costruttore per la cronologia personale dell'utente (username opzionale).
+     *
+     * @param data       timestamp della partita
+     * @param punti      punteggio totalizzato
+     * @param difficolta livello di difficoltà della partita
      */
     public Classifica(Timestamp data, float punti, LivelloPartita difficolta) {
         this("", data, punti, difficolta);

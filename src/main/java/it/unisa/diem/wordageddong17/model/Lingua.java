@@ -56,6 +56,11 @@ public enum Lingua {
         return codice;
     }
 
+    /**
+     * Restituisce la rappresentazione della lingua compatibile con il tipo enumerato del database.
+     *
+     * @return il codice stringa memorizzato nel database relazionale
+     */
     public String getDbValue() {
         return codice;
     }
@@ -89,6 +94,13 @@ public enum Lingua {
         throw new IllegalArgumentException("Codice lingua non valido: '" + codice + "'");
     }
 
+    /**
+     * Converte un valore testuale proveniente dal database nella corrispondente istanza {@link Lingua}.
+     *
+     * @param dbValue il valore letto dalla colonna lingua del database
+     * @return l'istanza di Lingua associata
+     * @throws IllegalArgumentException se il valore è null o non riconosciuto
+     */
     public static Lingua fromDbValue(String dbValue) {
         return fromCodice(dbValue);
     }

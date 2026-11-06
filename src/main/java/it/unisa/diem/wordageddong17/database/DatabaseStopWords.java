@@ -114,6 +114,11 @@ public class DatabaseStopWords implements DAOListaStopWords {
         private static final DatabaseStopWords INSTANCE = new DatabaseStopWords();
     }
 
+    /**
+     * Restituisce l'istanza singleton di {@link DatabaseStopWords}.
+     *
+     * @return istanza condivisa
+     */
     public static DatabaseStopWords getInstance() {
         return Holder.INSTANCE;
     }

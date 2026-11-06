@@ -28,6 +28,11 @@ import javafx.scene.control.cell.PropertyValueFactory;
  */
 public class LeaderboardController implements Initializable {
 
+    /**
+     * Costruttore predefinito utilizzato da FXMLLoader.
+     */
+    public LeaderboardController() {}
+
     @FXML
     private TableView<Classifica> facileTable;
     @FXML

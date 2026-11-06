@@ -28,6 +28,11 @@ import javafx.scene.input.MouseEvent;
  */
 public class RegistrationController implements Initializable {
 
+    /**
+     * Costruttore predefinito utilizzato da FXMLLoader.
+     */
+    public RegistrationController() {}
+
     @FXML
     private Label usernameLabel;
 

@@ -118,6 +118,12 @@ public class DatabaseClassifica implements DAOClassifica {
         }
     }
 
+    /**
+     * Alias per {@link #recuperaCronologiaPartite(String)}.
+     *
+     * @param email l'email dell'utente
+     * @return lista dei punteggi conseguiti dall'utente
+     */
     public List<Classifica> prendiCronologia(String email) {
         return recuperaCronologiaPartite(email);
     }
@@ -155,6 +161,13 @@ public class DatabaseClassifica implements DAOClassifica {
         }
     }
 
+    /**
+     * Alias per {@link #recuperaMigliorPunteggio(String, String)}.
+     *
+     * @param email l'email dell'utente
+     * @param difficoltà la difficoltà richiesta
+     * @return il miglior punteggio, oppure 0 se assente
+     */
     public float prendiMigliorPunteggioPerLivello(String email, String difficoltà) {
         return recuperaMigliorPunteggio(email, difficoltà);
     }
@@ -192,6 +205,13 @@ public class DatabaseClassifica implements DAOClassifica {
         }
     }
 
+    /**
+     * Alias per {@link #recuperaNumeroPartite(String, String)}.
+     *
+     * @param email l'email dell'utente
+     * @param difficoltà il livello di difficoltà
+     * @return numero di partite
+     */
     public int prendiNumeroPartite(String email, String difficoltà) {
         return recuperaNumeroPartite(email, difficoltà);
     }
@@ -222,6 +242,11 @@ public class DatabaseClassifica implements DAOClassifica {
         private static final DatabaseClassifica INSTANCE = new DatabaseClassifica();
     }
 
+    /**
+     * Restituisce l'istanza singleton di {@link DatabaseClassifica}.
+     *
+     * @return istanza condivisa
+     */
     public static DatabaseClassifica getInstance() {
         return Holder.INSTANCE;
     }

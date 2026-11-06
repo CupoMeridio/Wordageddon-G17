@@ -215,6 +215,11 @@ public class DatabaseUtente implements DAOUtente {
         private static final DatabaseUtente INSTANCE = new DatabaseUtente();
     }
 
+    /**
+     * Restituisce l'istanza singleton di {@link DatabaseUtente}.
+     *
+     * @return istanza condivisa
+     */
     public static DatabaseUtente getInstance() {
         return Holder.INSTANCE;
     }

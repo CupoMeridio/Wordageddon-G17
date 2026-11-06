@@ -11,6 +11,7 @@ import it.unisa.diem.wordageddong17.model.Lingua;
 import it.unisa.diem.wordageddong17.model.LivelloPartita;
 import it.unisa.diem.wordageddong17.model.SessioneDiGioco;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -42,19 +43,46 @@ public class CaricaSessioneDiGiocoService extends Service<List<GeneratoreDomande
      * @param lingua La lista delle lingue supportate.
      */
     public CaricaSessioneDiGiocoService(SessioneDiGioco sessione, LivelloPartita livello, ArrayList<Lingua> lingua) {
-        this();
-        this.sessione = sessione;
-        this.livello = livello;
-        this.lingua = lingua; 
+        this(DatabaseDocumentoDiTesto.getInstance(), DatabaseStopWords.getInstance(), new AnalisiDocumenti(),
+                sessione, livello, lingua);
     }
 
     /**
      * Costruttore di default che inizializza le risorse di database e analisi.
      */
     public CaricaSessioneDiGiocoService() {
-        this.dbDT = DatabaseDocumentoDiTesto.getInstance();
-        this.dbSW = DatabaseStopWords.getInstance();
-        this.analisi = new AnalisiDocumenti();
+        this(DatabaseDocumentoDiTesto.getInstance(), DatabaseStopWords.getInstance(), new AnalisiDocumenti());
+    }
+
+    /**
+     * Costruttore con iniezione delle dipendenze, utilizzabile nei test.
+     *
+     * @param dbDT Il DAO dei documenti di testo da utilizzare.
+     * @param dbSW Il DAO delle stopwords da utilizzare.
+     * @param analisi L'istanza di analisi dei documenti da utilizzare.
+     */
+    CaricaSessioneDiGiocoService(DAODocumentoDiTesto dbDT, DAOListaStopWords dbSW, AnalisiDocumenti analisi) {
+        this.dbDT = dbDT;
+        this.dbSW = dbSW;
+        this.analisi = analisi;
+    }
+
+    /**
+     * Costruttore con iniezione delle dipendenze, utilizzabile nei test.
+     *
+     * @param dbDT Il DAO dei documenti di testo da utilizzare.
+     * @param dbSW Il DAO delle stopwords da utilizzare.
+     * @param analisi L'istanza di analisi dei documenti da utilizzare.
+     * @param sessione La sessione di gioco da caricare.
+     * @param livello Il livello della partita.
+     * @param lingua La lista delle lingue supportate.
+     */
+    CaricaSessioneDiGiocoService(DAODocumentoDiTesto dbDT, DAOListaStopWords dbSW, AnalisiDocumenti analisi,
+            SessioneDiGioco sessione, LivelloPartita livello, ArrayList<Lingua> lingua) {
+        this(dbDT, dbSW, analisi);
+        this.sessione = sessione;
+        this.livello = livello;
+        this.lingua = lingua;
     }
     
     // Metodi getter e setter
@@ -84,9 +112,9 @@ public class CaricaSessioneDiGiocoService extends Service<List<GeneratoreDomande
      * @return La durata calcolata della sessione.
      */
     private int calcolaDurata(LivelloPartita l) {
-        int durata = livello.getCalcolaDurataPerLivello();
+        int durata = l.getCalcolaDurataPerLivello();
         int numeroParole = sessione.getDocumenti().values().stream()
-                          .mapToInt(b -> (new String(b).split("[\\s,\\n.;!?]+").length))
+                          .mapToInt(b -> (new String(b, StandardCharsets.UTF_8).split("[\\s,\\n.;!?]+").length))
                           .sum();
         return (int) (durata + (numeroParole * l.getMoltiplicatorePerLivello()));
     }
@@ -113,43 +141,46 @@ public class CaricaSessioneDiGiocoService extends Service<List<GeneratoreDomande
     /**
      * Genera l'analisi per un documento specifico.
      *
-     * @param NomeDocumento Il nome del documento da analizzare.
+     * @param nomeDocumento Il nome del documento da analizzare.
      * @param doc Il contenuto del documento.
      */
-    public void generaAnalisi(String NomeDocumento, byte[] doc) {
+    public void generaAnalisi(String nomeDocumento, byte[] doc) {
         try {
-            analisi.analisiUnDocumento(doc, NomeDocumento);
+            analisi.analisiUnDocumento(doc, nomeDocumento);
         } catch (IOException ex) {
-            System.getLogger(CaricaSessioneDiGiocoService.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+            System.getLogger(CaricaSessioneDiGiocoService.class.getName())
+                    .log(System.Logger.Level.ERROR, (String) null, ex);
         }
     }
 
     /**
      * Genera un elenco di domande basate sui documenti disponibili.
      *
-     * @param Documenti Mappa contenente i documenti.
+     * @param documenti Mappa contenente i documenti.
      * @param analisi Istanza dell'analisi documenti.
      * @param numeroDomande Numero totale di domande da generare.
      * @param docFiltrati Mappa dei documenti filtrati per difficoltà e per lingua in base alle scelte del giocatore
      * @return Una lista di domande generate.
      * @throws MancanzaDiDocumenti Se non ci sono documenti disponibili.
      */
-    public List<GeneratoreDomande.Domanda> generaDomande(Map<String, byte[]> Documenti, AnalisiDocumenti analisi, int numeroDomande,Map<String, Lingua> docFiltrati) throws MancanzaDiDocumenti {
+    public List<GeneratoreDomande.Domanda> generaDomande(Map<String, byte[]> documenti, AnalisiDocumenti analisi,
+            int numeroDomande, Map<String, Lingua> docFiltrati) throws MancanzaDiDocumenti {
         GeneratoreDomande gen = new GeneratoreDomande(analisi);
-        String[] nomiDocumenti = Documenti.keySet().toArray(new String[0]);
+        String[] nomiDocumenti = documenti.keySet().toArray(new String[0]);
         
         if (nomiDocumenti.length == 0) {
             throw new MancanzaDiDocumenti("Non ci sono abbastanza documenti");
         }
 
-        List<GeneratoreDomande.Domanda> Domande = new ArrayList<>();
+        List<GeneratoreDomande.Domanda> domande = new ArrayList<>();
         int domandePerDocumento = numeroDomande / nomiDocumenti.length;
         int documentiExtra = numeroDomande % nomiDocumenti.length;
         
         for (int i = 0; i < nomiDocumenti.length; i++) {
-            Domande.addAll(gen.getRaccoltaDiDomande(domandePerDocumento + (i < documentiExtra ? 1 : 0), nomiDocumenti[i],docFiltrati.get(nomiDocumenti[i])));
+            domande.addAll(gen.getRaccoltaDiDomande(domandePerDocumento + (i < documentiExtra ? 1 : 0),
+                    nomiDocumenti[i], docFiltrati.get(nomiDocumenti[i])));
         }
-        return Domande;
+        return domande;
     }
 
     /**
@@ -170,11 +201,12 @@ public class CaricaSessioneDiGiocoService extends Service<List<GeneratoreDomande
                 updateProgress(40, 100);
                 Map<String, Lingua> docFiltrati = dbDT.prendiNomiDocumentiFiltrati(livello, lingua);
                 ArrayList<String> nomiDoc = new ArrayList<>(docFiltrati.keySet());
-                Map<String, byte[]> Documenti = prendiDocumentiCasuali(nomiDoc, livello);
-                sessione.setDocumenti(Documenti);
+                Map<String, byte[]> documenti = prendiDocumentiCasuali(nomiDoc, livello);
+                sessione.setDocumenti(documenti);
                 updateProgress(65, 100);
-                List<GeneratoreDomande.Domanda> Domande = generaDomande(sessione.getDocumenti(), analisi, sessione.getNumeroDomande(),docFiltrati);
-                sessione.setDomande(Domande);
+                List<GeneratoreDomande.Domanda> domande = generaDomande(sessione.getDocumenti(), analisi,
+                        sessione.getNumeroDomande(), docFiltrati);
+                sessione.setDomande(domande);
                 updateProgress(70, 100);
                 sessione.setDurata(calcolaDurata(livello));
                 updateProgress(80, 100);

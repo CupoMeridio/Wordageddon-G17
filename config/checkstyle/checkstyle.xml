@@ -1,0 +1,61 @@
+<?xml version="1.0"?>
+<!DOCTYPE module PUBLIC
+    "-//Checkstyle//DTD Checkstyle Configuration 1.3//EN"
+    "https://checkstyle.org/dtds/configuration_1_3.dtd">
+
+<!--
+    Configurazione Checkstyle su misura per il progetto Wordageddon-G17.
+    Obiettivo: segnalare problemi realmente utili (import inutilizzati, confronti
+    errati di stringhe, uso di "==" su oggetti, switch senza default, ecc.)
+    evitando il rumore dato dallo stile Google predefinito (indentazione a 2 spazi).
+    Stile adottato dal progetto: indentazione a 4 spazi, righe fino a 120 caratteri.
+-->
+<module name="Checker">
+    <property name="charset" value="UTF-8"/>
+    <property name="fileExtensions" value="java"/>
+    <property name="severity" value="warning"/>
+
+    <!-- Il file deve terminare con un carattere di nuova riga -->
+    <module name="NewlineAtEndOfFile"/>
+
+    <!-- Nessun carattere di tabulazione: usare gli spazi -->
+    <module name="FileTabCharacter">
+        <property name="eachLine" value="true"/>
+    </module>
+
+    <!-- Lunghezza massima della riga -->
+    <module name="LineLength">
+        <property name="max" value="120"/>
+        <property name="ignorePattern" value="^package.*|^import.*|href|http://|https://|ftp://"/>
+    </module>
+
+    <module name="TreeWalker">
+        <!-- Import -->
+        <module name="UnusedImports"/>
+        <module name="RedundantImport"/>
+        <module name="AvoidStarImport"/>
+
+        <!-- Blocchi e parentesi -->
+        <module name="NeedBraces"/>
+        <module name="LeftCurly"/>
+        <module name="RightCurly"/>
+
+        <!-- Indentazione (4 spazi, come da stile del progetto) -->
+        <module name="Indentation">
+            <property name="basicOffset" value="4"/>
+            <property name="braceAdjustment" value="0"/>
+            <property name="caseIndent" value="4"/>
+            <property name="throwsIndent" value="4"/>
+            <property name="arrayInitIndent" value="4"/>
+            <property name="lineWrappingIndentation" value="4"/>
+        </module>
+
+        <!-- Costrutti potenzialmente errati -->
+        <module name="EqualsHashCode"/>
+        <module name="StringLiteralEquality"/>
+        <module name="SimplifyBooleanExpression"/>
+        <module name="SimplifyBooleanReturn"/>
+        <module name="MissingSwitchDefault"/>
+        <module name="FallThrough"/>
+    </module>
+</module>

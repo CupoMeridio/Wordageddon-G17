@@ -53,7 +53,9 @@ public final class ImageUtils {
      * @param dimensione Dimensione lato del quadrato in pixel.
      */
     public static void ritagliaQuadrato(ImageView imageView, double dimensione) {
-        if (imageView == null) return;
+        if (imageView == null) {
+            return;
+        }
         imageView.setFitWidth(dimensione);
         imageView.setFitHeight(dimensione);
         imageView.setPreserveRatio(true);
@@ -80,7 +82,9 @@ public final class ImageUtils {
      * @param dimensione Diametro del cerchio in pixel.
      */
     public static void ritagliaCerchio(ImageView imageView, double dimensione) {
-        if (imageView == null) return;
+        if (imageView == null) {
+            return;
+        }
         imageView.setFitWidth(dimensione);
         imageView.setFitHeight(dimensione);
         imageView.setPreserveRatio(true);
@@ -107,7 +111,9 @@ public final class ImageUtils {
      * @return {@code true} se valido, {@code false} altrimenti.
      */
     public static boolean validaImmagine(File file) {
-        if (file == null) return false;
+        if (file == null) {
+            return false;
+        }
         if (file.length() > MAX_IMAGE_SIZE_BYTES) {
             AlertUtils.mostraAlert("Errore", "L'immagine è troppo grande (max 5MB)", Alert.AlertType.ERROR);
             return false;
@@ -142,7 +148,6 @@ public final class ImageUtils {
         try {
             File file = fileChooser.showOpenDialog(owner);
             if (file == null) {
-                AlertUtils.mostraAlert("Attenzione", "Nessun file selezionato.", Alert.AlertType.WARNING);
                 return null;
             }
             if (!validaImmagine(file)) {

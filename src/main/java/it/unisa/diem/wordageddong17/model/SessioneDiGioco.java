@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputFilter;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
@@ -12,10 +13,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -34,17 +35,44 @@ public class SessioneDiGioco implements Serializable {
     private static final Logger LOGGER = Logger.getLogger(SessioneDiGioco.class.getName());
     private static final long serialVersionUID = 4L;
 
+    /**
+     * Filtro applicato alla deserializzazione dei file di salvataggio.
+     * <p>
+     * Consente la deserializzazione delle sole classi dell'applicazione
+     * (pacchetto {@code it.unisa.diem.wordageddong17}) e delle classi di libreria
+     * necessarie alle collezioni e ai tipi base ({@code java.lang}, {@code java.util}).
+     * Qualunque altra classe viene rifiutata, scongiurando l'esecuzione di gadget
+     * malevoli tramite file di salvataggio contraffatti.
+     */
+    private static final ObjectInputFilter FILTRO_SALVATAGGIO = info -> {
+        Class<?> clazz = info.serialClass();
+        if (clazz == null) {
+            return ObjectInputFilter.Status.UNDECIDED;
+        }
+        while (clazz.isArray()) {
+            clazz = clazz.getComponentType();
+        }
+        if (clazz.isPrimitive()) {
+            return ObjectInputFilter.Status.ALLOWED;
+        }
+        String nome = clazz.getName();
+        boolean consentita = nome.startsWith("it.unisa.diem.wordageddong17.")
+                || nome.startsWith("java.lang.")
+                || nome.startsWith("java.util.");
+        return consentita ? ObjectInputFilter.Status.ALLOWED : ObjectInputFilter.Status.REJECTED;
+    };
+
     /** L'utente associato a questa sessione di gioco */
     private Utente utente;
 
     /** Lista delle domande della sessione */
-    private List<Domanda> Domande;
+    private List<Domanda> domande;
 
     /** Mappa delle risposte date, associando ogni domanda all'indice della risposta selezionata */
     private Map<Domanda, Integer> risposte;
 
     /** Documenti associati alla sessione: chiave = nome documento, valore = contenuto in byte */
-    private Map<String, byte[]> Documenti;
+    private Map<String, byte[]> documenti;
 
     /** Numero totale di domande per la sessione */
     private int numeroDomande;
@@ -71,8 +99,8 @@ public class SessioneDiGioco implements Serializable {
      * Costruttore di default. Inizializza le strutture dati vuote.
      */
     public SessioneDiGioco() {
-        this.Domande = new ArrayList<>();
-        this.Documenti = new HashMap<>();
+        this.domande = new ArrayList<>();
+        this.documenti = new HashMap<>();
         this.risposte = new HashMap<>();
         this.durata = 0;
         this.durataIniziale = 0;
@@ -111,7 +139,7 @@ public class SessioneDiGioco implements Serializable {
      *
      * @return il livello di gioco impostato
      */
-    public LivelloPartita getLivello() {
+    public synchronized LivelloPartita getLivello() {
         return livello;
     }
 
@@ -120,7 +148,7 @@ public class SessioneDiGioco implements Serializable {
      *
      * @param livello il livello di gioco da impostare
      */
-    public void setLivello(LivelloPartita livello) {
+    public synchronized void setLivello(LivelloPartita livello) {
         this.livello = livello;
     }
 
@@ -129,7 +157,7 @@ public class SessioneDiGioco implements Serializable {
      *
      * @return l'utente corrente
      */
-    public Utente getUtente() {
+    public synchronized Utente getUtente() {
         return utente;
     }
 
@@ -138,7 +166,7 @@ public class SessioneDiGioco implements Serializable {
      *
      * @param utente l'utente da associare
      */
-    public void setUtente(Utente utente) {
+    public synchronized void setUtente(Utente utente) {
         this.utente = utente;
     }
 
@@ -147,7 +175,7 @@ public class SessioneDiGioco implements Serializable {
      *
      * @param numeroDomande numero di quesiti
      */
-    public void setNumeroDomande(int numeroDomande) {
+    public synchronized void setNumeroDomande(int numeroDomande) {
         this.numeroDomande = numeroDomande;
     }
 
@@ -156,7 +184,7 @@ public class SessioneDiGioco implements Serializable {
      *
      * @param punteggioFatto punteggio cumulativo
      */
-    public void setPunteggioFatto(float punteggioFatto) {
+    public synchronized void setPunteggioFatto(float punteggioFatto) {
         this.punteggioFatto = punteggioFatto;
     }
 
@@ -165,7 +193,7 @@ public class SessioneDiGioco implements Serializable {
      *
      * @param durata durata residua del timer
      */
-    public void setDurata(int durata) {
+    public synchronized void setDurata(int durata) {
         this.durata = durata;
     }
 
@@ -174,7 +202,7 @@ public class SessioneDiGioco implements Serializable {
      *
      * @param numeroDocumenti numero di testi
      */
-    public void setNumeroDocumenti(int numeroDocumenti) {
+    public synchronized void setNumeroDocumenti(int numeroDocumenti) {
         this.numeroDocumenti = numeroDocumenti;
     }
 
@@ -183,7 +211,7 @@ public class SessioneDiGioco implements Serializable {
      *
      * @return array di byte del file stopwords
      */
-    public byte[] getStopWords() {
+    public synchronized byte[] getStopWords() {
         return stopWords;
     }
 
@@ -192,7 +220,7 @@ public class SessioneDiGioco implements Serializable {
      *
      * @param stopWords array di byte delle stopwords
      */
-    public void setStopWords(byte[] stopWords) {
+    public synchronized void setStopWords(byte[] stopWords) {
         this.stopWords = stopWords;
     }
 
@@ -201,7 +229,7 @@ public class SessioneDiGioco implements Serializable {
      *
      * @return secondi rimanenti
      */
-    public int getDurata() {
+    public synchronized int getDurata() {
         return durata;
     }
 
@@ -210,7 +238,7 @@ public class SessioneDiGioco implements Serializable {
      *
      * @return quantità di documenti
      */
-    public int getNumeroDocumenti() {
+    public synchronized int getNumeroDocumenti() {
         return numeroDocumenti;
     }
 
@@ -219,8 +247,8 @@ public class SessioneDiGioco implements Serializable {
      *
      * @return mappa con associazione domanda - indice risposta
      */
-    public Map<Domanda, Integer> getRisposte() {
-        return risposte;
+    public synchronized Map<Domanda, Integer> getRisposte() {
+        return Collections.unmodifiableMap(new HashMap<>(risposte));
     }
 
     /**
@@ -228,7 +256,7 @@ public class SessioneDiGioco implements Serializable {
      *
      * @return punteggio attuale
      */
-    public float getPunteggioFatto() {
+    public synchronized float getPunteggioFatto() {
         return punteggioFatto;
     }
 
@@ -237,8 +265,8 @@ public class SessioneDiGioco implements Serializable {
      *
      * @return lista di domande
      */
-    public List<Domanda> getDomande() {
-        return Domande;
+    public synchronized List<Domanda> getDomande() {
+        return Collections.unmodifiableList(new ArrayList<>(domande));
     }
 
     /**
@@ -246,36 +274,36 @@ public class SessioneDiGioco implements Serializable {
      *
      * @return durata iniziale in secondi
      */
-    public int getDurataIniziale() {
+    public synchronized int getDurataIniziale() {
         return durataIniziale;
     }
 
     /**
      * Imposta la mappa dei documenti caricati per l'analisi.
      *
-     * @param Documenti mappa titolo - contenuto binario dei documenti
+     * @param documenti mappa titolo - contenuto binario dei documenti
      */
-    public void setDocumenti(Map<String, byte[]> Documenti) {
-        this.Documenti = Documenti;
+    public synchronized void setDocumenti(Map<String, byte[]> documenti) {
+        this.documenti = documenti == null ? new HashMap<>() : new HashMap<>(documenti);
     }
 
     /**
      * Imposta l'elenco delle domande della partita.
      *
-     * @param Domande lista di domande
+     * @param domande lista di domande
      */
-    public void setDomande(List<Domanda> Domande) {
-        this.Domande = Domande;
+    public synchronized void setDomande(List<Domanda> domande) {
+        this.domande = domande == null ? new ArrayList<>() : new ArrayList<>(domande);
     }
 
     /**
      * Aggiunge un documento di testo alla mappa dei documenti della sessione.
      *
      * @param chiave titolo o identificativo del documento
-     * @param Documento contenuto binario del testo
+     * @param documento contenuto binario del testo
      */
-    public void addDocumenti(String chiave, byte[] Documento) {
-        this.Documenti.put(chiave, Documento);
+    public synchronized void addDocumenti(String chiave, byte[] documento) {
+        this.documenti.put(chiave, documento);
     }
 
     /**
@@ -283,8 +311,8 @@ public class SessioneDiGioco implements Serializable {
      *
      * @return mappa titolo - contenuto binario
      */
-    public Map<String, byte[]> getDocumenti() {
-        return Documenti;
+    public synchronized Map<String, byte[]> getDocumenti() {
+        return Collections.unmodifiableMap(new HashMap<>(documenti));
     }
 
     /**
@@ -292,7 +320,7 @@ public class SessioneDiGioco implements Serializable {
      *
      * @return numero di quesiti
      */
-    public int getNumeroDomande() {
+    public synchronized int getNumeroDomande() {
         return numeroDomande;
     }
 
@@ -301,7 +329,7 @@ public class SessioneDiGioco implements Serializable {
      *
      * @param durataIniziale durata di partenza
      */
-    public void setDurataIniziale(int durataIniziale) {
+    public synchronized void setDurataIniziale(int durataIniziale) {
         this.durataIniziale = durataIniziale;
     }
 
@@ -332,7 +360,9 @@ public class SessioneDiGioco implements Serializable {
      * @return file del salvataggio serializzato
      */
     public static File getSaveFile(String email) {
-        if (email == null) return new File("save_anonymous.ser");
+        if (email == null) {
+            return new File("save_anonymous.ser");
+        }
         String safeEmail = email.replaceAll("[^a-zA-Z0-9.-]", "_");
         return getSaveDirectory().resolve("save_" + safeEmail + ".ser").toFile();
     }
@@ -344,9 +374,13 @@ public class SessioneDiGioco implements Serializable {
      * @return {@code true} se esiste un salvataggio non vuoto, {@code false} altrimenti
      */
     public static boolean esisteSalvataggio(String email) {
-        if (email == null) return false;
+        if (email == null) {
+            return false;
+        }
         File appSave = getSaveFile(email);
-        if (appSave.exists() && appSave.length() > 0) return true;
+        if (appSave.exists() && appSave.length() > 0) {
+            return true;
+        }
 
         // Retrocompatibilità con i salvataggi nella CWD
         return new File("SalvataggioDi" + email + ".ser").exists() ||
@@ -360,7 +394,9 @@ public class SessioneDiGioco implements Serializable {
      * @return {@code true} se almeno un file di salvataggio è stato cancellato con successo
      */
     public static boolean eliminaSalvataggio(String email) {
-        if (email == null) return false;
+        if (email == null) {
+            return false;
+        }
         boolean b1 = getSaveFile(email).delete();
         boolean b2 = new File("SalvataggioDi" + email + ".ser").delete();
         boolean b3 = new File("SalvataggioFaseGenerazioneDi" + email + ".ser").delete();
@@ -394,6 +430,20 @@ public class SessioneDiGioco implements Serializable {
     }
 
     /**
+     * Apre un flusso di deserializzazione applicando il {@link #FILTRO_SALVATAGGIO}
+     * di sicurezza per limitare le classi deserializzabili.
+     *
+     * @param file file di salvataggio da leggere
+     * @return il flusso di input configurato
+     * @throws IOException se l'apertura del file fallisce
+     */
+    private static ObjectInputStream apriObjectInputStream(File file) throws IOException {
+        ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
+        ois.setObjectInputFilter(FILTRO_SALVATAGGIO);
+        return ois;
+    }
+
+    /**
      * Carica lo stato della sessione dal file di salvataggio per l'utente specificato.
      *
      * @param email email dell'utente
@@ -415,13 +465,13 @@ public class SessioneDiGioco implements Serializable {
             throw new IOException("Nessun file di salvataggio trovato per l'utente " + email);
         }
 
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(fileDaLeggere))) {
+        try (ObjectInputStream ois = apriObjectInputStream(fileDaLeggere)) {
             SessioneDiGioco s = (SessioneDiGioco) ois.readObject();
             this.utente = s.getUtente();
-            this.Domande = s.getDomande() != null ? s.getDomande() : new ArrayList<>();
-            this.risposte = s.getRisposte() != null ? s.getRisposte() : new HashMap<>();
-            this.Documenti = s.getDocumenti() != null ? s.getDocumenti() : new HashMap<>();
-            this.numeroDomande = s.numeroDomande;
+            this.domande = new ArrayList<>(s.getDomande());
+            this.risposte = new HashMap<>(s.getRisposte());
+            this.documenti = new HashMap<>(s.getDocumenti());
+            this.numeroDomande = s.getNumeroDomande();
             this.punteggioFatto = s.getPunteggioFatto();
             this.durata = s.getDurata();
             this.numeroDocumenti = s.getNumeroDocumenti();
@@ -448,13 +498,13 @@ public class SessioneDiGioco implements Serializable {
             if (!f.exists()) {
                 f = getSaveDirectory().resolve(nomeFile).toFile();
             }
-            try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(f))) {
+            try (ObjectInputStream ois = apriObjectInputStream(f)) {
                 SessioneDiGioco s = (SessioneDiGioco) ois.readObject();
                 this.utente = s.getUtente();
-                this.Domande = s.getDomande();
-                this.risposte = s.getRisposte();
-                this.Documenti = s.getDocumenti();
-                this.numeroDomande = s.numeroDomande;
+                this.domande = new ArrayList<>(s.getDomande());
+                this.risposte = new HashMap<>(s.getRisposte());
+                this.documenti = new HashMap<>(s.getDocumenti());
+                this.numeroDomande = s.getNumeroDomande();
                 this.punteggioFatto = s.getPunteggioFatto();
                 this.durata = s.getDurata();
                 this.numeroDocumenti = s.getNumeroDocumenti();
@@ -475,8 +525,8 @@ public class SessioneDiGioco implements Serializable {
      * @param indiceRisposta l'indice della risposta selezionata
      */
     public synchronized void aggiornaRisposte(int numeroDomanda, int indiceRisposta) {
-        if (numeroDomanda >= 0 && numeroDomanda < this.Domande.size()) {
-            this.risposte.put(this.Domande.get(numeroDomanda), indiceRisposta);
+        if (numeroDomanda >= 0 && numeroDomanda < this.domande.size()) {
+            this.risposte.put(this.domande.get(numeroDomanda), indiceRisposta);
         }
     }
 
@@ -492,15 +542,15 @@ public class SessioneDiGioco implements Serializable {
      *
      * @param tempoRimasto il tempo rimasto (in secondi) al termine della sessione
      */
-    public void aggiornaPuntiFatti(int tempoRimasto) {
-        int numDomande = this.Domande.size();
+    public synchronized void aggiornaPuntiFatti(int tempoRimasto) {
+        int numDomande = this.domande.size();
         if (numDomande == 0) {
             this.punteggioFatto = 0;
             return;
         }
 
         int numRisposteCorrette = 0;
-        for (Domanda d : this.Domande) {
+        for (Domanda d : this.domande) {
             Integer data = this.risposte.get(d);
             if (data != null && data == d.rispostaCorretta) {
                 numRisposteCorrette++;
@@ -526,7 +576,7 @@ public class SessioneDiGioco implements Serializable {
     }
 
     @Override
-    public String toString() {
+    public synchronized String toString() {
         return "SessioneDiGioco{" +
                 "utente=" + (utente != null ? utente.getEmail() : "null") +
                 ", numeroDomande=" + numeroDomande +

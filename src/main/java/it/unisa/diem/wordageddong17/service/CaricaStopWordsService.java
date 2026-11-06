@@ -30,7 +30,19 @@ public class CaricaStopWordsService extends Service<Void> {
      * @param documento Il contenuto del documento di stopwords in formato byte array.
      */
     public CaricaStopWordsService(String nomeFile, String email, byte[] documento) {
-        this.dbSW = DatabaseStopWords.getInstance();
+        this(DatabaseStopWords.getInstance(), nomeFile, email, documento);
+    }
+
+    /**
+     * Costruttore con iniezione del DAO, utilizzabile nei test.
+     *
+     * @param dbSW Il DAO delle stopwords da utilizzare.
+     * @param nomeFile Il nome del file contenente le stopwords.
+     * @param email L'email dell'utente associato alle stopwords.
+     * @param documento Il contenuto del documento di stopwords in formato byte array.
+     */
+    CaricaStopWordsService(DAOListaStopWords dbSW, String nomeFile, String email, byte[] documento) {
+        this.dbSW = dbSW;
         this.listaStopWords = new ListaStopWords(nomeFile, email, Timestamp.valueOf(LocalDateTime.now()));
         this.contenutoDocumento = documento;
     }

@@ -56,7 +56,7 @@ public class DocumentUploadController {
     @FXML
     private RadioButton adminRadioDifficile;
     @FXML
-    private ToggleGroup inserisciDifficoltà;
+    private ToggleGroup inserisciDifficolta;
 
     @FXML
     private Button browseButton;
@@ -70,18 +70,34 @@ public class DocumentUploadController {
     private final NavigationService nav = NavigationService.getInstance();
 
     private String getDifficoltaSelezionataAdmin() {
-        if (adminRadioFacile.isSelected()) return LivelloPartita.FACILE.getDbValue();
-        if (adminRadioMedio.isSelected()) return LivelloPartita.MEDIO.getDbValue();
-        if (adminRadioDifficile.isSelected()) return LivelloPartita.DIFFICILE.getDbValue();
+        if (adminRadioFacile.isSelected()) {
+            return LivelloPartita.FACILE.getDbValue();
+        }
+        if (adminRadioMedio.isSelected()) {
+            return LivelloPartita.MEDIO.getDbValue();
+        }
+        if (adminRadioDifficile.isSelected()) {
+            return LivelloPartita.DIFFICILE.getDbValue();
+        }
         return null;
     }
 
     private Lingua getLinguaSelezionataAdmin() {
-        if (adminRadioIT.isSelected()) return Lingua.ITALIANO;
-        if (adminRadioDE.isSelected()) return Lingua.TEDESCO;
-        if (adminRadioES.isSelected()) return Lingua.SPAGNOLO;
-        if (adminRadioEN.isSelected()) return Lingua.INGLESE;
-        if (adminRadioFR.isSelected()) return Lingua.FRANCESE;
+        if (adminRadioIT.isSelected()) {
+            return Lingua.ITALIANO;
+        }
+        if (adminRadioDE.isSelected()) {
+            return Lingua.TEDESCO;
+        }
+        if (adminRadioES.isSelected()) {
+            return Lingua.SPAGNOLO;
+        }
+        if (adminRadioEN.isSelected()) {
+            return Lingua.INGLESE;
+        }
+        if (adminRadioFR.isSelected()) {
+            return Lingua.FRANCESE;
+        }
         return null;
     }
 
@@ -93,7 +109,8 @@ public class DocumentUploadController {
             new FileChooser.ExtensionFilter("File di testo", "*.txt")
         );
 
-        File file = fileChooser.showOpenDialog(pathTextField.getScene() != null ? pathTextField.getScene().getWindow() : null);
+        File file = fileChooser.showOpenDialog(
+                pathTextField.getScene() != null ? pathTextField.getScene().getWindow() : null);
         if (file != null) {
             fileSelezionato = file;
             pathTextField.setText(file.getName());
@@ -120,7 +137,7 @@ public class DocumentUploadController {
 
         nav.setLoading(true);
         CaricaTestoService cts = new CaricaTestoService();
-        cts.setDifficoltà(getDifficoltaSelezionataAdmin());
+        cts.setDifficolta(getDifficoltaSelezionataAdmin());
         cts.setDocumento(contenuto);
         cts.setEmail(appState.getUtente() != null ? appState.getUtente().getEmail() : "");
         cts.setNomeFile(fileSelezionato.getName());

@@ -29,16 +29,38 @@ public class InserisciUtenteService extends Service<Void> {
      * @param immagineBytes L'immagine del profilo dell'utente in formato byte array.
      */
     public InserisciUtenteService(String username, String email, String password, byte[] immagineBytes) {
-        this.utente = new Utente(username, email, immagineBytes, TipoUtente.giocatore);
-        this.password = password;
-        this.dbu = DatabaseUtente.getInstance();
+        this(DatabaseUtente.getInstance(), username, email, password, immagineBytes);
     }
 
     /**
      * Costruttore di default che inizializza l'accesso al database degli utenti.
      */
     public InserisciUtenteService() {
-        this.dbu = DatabaseUtente.getInstance();
+        this(DatabaseUtente.getInstance());
+    }
+
+    /**
+     * Costruttore con iniezione del DAO, utilizzabile nei test.
+     *
+     * @param dbu Il DAO degli utenti da utilizzare.
+     */
+    InserisciUtenteService(DAOUtente dbu) {
+        this.dbu = dbu;
+    }
+
+    /**
+     * Costruttore con iniezione del DAO, utilizzabile nei test.
+     *
+     * @param dbu Il DAO degli utenti da utilizzare.
+     * @param username Il nome utente.
+     * @param email L'email dell'utente.
+     * @param password La password dell'utente.
+     * @param immagineBytes L'immagine del profilo dell'utente in formato byte array.
+     */
+    InserisciUtenteService(DAOUtente dbu, String username, String email, String password, byte[] immagineBytes) {
+        this.utente = new Utente(username, email, immagineBytes, TipoUtente.GIOCATORE);
+        this.password = password;
+        this.dbu = dbu;
     }
 
     /**
@@ -48,9 +70,10 @@ public class InserisciUtenteService extends Service<Void> {
      */
     public void setUsername(String username) {
         if (this.utente == null) {
-            this.utente = new Utente(username, "", null, TipoUtente.giocatore);
+            this.utente = new Utente(username, "", null, TipoUtente.GIOCATORE);
         } else {
-            this.utente = new Utente(username, this.utente.getEmail(), this.utente.getFotoProfilo(), this.utente.getTipo());
+            this.utente = new Utente(username, this.utente.getEmail(),
+                    this.utente.getFotoProfilo(), this.utente.getTipo());
         }
     }
 
@@ -61,9 +84,10 @@ public class InserisciUtenteService extends Service<Void> {
      */
     public void setEmail(String email) {
         if (this.utente == null) {
-            this.utente = new Utente("", email, null, TipoUtente.giocatore);
+            this.utente = new Utente("", email, null, TipoUtente.GIOCATORE);
         } else {
-            this.utente = new Utente(this.utente.getUsername(), email, this.utente.getFotoProfilo(), this.utente.getTipo());
+            this.utente = new Utente(this.utente.getUsername(), email,
+                    this.utente.getFotoProfilo(), this.utente.getTipo());
         }
     }
 
@@ -83,9 +107,10 @@ public class InserisciUtenteService extends Service<Void> {
      */
     public void setImmagineBytes(byte[] immagineBytes) {
         if (this.utente == null) {
-            this.utente = new Utente("", "", immagineBytes, TipoUtente.giocatore);
+            this.utente = new Utente("", "", immagineBytes, TipoUtente.GIOCATORE);
         } else {
-            this.utente = new Utente(this.utente.getUsername(), this.utente.getEmail(), immagineBytes, this.utente.getTipo());
+            this.utente = new Utente(this.utente.getUsername(), this.utente.getEmail(),
+                    immagineBytes, this.utente.getTipo());
         }
     }
 

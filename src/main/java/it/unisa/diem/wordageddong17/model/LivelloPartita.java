@@ -74,8 +74,8 @@ public enum LivelloPartita {
     /**
      * Restituisce il numero di documenti da utilizzare in una partita, in base al livello di difficoltà.
      * Le regole applicate sono:
-     * - "facile": 1 documento
-     * - "medio": 2 documenti
+     * - "facile": 2 documenti
+     * - "medio": 3 documenti
      * - "difficile": 3 documenti
      *
      * @return il numero di documenti richiesti
@@ -108,9 +108,9 @@ public enum LivelloPartita {
     /**
      * Restituisce il moltiplicatore da applicare al punteggio, in base al livello di difficoltà della partita.
      * Le regole applicate sono:
-     * - "facile": moltiplicatore pari a 1
-     * - "medio": moltiplicatore pari a 0.70
-     * - "difficile": moltiplicatore pari a 0.2
+     * - "facile": moltiplicatore pari a 0.5
+     * - "medio": moltiplicatore pari a 1.0
+     * - "difficile": moltiplicatore pari a 1.5
      *
      * @return il moltiplicatore come valore double
      */

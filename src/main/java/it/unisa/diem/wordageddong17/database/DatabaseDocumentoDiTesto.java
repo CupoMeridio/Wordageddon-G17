@@ -82,7 +82,8 @@ public class DatabaseDocumentoDiTesto implements DAODocumentoDiTesto {
             if ("23505".equals(ex.getSQLState())) {
                 throw new DataAccessException("Esiste già un documento con il nome '" + documento.nomeFile() + "'.");
             }
-            throw new DataAccessException("Errore durante il caricamento del documento nel database: " + ex.getMessage(), ex);
+            throw new DataAccessException(
+                    "Errore durante il caricamento del documento nel database: " + ex.getMessage(), ex);
         }
     }
 
@@ -163,7 +164,8 @@ public class DatabaseDocumentoDiTesto implements DAODocumentoDiTesto {
             }
         }
         String placeholdersPerLingue = placeholdersBuilder.toString();
-        String query = "SELECT nome_file, lingua FROM testo WHERE difficolta = ? AND lingua IN (" + placeholdersPerLingue + ")";
+        String query = "SELECT nome_file, lingua FROM testo WHERE difficolta = ? AND lingua IN ("
+                + placeholdersPerLingue + ")";
 
         try (Connection conn = db.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(query)) {

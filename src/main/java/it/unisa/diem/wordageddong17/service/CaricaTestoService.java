@@ -26,22 +26,47 @@ public class CaricaTestoService extends Service<Void> {
      * 
      * @param email L'email dell'utente che carica il documento.
      * @param nomeFile Il nome del file del documento di testo.
-     * @param difficoltà Il livello di difficoltà del documento.
+     * @param difficolta Il livello di difficoltà del documento.
      * @param contenutoDocumento Il contenuto del documento di testo in formato byte array.
      * @param lingua La lingua del documento.
      */
-    public CaricaTestoService(String email, String nomeFile, String difficoltà, byte[] contenutoDocumento, Lingua lingua) {
-        LivelloPartita livello = LivelloPartita.valueOf(difficoltà.toUpperCase());
-        this.documento = new DocumentoDiTesto(nomeFile, livello, email, lingua);
-        this.contenutoDocumento = contenutoDocumento;
-        this.dbDT = DatabaseDocumentoDiTesto.getInstance();
+    public CaricaTestoService(String email, String nomeFile, String difficolta, byte[] contenutoDocumento,
+            Lingua lingua) {
+        this(DatabaseDocumentoDiTesto.getInstance(), email, nomeFile, difficolta, contenutoDocumento, lingua);
     }
 
     /**
      * Costruttore di default che inizializza il database di documenti di testo.
      */
     public CaricaTestoService() {
-        this.dbDT = DatabaseDocumentoDiTesto.getInstance();
+        this(DatabaseDocumentoDiTesto.getInstance());
+    }
+
+    /**
+     * Costruttore con iniezione del DAO, utilizzabile nei test.
+     *
+     * @param dbDT Il DAO dei documenti di testo da utilizzare.
+     */
+    CaricaTestoService(DAODocumentoDiTesto dbDT) {
+        this.dbDT = dbDT;
+    }
+
+    /**
+     * Costruttore con iniezione del DAO, utilizzabile nei test.
+     *
+     * @param dbDT Il DAO dei documenti di testo da utilizzare.
+     * @param email L'email dell'utente che carica il documento.
+     * @param nomeFile Il nome del file del documento di testo.
+     * @param difficolta Il livello di difficoltà del documento.
+     * @param contenutoDocumento Il contenuto del documento di testo in formato byte array.
+     * @param lingua La lingua del documento.
+     */
+    CaricaTestoService(DAODocumentoDiTesto dbDT, String email, String nomeFile, String difficolta,
+            byte[] contenutoDocumento, Lingua lingua) {
+        LivelloPartita livello = LivelloPartita.valueOf(difficolta.toUpperCase());
+        this.documento = new DocumentoDiTesto(nomeFile, livello, email, lingua);
+        this.contenutoDocumento = contenutoDocumento;
+        this.dbDT = dbDT;
     }
 
     /**
@@ -83,10 +108,10 @@ public class CaricaTestoService extends Service<Void> {
     /**
      * Imposta il livello di difficoltà del documento.
      * 
-     * @param difficoltà La difficoltà da impostare.
+     * @param difficolta La difficoltà da impostare.
      */
-    public void setDifficoltà(String difficoltà) {
-        LivelloPartita livello = LivelloPartita.valueOf(difficoltà.toUpperCase());
+    public void setDifficolta(String difficolta) {
+        LivelloPartita livello = LivelloPartita.valueOf(difficolta.toUpperCase());
         if (this.documento == null) {
             this.documento = new DocumentoDiTesto("", livello, "", Lingua.ITALIANO);
         } else {

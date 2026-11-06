@@ -18,7 +18,6 @@ import java.util.ResourceBundle;
 import java.util.function.UnaryOperator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -80,7 +79,7 @@ public class ProfileController implements Initializable {
     @FXML
     private TableColumn<Classifica, Timestamp> dataCronologiaPartite;
     @FXML
-    private TableColumn<Classifica, LivelloPartita> difficoltàCronologiaPartite;
+    private TableColumn<Classifica, LivelloPartita> difficoltaCronologiaPartite;
     @FXML
     private TableColumn<Classifica, Float> punteggioCronologiaPartite;
 
@@ -116,7 +115,7 @@ public class ProfileController implements Initializable {
         punteggioMassimo.setTextFormatter(new TextFormatter<>(floatFilter));
 
         dataCronologiaPartite.setCellValueFactory(new PropertyValueFactory<>("data"));
-        difficoltàCronologiaPartite.setCellValueFactory(new PropertyValueFactory<>("difficolta"));
+        difficoltaCronologiaPartite.setCellValueFactory(new PropertyValueFactory<>("difficolta"));
         punteggioCronologiaPartite.setCellValueFactory(new PropertyValueFactory<>("punti"));
 
         inizializzaFiltri();
@@ -128,6 +127,11 @@ public class ProfileController implements Initializable {
         cronologiaPartite.setItems(filteredList);
 
         Runnable filtro = () -> {
+            final LocalDate dataMin = dataInizio.getValue();
+            final LocalDate dataMax = dataFine.getValue();
+            final float min = parseSafeFloat(punteggioMinimo.getText(), 0.0f);
+            final float max = parseSafeFloat(punteggioMassimo.getText(), Float.MAX_VALUE);
+
             filteredList.setPredicate(classifica -> {
                 String livelloDb = classifica.getDifficolta() != null ? classifica.getDifficolta().getDbValue() : "";
 
@@ -140,17 +144,14 @@ public class ProfileController implements Initializable {
                     matchDifficolta = true;
                 }
 
-                LocalDate data = classifica.getData().toLocalDateTime().toLocalDate();
-                LocalDate dataMin = dataInizio.getValue();
-                LocalDate dataMax = dataFine.getValue();
-
-                boolean matchData = (dataMin == null || !data.isBefore(dataMin)) &&
-                                    (dataMax == null || !data.isAfter(dataMax));
+                Timestamp timestamp = classifica.getData();
+                LocalDate data = timestamp != null ? timestamp.toLocalDateTime().toLocalDate() : null;
+                boolean matchData = data == null ||
+                        ((dataMin == null || !data.isBefore(dataMin)) &&
+                         (dataMax == null || !data.isAfter(dataMax)));
 
                 Float punteggio = classifica.getPunti();
-                float min = parseSafeFloat(punteggioMinimo.getText(), 0.0f);
-                float max = parseSafeFloat(punteggioMassimo.getText(), Float.MAX_VALUE);
-                boolean matchPunteggio = punteggio >= min && punteggio <= max;
+                boolean matchPunteggio = punteggio != null && punteggio >= min && punteggio <= max;
 
                 return matchDifficolta && matchData && matchPunteggio;
             });
@@ -199,9 +200,12 @@ public class ProfileController implements Initializable {
                 n_facile.setText("N° partite difficoltà facile: " + ig.getFacileCount());
                 n_medio.setText("N° partite difficoltà media: " + ig.getMedioCount());
                 n_difficile.setText("N° partite difficoltà difficile: " + ig.difficileCount());
-                migliore_facile.setText(String.format("Miglior punteggio in difficoltà facile: %.1f", ig.getFacilePunteggio()));
-                migliore_medio.setText(String.format("Miglior punteggio in difficoltà media: %.1f", ig.getMedioPunteggio()));
-                migliore_difficile.setText(String.format("Miglior punteggio in difficoltà difficile: %.1f", ig.getDifficilePunteggio()));
+                migliore_facile.setText(
+                        String.format("Miglior punteggio in difficoltà facile: %.1f", ig.getFacilePunteggio()));
+                migliore_medio.setText(
+                        String.format("Miglior punteggio in difficoltà media: %.1f", ig.getMedioPunteggio()));
+                migliore_difficile.setText(
+                        String.format("Miglior punteggio in difficoltà difficile: %.1f", ig.getDifficilePunteggio()));
             }
         });
 
@@ -236,7 +240,9 @@ public class ProfileController implements Initializable {
 
     private void aggiornaFotoProfilo(byte[] nuovaImmagine) {
         Utente utente = appState.getUtente();
-        if (utente == null) return;
+        if (utente == null) {
+            return;
+        }
 
         nav.setLoading(true);
         ModificaFotoProfiloService mfps = new ModificaFotoProfiloService();

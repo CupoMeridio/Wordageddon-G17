@@ -13,17 +13,17 @@ import java.io.Serializable;
 
 public class Utente implements Serializable {
 
-/** Nome utente dell'utente */
-private String username;
+    /** Nome utente dell'utente */
+    private String username;
 
-/** Email immutabile dell'utente */
-private final String email;
+    /** Email immutabile dell'utente */
+    private final String email;
 
-/** Foto profilo dell'utente come array di byte, può essere null */
-private byte[] fotoProfilo;
+    /** Foto profilo dell'utente come array di byte, può essere null */
+    private byte[] fotoProfilo;
 
-/** Tipo dell'utente (es. amministratore, giocatore) */
-private TipoUtente tipo;
+    /** Tipo dell'utente (es. amministratore, giocatore) */
+    private TipoUtente tipo;
 
 
     /**
@@ -32,7 +32,7 @@ private TipoUtente tipo;
      * @param username    il nome utente
      * @param email       l'indirizzo email (chiamato anche identificativo univoco)
      * @param fotoProfilo un array di byte che rappresenta la foto del profilo dell'utente
-     * @param tipo        il tipo dell'utente, es. {@code TipoUtente.amministratore} o {@code TipoUtente.giocatore}
+     * @param tipo        il tipo dell'utente, es. {@code TipoUtente.AMMINISTRATORE} o {@code TipoUtente.GIOCATORE}
      */
     public Utente(String username, String email, byte[] fotoProfilo, TipoUtente tipo) {
         this.username = username;
@@ -85,7 +85,7 @@ private TipoUtente tipo;
     /**
      * Restituisce il tipo dell'utente.
      *
-     * @return il tipo dell'utente, ad esempio {@code TipoUtente.amministratore} o {@code TipoUtente.giocatore}
+     * @return il tipo dell'utente, ad esempio {@code TipoUtente.AMMINISTRATORE} o {@code TipoUtente.GIOCATORE}
      */
     public TipoUtente getTipo() {
         return tipo;
@@ -112,14 +112,14 @@ private TipoUtente tipo;
     /**
      * Restituisce una rappresentazione testuale dell'utente.
      *
-     * @return una stringa contenente username, email, riferimento alla foto profilo e tipo utente
+     * @return una stringa contenente username, email, dimensione della foto profilo e tipo utente
      */
     @Override
     public String toString() {
         return "Utente{" +
                "username=" + username +
                ", email=" + email +
-               ", fotoProfilo=" + fotoProfilo +
+               ", fotoProfilo=" + (fotoProfilo == null ? "null" : fotoProfilo.length + " byte") +
                ", tipo=" + tipo +
                '}';
     }

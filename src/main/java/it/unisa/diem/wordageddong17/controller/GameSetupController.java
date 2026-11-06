@@ -40,7 +40,7 @@ public class GameSetupController implements Initializable {
     private RadioButton radioDifficile;
 
     @FXML
-    private ToggleGroup difficoltà;
+    private ToggleGroup difficolta;
 
     @FXML
     private CheckBox checkIT;
@@ -93,25 +93,43 @@ public class GameSetupController implements Initializable {
     @FXML
     private void iniziaPartitaOnAction(ActionEvent event) {
         LivelloPartita livello = null;
-        if (radioFacile.isSelected()) livello = LivelloPartita.FACILE;
-        if (radioMedio.isSelected()) livello = LivelloPartita.MEDIO;
-        if (radioDifficile.isSelected()) livello = LivelloPartita.DIFFICILE;
+        if (radioFacile.isSelected()) {
+            livello = LivelloPartita.FACILE;
+        }
+        if (radioMedio.isSelected()) {
+            livello = LivelloPartita.MEDIO;
+        }
+        if (radioDifficile.isSelected()) {
+            livello = LivelloPartita.DIFFICILE;
+        }
 
         if (livello == null) {
-            AlertUtils.mostraAlert("Selezione obbligatoria", "Devi selezionare un livello di difficoltà!", Alert.AlertType.WARNING);
+            AlertUtils.mostraAlert("Selezione obbligatoria", "Devi selezionare un livello di difficoltà!",
+                    Alert.AlertType.WARNING);
             return;
         }
-        stato.setDifficoltà(livello);
+        stato.setDifficolta(livello);
 
         ArrayList<Lingua> lingue = new ArrayList<>();
-        if (checkIT.isSelected()) lingue.add(Lingua.ITALIANO);
-        if (checkEN.isSelected()) lingue.add(Lingua.INGLESE);
-        if (checkFR.isSelected()) lingue.add(Lingua.FRANCESE);
-        if (checkDE.isSelected()) lingue.add(Lingua.TEDESCO);
-        if (checkES.isSelected()) lingue.add(Lingua.SPAGNOLO);
+        if (checkIT.isSelected()) {
+            lingue.add(Lingua.ITALIANO);
+        }
+        if (checkEN.isSelected()) {
+            lingue.add(Lingua.INGLESE);
+        }
+        if (checkFR.isSelected()) {
+            lingue.add(Lingua.FRANCESE);
+        }
+        if (checkDE.isSelected()) {
+            lingue.add(Lingua.TEDESCO);
+        }
+        if (checkES.isSelected()) {
+            lingue.add(Lingua.SPAGNOLO);
+        }
 
         if (lingue.isEmpty()) {
-            AlertUtils.mostraAlert("Selezione obbligatoria", "Devi selezionare almeno una lingua!", Alert.AlertType.WARNING);
+            AlertUtils.mostraAlert("Selezione obbligatoria", "Devi selezionare almeno una lingua!",
+                    Alert.AlertType.WARNING);
             return;
         }
         stato.setLingue(lingue);

@@ -27,15 +27,35 @@ public class ModificaFotoProfiloService extends Service<Void> {
      * @param email    L'indirizzo email dell'utente per cui modificare la foto profilo.
      */
     public ModificaFotoProfiloService(byte[] immagine, String email) {
-        this.utente = new Utente("", email, immagine, TipoUtente.giocatore);
-        this.dbu = DatabaseUtente.getInstance();
+        this(DatabaseUtente.getInstance(), immagine, email);
     }
 
     /**
      * Costruttore di default che inizializza l'accesso al database degli utenti.
      */
     public ModificaFotoProfiloService() {
-        this.dbu = DatabaseUtente.getInstance();
+        this(DatabaseUtente.getInstance());
+    }
+
+    /**
+     * Costruttore con iniezione del DAO, utilizzabile nei test.
+     *
+     * @param dbu Il DAO degli utenti da utilizzare.
+     */
+    ModificaFotoProfiloService(DAOUtente dbu) {
+        this.dbu = dbu;
+    }
+
+    /**
+     * Costruttore con iniezione del DAO, utilizzabile nei test.
+     *
+     * @param dbu Il DAO degli utenti da utilizzare.
+     * @param immagine L'immagine del profilo in formato byte array.
+     * @param email L'indirizzo email dell'utente per cui modificare la foto profilo.
+     */
+    ModificaFotoProfiloService(DAOUtente dbu, byte[] immagine, String email) {
+        this.utente = new Utente("", email, immagine, TipoUtente.GIOCATORE);
+        this.dbu = dbu;
     }
 
     /**
@@ -45,7 +65,7 @@ public class ModificaFotoProfiloService extends Service<Void> {
      */
     public void setImmagine(byte[] immagine) {
         if (this.utente == null) {
-            this.utente = new Utente("", "", immagine, TipoUtente.giocatore);
+            this.utente = new Utente("", "", immagine, TipoUtente.GIOCATORE);
         } else {
             this.utente.setFotoProfilo(immagine);
         }
@@ -58,10 +78,11 @@ public class ModificaFotoProfiloService extends Service<Void> {
      */
     public void setEmail(String email) {
         if (this.utente == null) {
-            this.utente = new Utente("", email, null, TipoUtente.giocatore);
+            this.utente = new Utente("", email, null, TipoUtente.GIOCATORE);
         } else {
             // Poiché l'email è final nel modello Utente, dobbiamo creare un nuovo oggetto
-            this.utente = new Utente(this.utente.getUsername(), email, this.utente.getFotoProfilo(), this.utente.getTipo());
+            this.utente = new Utente(this.utente.getUsername(), email,
+                    this.utente.getFotoProfilo(), this.utente.getTipo());
         }
     }
 

@@ -96,7 +96,8 @@ public class Classifica {
      */
     @Override
     public String toString() {
-        return "Classifica{" + "username=" + username + ", data=" + data + ", punti=" + punti + ", difficolta=" + difficolta + '}';
+        return "Classifica{" + "username=" + username + ", data=" + data + ", punti=" + punti
+                + ", difficolta=" + difficolta + '}';
     }
 
     

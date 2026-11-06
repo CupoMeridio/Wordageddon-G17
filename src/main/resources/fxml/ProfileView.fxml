@@ -56,7 +56,7 @@
                     <TableView fx:id="cronologiaPartite" prefHeight="350.0" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS">
                         <columns>
                             <TableColumn fx:id="dataCronologiaPartite" minWidth="-1.0" prefWidth="150.0" text="Data" />
-                            <TableColumn fx:id="difficoltàCronologiaPartite" prefWidth="120.0" text="Difficoltà" />
+                            <TableColumn fx:id="difficoltaCronologiaPartite" prefWidth="120.0" text="Difficoltà" />
                             <TableColumn fx:id="punteggioCronologiaPartite" prefWidth="120.0" text="Punteggio" />
                         </columns>
                         <columnResizePolicy>

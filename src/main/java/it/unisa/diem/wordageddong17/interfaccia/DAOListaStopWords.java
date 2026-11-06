@@ -41,7 +41,8 @@ public interface DAOListaStopWords {
      * Se il documento non viene trovato, il metodo può restituire {@code null}.
      *
      * @param nomeFile il nome del file contenente le stopwords da recuperare
-     * @return un oggetto ListaStopWords contenente le informazioni sulla lista di stopwords oppure {@code null} se non viene trovato
+     * @return un oggetto ListaStopWords contenente le informazioni sulla lista di stopwords
+     *         oppure {@code null} se non viene trovato
      */
     public ListaStopWords prendiInfoStopwords(String nomeFile);
 }

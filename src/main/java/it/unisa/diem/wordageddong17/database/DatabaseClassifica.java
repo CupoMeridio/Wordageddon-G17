@@ -35,33 +35,27 @@ public class DatabaseClassifica implements DAOClassifica {
         List<Classifica> classifica = new ArrayList<>();
 
         String query = """
-            SELECT utente.username,
-                   punteggio.punti AS miglior_punteggio,
-                   punteggio.data,
-                   punteggio.difficolta
-            FROM punteggio
-            JOIN utente ON punteggio.email_utente = utente.email
-            WHERE punteggio.difficolta = ?
-              AND (punteggio.email_utente, punteggio.punti, punteggio.data) IN (
-                  SELECT p.email_utente, p.punti, MIN(p.data)
-                  FROM punteggio p
-                  JOIN (
-                      SELECT email_utente, MAX(punti) AS max_punti
-                      FROM punteggio
-                      WHERE difficolta = ?
-                      GROUP BY email_utente
-                  ) sub ON p.email_utente = sub.email_utente AND p.punti = sub.max_punti
-                  WHERE p.difficolta = ?
-                  GROUP BY p.email_utente, p.punti
-              )
-            ORDER BY miglior_punteggio DESC;
+            SELECT classifica.username,
+                   classifica.miglior_punteggio,
+                   classifica.data,
+                   classifica.difficolta
+            FROM (
+                SELECT DISTINCT ON (punteggio.email_utente)
+                       utente.username,
+                       punteggio.punti AS miglior_punteggio,
+                       punteggio.data,
+                       punteggio.difficolta
+                FROM punteggio
+                JOIN utente ON punteggio.email_utente = utente.email
+                WHERE punteggio.difficolta = ?
+                ORDER BY punteggio.email_utente, punteggio.punti DESC, punteggio.data ASC
+            ) AS classifica
+            ORDER BY classifica.miglior_punteggio DESC;
             """;
 
         try (Connection conn = db.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setString(1, difficolta.getDbValue());
-            pstmt.setString(2, difficolta.getDbValue());
-            pstmt.setString(3, difficolta.getDbValue());
 
             try (ResultSet result = pstmt.executeQuery()) {
                 while (result.next()) {
@@ -119,24 +113,14 @@ public class DatabaseClassifica implements DAOClassifica {
     }
 
     /**
-     * Alias per {@link #recuperaCronologiaPartite(String)}.
-     *
-     * @param email l'email dell'utente
-     * @return lista dei punteggi conseguiti dall'utente
-     */
-    public List<Classifica> prendiCronologia(String email) {
-        return recuperaCronologiaPartite(email);
-    }
-
-    /**
      * Recupera il miglior punteggio di un utente per un dato livello di difficoltà.
      *
      * @param email l'email dell'utente
-     * @param difficoltà la difficoltà richiesta
+     * @param difficolta la difficoltà richiesta
      * @return il miglior punteggio, oppure 0 se assente
      */
     @Override
-    public float recuperaMigliorPunteggio(String email, String difficoltà) {
+    public float recuperaMigliorPunteggio(String email, String difficolta) {
         String query = """
             SELECT MAX(punti) AS miglior_punteggio
             FROM punteggio
@@ -147,7 +131,7 @@ public class DatabaseClassifica implements DAOClassifica {
         try (Connection conn = db.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setString(1, email);
-            pstmt.setString(2, difficoltà);
+            pstmt.setString(2, difficolta);
 
             try (ResultSet result = pstmt.executeQuery()) {
                 if (result.next()) {
@@ -162,25 +146,14 @@ public class DatabaseClassifica implements DAOClassifica {
     }
 
     /**
-     * Alias per {@link #recuperaMigliorPunteggio(String, String)}.
-     *
-     * @param email l'email dell'utente
-     * @param difficoltà la difficoltà richiesta
-     * @return il miglior punteggio, oppure 0 se assente
-     */
-    public float prendiMigliorPunteggioPerLivello(String email, String difficoltà) {
-        return recuperaMigliorPunteggio(email, difficoltà);
-    }
-
-    /**
      * Conta il numero di partite disputate da un utente per un livello.
      *
      * @param email l'email dell'utente
-     * @param difficoltà il livello di difficoltà
+     * @param difficolta il livello di difficoltà
      * @return numero di partite
      */
     @Override
-    public int recuperaNumeroPartite(String email, String difficoltà) {
+    public int recuperaNumeroPartite(String email, String difficolta) {
         String query = """
             SELECT COUNT(*) AS numero_partite
             FROM punteggio
@@ -191,7 +164,7 @@ public class DatabaseClassifica implements DAOClassifica {
         try (Connection conn = db.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setString(1, email);
-            pstmt.setString(2, difficoltà);
+            pstmt.setString(2, difficolta);
 
             try (ResultSet result = pstmt.executeQuery()) {
                 if (result.next()) {
@@ -206,31 +179,20 @@ public class DatabaseClassifica implements DAOClassifica {
     }
 
     /**
-     * Alias per {@link #recuperaNumeroPartite(String, String)}.
-     *
-     * @param email l'email dell'utente
-     * @param difficoltà il livello di difficoltà
-     * @return numero di partite
-     */
-    public int prendiNumeroPartite(String email, String difficoltà) {
-        return recuperaNumeroPartite(email, difficoltà);
-    }
-
-    /**
      * Inserisce un nuovo punteggio nel database.
      *
      * @param email email dell'utente
      * @param punteggio punteggio totalizzato
-     * @param difficoltà livello di gioco
+     * @param difficolta livello di gioco
      */
     @Override
-    public void inserisciPunteggio(String email, float punteggio, LivelloPartita difficoltà) {
+    public void inserisciPunteggio(String email, float punteggio, LivelloPartita difficolta) {
         String query = "INSERT INTO punteggio(email_utente, punti, difficolta) VALUES (?, ?, ?);";
         try (Connection conn = db.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setString(1, email);
             pstmt.setFloat(2, punteggio);
-            pstmt.setString(3, difficoltà.getDbValue());
+            pstmt.setString(3, difficolta.getDbValue());
             pstmt.executeUpdate();
         } catch (SQLException ex) {
             LOGGER.log(Level.SEVERE, "Errore salvataggio punteggio", ex);

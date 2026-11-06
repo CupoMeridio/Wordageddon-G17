@@ -77,7 +77,7 @@ public class HomeController implements Initializable {
             benvenutoLabel.setText("Benvenuto " + utente.getUsername());
             fotoProfilo.setImage(ImageUtils.getImageFromByte(utente.getFotoProfilo()));
 
-            boolean isAdmin = utente.getTipo() == TipoUtente.amministratore;
+            boolean isAdmin = utente.getTipo() == TipoUtente.AMMINISTRATORE;
             newDocument.setVisible(isAdmin);
             newDocument.setManaged(isAdmin);
             stopwordList.setVisible(isAdmin);

@@ -5,10 +5,11 @@
  */
 package it.unisa.diem.wordageddong17.controller;
 
-import it.unisa.diem.wordageddong17.App;
 import it.unisa.diem.wordageddong17.service.CaricaSessioneDiGiocoService;
 import it.unisa.diem.wordageddong17.model.GeneratoreDomande.Domanda;
 import it.unisa.diem.wordageddong17.model.AppState;
+import it.unisa.diem.wordageddong17.service.NavigationService;
+import it.unisa.diem.wordageddong17.service.NavigationService.View;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -27,7 +28,7 @@ import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 import it.unisa.diem.wordageddong17.model.SessioneDiGioco;
 import it.unisa.diem.wordageddong17.service.CaricaPunteggioService;
-import java.io.File;
+import it.unisa.diem.wordageddong17.util.AlertUtils;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
@@ -97,11 +98,11 @@ public class SessionViewController implements Initializable {
     private AppState stato;
     private final CaricaPunteggioService cps = new CaricaPunteggioService();
 
-    Map<String, byte[]> MappaDocumenti;
-    private String[] NomiDocumenti;
+    Map<String, byte[]> mappaDocumenti;
+    private String[] nomiDocumenti;
     private final Queue<Domanda> domande = new ConcurrentLinkedDeque<>();
-    private int NumeroDiDomande;
-    private int NumeroDiTesto;
+    private int numeroDiDomande;
+    private int numeroDiTesto;
     @FXML
     private AnchorPane loadingOverlay;
     @FXML
@@ -113,41 +114,42 @@ public class SessionViewController implements Initializable {
      * Initializes the controller class.
      */
     @Override
-   public void initialize(URL url, ResourceBundle rb) {
-    this.resocontoDomande.setEditable(false);
-    this.resocontoDomande.setFocusTraversable(false);
-    this.resocontoDomande.setOnKeyPressed(e -> e.consume());
-    this.resocontoDomande.setOnKeyTyped(e -> e.consume());
-    this.resocontoDomande.setOnKeyReleased(e -> e.consume());
-    
-    this.TestoDaLeggere.setEditable(false);
-    this.TestoDaLeggere.setFocusTraversable(false);
-    
-    // Impedisce la modifica ma mantiene lo scroll
-    this.TestoDaLeggere.setStyle("-fx-text-input-disabled: true;");
-    
-    this.FaseRisposte.setVisible(false);
-    this.schermataGameOver.setVisible(false);
-    this.FaseLettura.setVisible(true);
-    this.NumeroDiDomande=0;
-    this.durata=0;
-    this.NumeroDiTesto=0;
-    MappaDocumenti = new HashMap<>();
-    this.stato = AppState.getInstance();
-       
-    if(this.stato.isSessioneSalvata()){
-        this.stato.setSessioneSalvata(false);
-        this.inizializeConSalvataggio();
-    }else{
-        sessione = new SessioneDiGioco( stato.getUtente());
-        sessione.setLivello(this.stato.getDifficoltà());
-        this.caricaSessione = new CaricaSessioneDiGiocoService(this.sessione, this.sessione.getLivello(),this.stato.getLingue());
-        this.progessBar.progressProperty().bind(this.caricaSessione.progressProperty());
-        this.serviceInitialize();
-        loadingOverlay.setVisible(true);
-        this.caricaSessione.start();     
-    }   
-}    
+    public void initialize(URL url, ResourceBundle rb) {
+        this.resocontoDomande.setEditable(false);
+        this.resocontoDomande.setFocusTraversable(false);
+        this.resocontoDomande.setOnKeyPressed(e -> e.consume());
+        this.resocontoDomande.setOnKeyTyped(e -> e.consume());
+        this.resocontoDomande.setOnKeyReleased(e -> e.consume());
+
+        this.TestoDaLeggere.setEditable(false);
+        this.TestoDaLeggere.setFocusTraversable(false);
+
+        // Impedisce la modifica ma mantiene lo scroll
+        this.TestoDaLeggere.setStyle("-fx-text-input-disabled: true;");
+
+        this.FaseRisposte.setVisible(false);
+        this.schermataGameOver.setVisible(false);
+        this.FaseLettura.setVisible(true);
+        this.numeroDiDomande = 0;
+        this.durata = 0;
+        this.numeroDiTesto = 0;
+        mappaDocumenti = new HashMap<>();
+        this.stato = AppState.getInstance();
+
+        if (this.stato.isSessioneSalvata()) {
+            this.stato.setSessioneSalvata(false);
+            this.inizializeConSalvataggio();
+        } else {
+            sessione = new SessioneDiGioco(stato.getUtente());
+            sessione.setLivello(this.stato.getDifficolta());
+            this.caricaSessione = new CaricaSessioneDiGiocoService(this.sessione, this.sessione.getLivello(),
+                    this.stato.getLingue());
+            this.progessBar.progressProperty().bind(this.caricaSessione.progressProperty());
+            this.serviceInitialize();
+            loadingOverlay.setVisible(true);
+            this.caricaSessione.start();
+        }
+    }
 
     private void serviceInitialize() {
         this.caricaSessione.setOnRunning(e -> {
@@ -161,11 +163,12 @@ public class SessionViewController implements Initializable {
             List<Domanda> domandeCaricate = caricaSessione.getValue();
             if (domandeCaricate != null && !domandeCaricate.isEmpty()) {
                 this.domande.addAll(domandeCaricate);
-                MappaDocumenti = this.sessione.getDocumenti();
+                mappaDocumenti = this.sessione.getDocumenti();
                 this.inizializzaTimer();
                 cambioTesto();
             } else {
-                this.mostraAlert("ERRORE", "Impossibile caricare le domande riprova più tardi", Alert.AlertType.ERROR);
+                AlertUtils.mostraAlert("ERRORE", "Impossibile caricare le domande riprova più tardi",
+                        Alert.AlertType.ERROR);
                 return;
             }
             resetService(caricaSessione);
@@ -177,37 +180,41 @@ public class SessionViewController implements Initializable {
             // Service fallito
             Throwable exception = caricaSessione.getException();
             if (exception != null) {
-                exception.printStackTrace();
+                System.getLogger(SessionViewController.class.getName())
+                        .log(System.Logger.Level.ERROR, "Errore nel caricamento della sessione", exception);
             }
-            this.mostraAlert("ERRORE", "Impossibile caricare la sessione riprova più tardi", Alert.AlertType.ERROR);
+            AlertUtils.mostraAlert("ERRORE", "Impossibile caricare la sessione riprova più tardi",
+                    Alert.AlertType.ERROR);
             resetService(caricaSessione);
         });
     }
 
     private void cambioTesto() {
-        this.NomiDocumenti = this.sessione.getDocumenti().keySet().toArray(new String[0]);
+        this.nomiDocumenti = this.sessione.getDocumenti().keySet().toArray(new String[0]);
         this.TestoDaLeggere.textProperty().setValue(
-            new String(MappaDocumenti.get(NomiDocumenti[this.NumeroDiTesto]), StandardCharsets.UTF_8)
+            new String(mappaDocumenti.get(nomiDocumenti[this.numeroDiTesto]), StandardCharsets.UTF_8)
         );
-        this.contatoreLettura.setText(this.NumeroDiTesto + 1 + "/" + this.NomiDocumenti.length);
+        this.contatoreLettura.setText(this.numeroDiTesto + 1 + "/" + this.nomiDocumenti.length);
     }
 
     private void cambioDomanda() {
         if (this.domande.isEmpty()) {
-            if (tm != null) tm.stop();
+            if (tm != null) {
+                tm.stop();
+            }
             this.FaseLettura.setVisible(false);
             this.FaseRisposte.setVisible(false);
             this.schermataGameOver.setVisible(true);
             this.sessione.aggiornaPuntiFatti(this.durata);
             this.highScoreLabel.setText(String.valueOf(this.sessione.getPunteggioFatto()));
-            cps.setDifficoltà(this.sessione.getLivello());
+            cps.setDifficolta(this.sessione.getLivello());
             cps.setEmail(stato.getUtente().getEmail());
             cps.setPunteggio(this.sessione.getPunteggioFatto());
             cps.setOnSucceeded(e -> {
                 resetService(cps);
             });
             cps.setOnFailed(e -> {
-                mostraAlert("Errore", "Impossibile salvare il punteggio.", Alert.AlertType.WARNING);
+                AlertUtils.mostraAlert("Errore", "Impossibile salvare il punteggio.", Alert.AlertType.WARNING);
                 resetService(cps);
             });
             cps.start();
@@ -216,7 +223,7 @@ public class SessionViewController implements Initializable {
         } else {
             Domanda corrente = this.domande.element();
             this.question.setText(corrente.testo);
-            this.counter.setText((1 + this.NumeroDiDomande - this.domande.size()) + "/" + this.NumeroDiDomande);
+            this.counter.setText((1 + this.numeroDiDomande - this.domande.size()) + "/" + this.numeroDiDomande);
             this.risposta1button.setText(corrente.opzioni.get(0));
             this.risposta2button.setText(corrente.opzioni.get(1));
             this.risposta3button.setText(corrente.opzioni.get(2));
@@ -227,7 +234,7 @@ public class SessionViewController implements Initializable {
     private void DaLetturaARisposte() {
         this.FaseLettura.setVisible(false);
         this.FaseRisposte.setVisible(true);
-        this.NumeroDiDomande = this.sessione.getNumeroDomande();
+        this.numeroDiDomande = this.sessione.getNumeroDomande();
     }
 
     private void gestisciRisposta(int indice) {
@@ -248,17 +255,33 @@ public class SessionViewController implements Initializable {
     }
 
     private void disabilitaPulsantiRisposta(boolean disabilita) {
-        if (risposta1button != null) risposta1button.setDisable(disabilita);
-        if (risposta2button != null) risposta2button.setDisable(disabilita);
-        if (risposta3button != null) risposta3button.setDisable(disabilita);
-        if (risposta4button != null) risposta4button.setDisable(disabilita);
+        if (risposta1button != null) {
+            risposta1button.setDisable(disabilita);
+        }
+        if (risposta2button != null) {
+            risposta2button.setDisable(disabilita);
+        }
+        if (risposta3button != null) {
+            risposta3button.setDisable(disabilita);
+        }
+        if (risposta4button != null) {
+            risposta4button.setDisable(disabilita);
+        }
     }
 
     private void deselezionaPulsantiRisposta() {
-        if (risposta1button != null) risposta1button.setSelected(false);
-        if (risposta2button != null) risposta2button.setSelected(false);
-        if (risposta3button != null) risposta3button.setSelected(false);
-        if (risposta4button != null) risposta4button.setSelected(false);
+        if (risposta1button != null) {
+            risposta1button.setSelected(false);
+        }
+        if (risposta2button != null) {
+            risposta2button.setSelected(false);
+        }
+        if (risposta3button != null) {
+            risposta3button.setSelected(false);
+        }
+        if (risposta4button != null) {
+            risposta4button.setSelected(false);
+        }
     }
 
     @FXML
@@ -282,24 +305,24 @@ public class SessionViewController implements Initializable {
     }
     
     private void aggiornaPilaDopoLaRisposta(int i){
-        this.sessione.aggiornaRisposte(this.NumeroDiDomande-this.domande.size(), i);
+        this.sessione.aggiornaRisposte(this.numeroDiDomande-this.domande.size(), i);
         this.domande.remove();
     }
 
     @FXML
     private void TestoPrecedente(ActionEvent event) {
-        this.NumeroDiTesto--;
-        if (this.NumeroDiTesto < 0) {
-            this.NumeroDiTesto = this.NomiDocumenti.length - 1;
+        this.numeroDiTesto--;
+        if (this.numeroDiTesto < 0) {
+            this.numeroDiTesto = this.nomiDocumenti.length - 1;
         }
         this.cambioTesto();
     }
 
     @FXML
     private void ProssimoTesto(ActionEvent event) {
-        this.NumeroDiTesto++;
-        if (this.NumeroDiTesto > this.NomiDocumenti.length - 1) {
-            this.NumeroDiTesto = 0;
+        this.numeroDiTesto++;
+        if (this.numeroDiTesto > this.nomiDocumenti.length - 1) {
+            this.numeroDiTesto = 0;
         }
         this.cambioTesto();
     }
@@ -309,29 +332,28 @@ public class SessionViewController implements Initializable {
         this.DaLetturaARisposte();
         this.cambioDomanda();
         this.durata=this.sessione.getDurata();
-        if(tm!=null)
+        if (tm != null) {
             tm.stop();
+        }
     }
 
     @FXML
-    private void tornaAllaHome(ActionEvent event) throws IOException {
+    private void tornaAllaHome(ActionEvent event) {
         if (tm != null) {
             tm.stop();
         }
         if (sessione != null && sessione.getUtente() != null && !domande.isEmpty()) {
             sessione.salvaSessioneDiGioco();
         }
-        stato.setSessionViewHomeButton(true);
-        App.setRoot("AppView");
+        NavigationService.getInstance().navigateToApp(View.HOME);
     }
 
     @FXML
-    private void continuaGioco(ActionEvent event) throws IOException {
+    private void continuaGioco(ActionEvent event) {
         if (tm != null) {
             tm.stop();
         }
-        stato.setSessionViewContinuaButton(true);
-        App.setRoot("AppView");
+        NavigationService.getInstance().navigateToApp(View.GAME_SETUP);
     }
 
     private void startTimer() {
@@ -385,19 +407,21 @@ public class SessionViewController implements Initializable {
         try {
             sessione.caricaSessioneDiGiocoPerEmail(stato.getUtente().getEmail());
         } catch (IOException ex) {
-            System.getLogger(SessionViewController.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+            System.getLogger(SessionViewController.class.getName())
+                    .log(System.Logger.Level.ERROR, (String) null, ex);
             this.eliminaSalvataggi();
         }
     }
     
-    private void inizializeConSalvataggio(){
-        this.sessione= new SessioneDiGioco();
-            caricaSessioneDaFileSalvato();
-        this.NumeroDiDomande = sessione.getNumeroDomande();
-        this.MappaDocumenti = this.sessione.getDocumenti();
+    private void inizializeConSalvataggio() {
+        this.sessione = new SessioneDiGioco();
+        caricaSessioneDaFileSalvato();
+        this.numeroDiDomande = sessione.getNumeroDomande();
+        this.mappaDocumenti = this.sessione.getDocumenti();
         // popola domande
         this.domande.addAll(
-                this.sessione.getDomande().stream().skip((int)this.sessione.getRisposte().size()).collect(Collectors.toList()));
+                this.sessione.getDomande().stream().skip((int) this.sessione.getRisposte().size())
+                        .collect(Collectors.toList()));
         
         // Inizializzazione completata
         if(this.sessione.getDurata()>0 && this.sessione.getRisposte().size()<1 ){
@@ -410,14 +434,6 @@ public class SessionViewController implements Initializable {
         }
     }
 
-    private void mostraAlert(String titolo, String messaggio, Alert.AlertType tipo) {
-        Alert alert = new Alert(tipo);
-        alert.setTitle(titolo);
-        alert.setHeaderText(null);
-        alert.setContentText(messaggio);
-        alert.showAndWait();
-    }
-    
     /**
      * Costruttore di default.
      * 
@@ -428,23 +444,23 @@ public class SessionViewController implements Initializable {
         // Costruttore vuoto o con inizializzazioni se necessarie
     }
     private void stampaResocontoDomande() {
-    StringBuffer risultato = new StringBuffer();
-    
-    this.sessione.getDomande().forEach(domanda -> {
-        String rispostaCorretta = domanda.opzioni.get(domanda.rispostaCorretta);
-        String rispostaData = domanda.opzioni.get(this.sessione.getRisposte().get(domanda));
-        
-        risultato.append("Domanda:\n")
-                .append(domanda.testo).append("\n\n")
-                .append("Risposta corretta:\n")
-                .append(rispostaCorretta).append("\n\n")
-                .append("Risposta data:\n")
-                .append(rispostaData).append("\n")
-                .append("----------------------------\n\n");
-    });
-    
-    this.resocontoDomande.setText(risultato.toString());
-}
+        StringBuilder risultato = new StringBuilder();
+
+        this.sessione.getDomande().forEach(domanda -> {
+            String rispostaCorretta = domanda.opzioni.get(domanda.rispostaCorretta);
+            String rispostaData = domanda.opzioni.get(this.sessione.getRisposte().get(domanda));
+
+            risultato.append("Domanda:\n")
+                    .append(domanda.testo).append("\n\n")
+                    .append("Risposta corretta:\n")
+                    .append(rispostaCorretta).append("\n\n")
+                    .append("Risposta data:\n")
+                    .append(rispostaData).append("\n")
+                    .append("----------------------------\n\n");
+        });
+
+        this.resocontoDomande.setText(risultato.toString());
+    }
 }
 
 

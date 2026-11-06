@@ -36,8 +36,7 @@ public class PrendiTestoService extends Service<byte[]> {
      * @param nomeFile il nome del file da cui recuperare il documento di testo
      */
     public PrendiTestoService(String nomeFile) {
-        this.nomeFile = nomeFile;
-        this.dbDT = DatabaseDocumentoDiTesto.getInstance();
+        this(DatabaseDocumentoDiTesto.getInstance(), nomeFile);
     }
 
     /**
@@ -46,7 +45,18 @@ public class PrendiTestoService extends Service<byte[]> {
      * prima dell'esecuzione del servizio.
      */
     public PrendiTestoService() {
-        this.dbDT = DatabaseDocumentoDiTesto.getInstance();
+        this(DatabaseDocumentoDiTesto.getInstance(), null);
+    }
+
+    /**
+     * Costruisce una nuova istanza del servizio con iniezione del DAO, utilizzabile nei test.
+     *
+     * @param dbDT il DAO dei documenti di testo da utilizzare
+     * @param nomeFile il nome del file da cui recuperare il documento di testo
+     */
+    PrendiTestoService(DAODocumentoDiTesto dbDT, String nomeFile) {
+        this.dbDT = dbDT;
+        this.nomeFile = nomeFile;
     }
 
     /**

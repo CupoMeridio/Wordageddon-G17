@@ -49,11 +49,11 @@
                                 <children>
                                     <RadioButton fx:id="adminRadioFacile" mnemonicParsing="false" text="Facile">
                                         <toggleGroup>
-                                            <ToggleGroup fx:id="inserisciDifficoltà" />
+                                            <ToggleGroup fx:id="inserisciDifficolta" />
                                         </toggleGroup>
                                     </RadioButton>
-                                    <RadioButton fx:id="adminRadioMedio" mnemonicParsing="false" text="Medio" toggleGroup="$inserisciDifficoltà" />
-                                    <RadioButton fx:id="adminRadioDifficile" mnemonicParsing="false" text="Difficile" toggleGroup="$inserisciDifficoltà" />
+                                    <RadioButton fx:id="adminRadioMedio" mnemonicParsing="false" text="Medio" toggleGroup="$inserisciDifficolta" />
+                                    <RadioButton fx:id="adminRadioDifficile" mnemonicParsing="false" text="Difficile" toggleGroup="$inserisciDifficolta" />
                                 </children>
                             </HBox>
                         </children>

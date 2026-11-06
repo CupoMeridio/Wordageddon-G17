@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Filtro di esclusione per SpotBugs.
+    Vengono esclusi i rilevamenti della famiglia "expose representation"
+    (EI_EXPOSE_REP, EI_EXPOSE_REP2, MS_EXPOSE_REP): segnalano getter/setter che
+    restituiscono riferimenti a oggetti interni mutabili e sono, in questo
+    progetto, quasi sempre falsi positivi (es. il singleton NavigationService).
+-->
+<FindBugsFilter>
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP"/>
+    </Match>
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+    </Match>
+    <Match>
+        <Bug pattern="MS_EXPOSE_REP"/>
+    </Match>
+    <!--
+        App.scene: campo statico scritto da start(), che è un metodo di istanza di
+        javafx.application.Application. JavaFX crea una sola istanza di Application
+        per processo, quindi non si verifica mai il caso "più istanze sullo stesso
+        campo statico": il rilevamento è un falso positivo in questo contesto.
+    -->
+    <Match>
+        <Class name="it.unisa.diem.wordageddong17.App"/>
+        <Bug pattern="ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD"/>
+    </Match>
+</FindBugsFilter>

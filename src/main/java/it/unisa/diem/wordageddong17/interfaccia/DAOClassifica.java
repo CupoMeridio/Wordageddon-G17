@@ -41,19 +41,19 @@ public interface DAOClassifica {
      * Recupera il numero di partite giocate da un utente per un determinato livello di difficoltà.
      *
      * @param email l'email dell'utente
-     * @param difficoltà una stringa che rappresenta il livello di difficoltà (es. "facile", "medio", "difficile")
+     * @param difficolta una stringa che rappresenta il livello di difficoltà (es. "facile", "medio", "difficile")
      * @return il numero di partite giocate dall'utente a quel livello di difficoltà
      */
-    public int recuperaNumeroPartite(String email, String difficoltà);
+    public int recuperaNumeroPartite(String email, String difficolta);
 
     /**
      * Recupera il miglior punteggio ottenuto da un utente per un determinato livello di difficoltà.
      *
      * @param email l'email dell'utente
-     * @param difficoltà una stringa che rappresenta il livello di difficoltà
+     * @param difficolta una stringa che rappresenta il livello di difficoltà
      * @return il miglior punteggio ottenuto dall'utente per il livello specificato
      */
-    public float recuperaMigliorPunteggio(String email, String difficoltà);
+    public float recuperaMigliorPunteggio(String email, String difficolta);
 
     /**
      * Inserisce un nuovo punteggio per una partita dell'utente.

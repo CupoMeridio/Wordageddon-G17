@@ -77,7 +77,8 @@ public class RegistrationController implements Initializable {
 
     @FXML
     private void caricaIMG(MouseEvent event) {
-        byte[] bytes = ImageUtils.scegliImmagine(imageView, imageView.getScene() != null ? imageView.getScene().getWindow() : null);
+        byte[] bytes = ImageUtils.scegliImmagine(imageView,
+                imageView.getScene() != null ? imageView.getScene().getWindow() : null);
         if (bytes != null) {
             this.immagineBytes = bytes;
         }
@@ -95,13 +96,30 @@ public class RegistrationController implements Initializable {
             return;
         }
 
+        if (!ValidationUtils.isValidUsername(userTxt)) {
+            AlertUtils.mostraAlert("Username non valido",
+                    "Lo username non può essere vuoto e deve contenere al massimo "
+                            + ValidationUtils.USERNAME_MAX_LENGTH + " caratteri.",
+                    Alert.AlertType.ERROR);
+            return;
+        }
+
         if (!ValidationUtils.isValidEmail(emailTxt)) {
             AlertUtils.mostraAlert("Email non valida", "L'email inserita non è valida.", Alert.AlertType.ERROR);
             return;
         }
 
+        if (!ValidationUtils.isValidPassword(passTxt)) {
+            AlertUtils.mostraAlert("Password non valida",
+                    "La password deve contenere almeno " + ValidationUtils.PASSWORD_MIN_LENGTH
+                            + " caratteri, tra cui almeno una lettera e una cifra.",
+                    Alert.AlertType.ERROR);
+            return;
+        }
+
         if (!passTxt.equals(repPassTxt)) {
-            AlertUtils.mostraAlert("Password non corrispondenti", "Le due password inserite non corrispondono", Alert.AlertType.ERROR);
+            AlertUtils.mostraAlert("Password non corrispondenti", "Le due password inserite non corrispondono",
+                    Alert.AlertType.ERROR);
             return;
         }
 
@@ -117,7 +135,8 @@ public class RegistrationController implements Initializable {
                 registerButton.setDisable(false);
                 registerPageLogin.setDisable(false);
                 nav.setLoading(false);
-                AlertUtils.mostraAlert("Email già utilizzata", "Questa email è già associata a un altro account.", Alert.AlertType.ERROR);
+                AlertUtils.mostraAlert("Email già utilizzata", "Questa email è già associata a un altro account.",
+                        Alert.AlertType.ERROR);
                 return;
             }
 
@@ -145,13 +164,14 @@ public class RegistrationController implements Initializable {
 
                 Utente nuovoUtente;
                 if (immagineBytes == null) {
-                    nuovoUtente = new Utente(userTxt, emailTxt, TipoUtente.giocatore);
+                    nuovoUtente = new Utente(userTxt, emailTxt, TipoUtente.GIOCATORE);
                 } else {
-                    nuovoUtente = new Utente(userTxt, emailTxt, immagineBytes, TipoUtente.giocatore);
+                    nuovoUtente = new Utente(userTxt, emailTxt, immagineBytes, TipoUtente.GIOCATORE);
                 }
 
                 appState.setUtente(nuovoUtente);
-                AlertUtils.mostraAlert("Registrazione completata", "Registrazione avvenuta con successo!", Alert.AlertType.INFORMATION);
+                AlertUtils.mostraAlert("Registrazione completata", "Registrazione avvenuta con successo!",
+                        Alert.AlertType.INFORMATION);
                 nav.navigateTo(View.HOME);
             });
 

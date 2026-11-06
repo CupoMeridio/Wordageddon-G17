@@ -26,16 +26,27 @@ public class LoginService extends Service<Utente> {
      * @param password La password dell'utente.
      */
     public LoginService(String email, String password) {
-        this.email = email;
-        this.password = password;
-        this.dbu = DatabaseUtente.getInstance();
+        this(DatabaseUtente.getInstance(), email, password);
     }
 
     /**
      * Costruttore di default che inizializza l'accesso al database degli utenti.
      */
     public LoginService() {
-        this.dbu = DatabaseUtente.getInstance();
+        this(DatabaseUtente.getInstance(), null, null);
+    }
+
+    /**
+     * Costruttore con iniezione del DAO, utilizzabile nei test.
+     *
+     * @param dbu Il DAO degli utenti da utilizzare.
+     * @param email L'email dell'utente.
+     * @param password La password dell'utente.
+     */
+    LoginService(DAOUtente dbu, String email, String password) {
+        this.dbu = dbu;
+        this.email = email;
+        this.password = password;
     }
 
     /**

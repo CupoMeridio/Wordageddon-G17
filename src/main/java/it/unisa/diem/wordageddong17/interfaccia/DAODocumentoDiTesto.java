@@ -40,7 +40,8 @@ public interface DAODocumentoDiTesto {
      * Recupera il contenuto testuale di un documento.
      *
      * @param nomeDocumento il nome del documento di cui si vuole ottenere il contenuto
-     * @return un array di byte contenente il testo del documento; se il documento non esiste o si verifica un errore, viene restituito {@code null}
+     * @return un array di byte contenente il testo del documento; se il documento non esiste
+     *         o si verifica un errore, viene restituito {@code null}
      */
     public byte[] prendiTesto(String nomeDocumento);
 

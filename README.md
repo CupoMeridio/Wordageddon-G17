@@ -180,6 +180,30 @@ La classe `Database.java` adotta un connection pool **HikariCP** e determina la 
 
 ---
 
+## Qualità del Codice e Analisi Statica
+
+Il progetto integra una pipeline di controllo qualità eseguibile localmente e riprodotta in CI. Tutti gli strumenti operano in **modalità report-only**: producono report dettagliati ma non interrompono la build, così da poter essere adottati in modo incrementale.
+
+| Strumento | Scopo | Configurazione |
+|---|---|---|
+| **Maven Enforcer** | Verifica i prerequisiti di build (Maven ≥ 3.6.3, JDK ≥ 17) | `pom.xml` |
+| **Checkstyle** 3.6.0 | Uniformità dello stile (indentazione a 4 spazi, lunghezza massima riga 120) | [`config/checkstyle/checkstyle.xml`](config/checkstyle/checkstyle.xml) |
+| **SpotBugs** 4.10.5.0 | Individuazione di potenziali bug (correttezza, concorrenza, sicurezza) | [`config/spotbugs/exclude.xml`](config/spotbugs/exclude.xml) |
+| **JaCoCo** 0.8.12 | Copertura dei test unitari sul codice applicativo | `pom.xml` |
+| **JUnit 5** | Test unitari della logica di dominio e dei servizi | `src/test/java/` |
+
+Alcune segnalazioni di SpotBugs sono state **neutralizzate alla radice** intervenendo sul codice (classi `final` per prevenire attacchi da costruttore, metodo `readObject` per il ripristino dei campi `transient`, filtri di deserializzazione). Le rimanenti casualità accettabili nel contesto (es. campi di modello esposti per progetto) sono gestite tramite esclusioni mirate e commentate in `config/spotbugs/exclude.xml`.
+
+**Esecuzione della verifica completa** (compilazione, test, Checkstyle, SpotBugs e copertura):
+
+```bash
+./mvnw clean verify
+```
+
+I report sono generati in `target/` (`checkstyle-result.xml`, `spotbugsXml.xml`, `site/jacoco/`).
+
+---
+
 ## Struttura del Progetto
 
 ```text

@@ -35,18 +35,12 @@ public class AppViewController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         NavigationService nav = NavigationService.getInstance();
-        nav.init(viewContainer, loadingOverlay);
+        boolean vistaPendente = nav.init(viewContainer, loadingOverlay);
 
-        if (appState.isSessionViewHomeButton()) {
-            appState.setSessionViewHomeButton(false);
-            nav.navigateTo(View.HOME);
-        } else if (appState.isSessionViewContinuaButton()) {
-            appState.setSessionViewContinuaButton(false);
-            nav.navigateTo(View.GAME_SETUP);
-        } else if (appState.getUtente() == null) {
-            nav.navigateTo(View.LOGIN);
-        } else {
-            nav.navigateTo(View.HOME);
+        // Se nessuna vista è stata richiesta esplicitamente, si sceglie la schermata
+        // predefinita in base allo stato di autenticazione.
+        if (!vistaPendente) {
+            nav.navigateTo(appState.getUtente() == null ? View.LOGIN : View.HOME);
         }
     }
 

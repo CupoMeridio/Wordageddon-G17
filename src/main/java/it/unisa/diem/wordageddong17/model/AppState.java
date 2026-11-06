@@ -11,8 +11,6 @@ import java.util.ArrayList;
  * esista una sola istanza di AppState. L'istanza viene creata in maniera lazy e in modo thread-safe 
  * grazie all'uso di una classe interna statica (Holder Pattern).
  * 
- * 
- * @author cupom
  */
 public class AppState {
     
@@ -24,17 +22,7 @@ public class AppState {
     /**
      * Livello di difficoltà selezionato per la partita corrente.
      */
-    private LivelloPartita difficoltà = null;
-    
-    /**
-     * Flag che indica se il pulsante "Home" nella vista di sessione è abilitato.
-     */
-    private boolean sessionViewHomeButton = false;
-    
-    /**
-     * Flag che indica se il pulsante "Continua" nella vista di sessione è abilitato.
-     */
-    private boolean sessionViewContinuaButton = false;
+    private LivelloPartita difficolta = null;
     
     /**
      * Lista delle lingue disponibili o selezionate.
@@ -51,9 +39,7 @@ public class AppState {
      */
     public void reset() {
         this.utente = null;
-        this.difficoltà = null;
-        this.sessionViewHomeButton = false;
-        this.sessionViewContinuaButton = false;
+        this.difficolta = null;
         this.lingue = null;
         this.sessioneSalvata = false;
     }
@@ -77,57 +63,21 @@ public class AppState {
     }
 
     /**
-     * Imposta lo stato del pulsante "Home" nella vista di sessione.
-     *
-     * @param sessionViewHomeButton {@code true} se il pulsante deve essere abilitato, {@code false} altrimenti
-     */
-    public void setSessionViewHomeButton(boolean sessionViewHomeButton) {
-        this.sessionViewHomeButton = sessionViewHomeButton;
-    }
-
-    /**
-     * Imposta lo stato del pulsante "Continua" nella vista di sessione.
-     *
-     * @param sessionViewContinuaButton {@code true} se il pulsante deve essere abilitato, {@code false} altrimenti
-     */
-    public void setSessionViewContinuaButton(boolean sessionViewContinuaButton) {
-        this.sessionViewContinuaButton = sessionViewContinuaButton;
-    }
-
-    /**
-     * Verifica se il pulsante "Home" della vista di sessione è abilitato.
-     *
-     * @return {@code true} se il pulsante è abilitato, {@code false} altrimenti
-     */
-    public boolean isSessionViewHomeButton() {
-        return sessionViewHomeButton;
-    }
-
-    /**
-     * Verifica se il pulsante "Continua" della vista di sessione è abilitato.
-     *
-     * @return {@code true} se il pulsante è abilitato, {@code false} altrimenti
-     */
-    public boolean isSessionViewContinuaButton() {
-        return sessionViewContinuaButton;
-    }
-
-    /**
      * Restituisce il livello di difficoltà selezionato per la partita corrente.
      *
      * @return il {@link LivelloPartita} selezionato oppure {@code null} se non è stato impostato
      */
-    public LivelloPartita getDifficoltà() {
-        return difficoltà;
+    public LivelloPartita getDifficolta() {
+        return difficolta;
     }
 
     /**
      * Imposta il livello di difficoltà per la partita corrente.
      *
-     * @param difficoltà il {@link LivelloPartita} da impostare
+     * @param difficolta il {@link LivelloPartita} da impostare
      */
-    public void setDifficoltà(LivelloPartita difficoltà) {
-        this.difficoltà = difficoltà;
+    public void setDifficolta(LivelloPartita difficolta) {
+        this.difficolta = difficolta;
     }
 
     /**

@@ -20,12 +20,12 @@ public class CaricaPunteggioService extends Service<Void>{
     private final DAOClassifica dbC;
     private String email;
     private float punteggio;
-    private LivelloPartita difficoltà;
+    private LivelloPartita difficolta;
 /**
  * Costruttore senza parametri. Inizializza l'istanza del database.
  */
     public CaricaPunteggioService() {
-        this.dbC = DatabaseClassifica.getInstance();
+        this(DatabaseClassifica.getInstance());
     }
 /**
 * Costruttore con parametri per inizializzare le informazioni di un punteggio.
@@ -34,13 +34,37 @@ public class CaricaPunteggioService extends Service<Void>{
 *
 * @param punteggio Il punteggio ottenuto.
 *
-* @param difficoltà Il livello di difficoltà della partita.
+* @param difficolta Il livello di difficoltà della partita.
 */
-    public CaricaPunteggioService(String email, float punteggio, LivelloPartita difficoltà) {
-        this.dbC = DatabaseClassifica.getInstance();
+    public CaricaPunteggioService(String email, float punteggio, LivelloPartita difficolta) {
+        this(DatabaseClassifica.getInstance(), email, punteggio, difficolta);
+    }
+
+/**
+* Costruttore con iniezione del DAO, utilizzabile nei test.
+*
+* @param dbC Il DAO delle classifiche da utilizzare.
+*/
+    CaricaPunteggioService(DAOClassifica dbC) {
+        this.dbC = dbC;
+    }
+
+/**
+* Costruttore con iniezione del DAO, utilizzabile nei test.
+*
+* @param dbC Il DAO delle classifiche da utilizzare.
+*
+* @param email L'email dell'utente.
+*
+* @param punteggio Il punteggio ottenuto.
+*
+* @param difficolta Il livello di difficoltà della partita.
+*/
+    CaricaPunteggioService(DAOClassifica dbC, String email, float punteggio, LivelloPartita difficolta) {
+        this.dbC = dbC;
         this.email = email;
         this.punteggio = punteggio;
-        this.difficoltà = difficoltà;
+        this.difficolta = difficolta;
     }
 
 /**
@@ -61,10 +85,10 @@ public class CaricaPunteggioService extends Service<Void>{
 /**
  * Imposta il livello di difficoltà della partita.
  *
- * @param difficoltà Il livello di difficoltà della partita.
+ * @param difficolta Il livello di difficoltà della partita.
  */
-    public void setDifficoltà(LivelloPartita difficoltà) {
-        this.difficoltà = difficoltà;
+    public void setDifficolta(LivelloPartita difficolta) {
+        this.difficolta = difficolta;
     }
     
 /**
@@ -77,7 +101,7 @@ public class CaricaPunteggioService extends Service<Void>{
         return new Task<Void>(){
             @Override
             protected Void call() throws Exception {
-                dbC.inserisciPunteggio(email, punteggio,difficoltà);
+                dbC.inserisciPunteggio(email, punteggio,difficolta);
                 return null;
             }    
         };

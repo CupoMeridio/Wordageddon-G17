@@ -6,7 +6,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -34,7 +33,8 @@ public class DatabaseStopWords implements DAOListaStopWords {
         String query = """
                        INSERT INTO stopwords (nome_file, documento, id_amministratore)
                        VALUES (?, ?, ?)
-                       ON CONFLICT(nome_file) DO UPDATE SET documento = ?, id_amministratore = ?, data_ultima_modifica = CURRENT_TIMESTAMP
+                       ON CONFLICT(nome_file) DO UPDATE SET documento = ?, id_amministratore = ?,
+                       data_ultima_modifica = CURRENT_TIMESTAMP
                        """;
 
         try (Connection conn = db.getConnection();

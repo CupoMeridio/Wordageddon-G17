@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.List;
@@ -26,7 +25,7 @@ import java.util.stream.Collectors;
  *   <li>la raccolta di domande non contiene mai valori nulli.</li>
  * </ul>
  */
-public class GeneratoreDomande {
+public final class GeneratoreDomande {
 
     private final AnalisiDocumenti analisi;
     private final Random rnd = new Random();
@@ -43,7 +42,7 @@ public class GeneratoreDomande {
     /**
      * Classe immutabile che rappresenta una domanda a risposta multipla.
      */
-    public static class Domanda implements Serializable {
+    public static final class Domanda implements Serializable {
         private static final long serialVersionUID = 1L;
 
         /** Testo della domanda */
@@ -76,8 +75,12 @@ public class GeneratoreDomande {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
             Domanda domanda = (Domanda) o;
             return rispostaCorretta == domanda.rispostaCorretta &&
                     Objects.equals(testo, domanda.testo) &&
@@ -103,7 +106,9 @@ public class GeneratoreDomande {
      * Pulisce il nome del file rimuovendo l'estensione per una visualizzazione gradevole nel testo del quiz.
      */
     private static String stripExtension(String nomeDocumento) {
-        if (nomeDocumento == null) return "";
+        if (nomeDocumento == null) {
+            return "";
+        }
         int dotIdx = nomeDocumento.lastIndexOf('.');
         return dotIdx > 0 ? nomeDocumento.substring(0, dotIdx) : nomeDocumento;
     }
@@ -133,8 +138,12 @@ public class GeneratoreDomande {
         while (opzioniSet.size() < 4) {
             int candidata1 = freq + delta;
             int candidata2 = Math.max(0, freq - delta);
-            if (candidata1 != freq) opzioniSet.add(candidata1);
-            if (opzioniSet.size() < 4 && candidata2 != freq) opzioniSet.add(candidata2);
+            if (candidata1 != freq) {
+                opzioniSet.add(candidata1);
+            }
+            if (opzioniSet.size() < 4 && candidata2 != freq) {
+                opzioniSet.add(candidata2);
+            }
             delta++;
         }
 
@@ -363,7 +372,9 @@ public class GeneratoreDomande {
         Map<String, Integer> parole = analisi.restituisciDocumento(nomeDocumento);
         if (parole != null && !parole.isEmpty()) {
             Domanda d = domandaFrequenzaAssoluta(nomeDocumento);
-            if (d != null) return d;
+            if (d != null) {
+                return d;
+            }
         }
 
         // Caso limite: documento privo di parole dopo il filtraggio

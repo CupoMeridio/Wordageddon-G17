@@ -199,7 +199,7 @@ public class DatabaseUtente implements DAOUtente {
                     byte[] fotoProfilo = result.getBytes("foto_profilo");
                     String username = result.getString("username");
                     String emailUtente = result.getString("email");
-                    TipoUtente tipo = TipoUtente.valueOf(result.getString("tipo").trim());
+                    TipoUtente tipo = TipoUtente.fromDbValue(result.getString("tipo").trim());
 
                     return new Utente(username, emailUtente, fotoProfilo, tipo);
                 }

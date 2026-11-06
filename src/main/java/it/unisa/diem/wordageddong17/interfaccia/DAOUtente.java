@@ -59,7 +59,8 @@ public interface DAOUtente {
      * Recupera le informazioni dell'utente associato all'indirizzo email specificato.
      *
      * @param email l'email dell'utente da recuperare
-     * @return un oggetto {@link Utente} contenente le informazioni dell'utente, oppure {@code null} se l'utente non esiste
+     * @return un oggetto {@link Utente} contenente le informazioni dell'utente,
+     *         oppure {@code null} se l'utente non esiste
      */
     public Utente prendiUtente(String email);
 }

@@ -1,6 +1,9 @@
 package it.unisa.diem.wordageddong17.model;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,7 +18,7 @@ public class SessioneDiGiocoTest {
 
     @BeforeEach
     public void setUp() {
-        utenteTest = new Utente("testuser", testEmail, null, TipoUtente.giocatore);
+        utenteTest = new Utente("testuser", testEmail, null, TipoUtente.GIOCATORE);
         SessioneDiGioco.eliminaSalvataggio(testEmail);
     }
 
@@ -52,6 +55,19 @@ public class SessioneDiGiocoTest {
         // Elimina salvataggio
         assertTrue(SessioneDiGioco.eliminaSalvataggio(testEmail));
         assertFalse(SessioneDiGioco.esisteSalvataggio(testEmail));
+    }
+
+    @Test
+    public void testFiltroDeserializzazioneRifiutaClasseNonConsentita() throws IOException {
+        File saveFile = SessioneDiGioco.getSaveFile(testEmail);
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(saveFile))) {
+            oos.writeObject(new File("malevolo.txt"));
+        }
+
+        SessioneDiGioco sessione = new SessioneDiGioco();
+        assertThrows(IOException.class,
+                () -> sessione.caricaSessioneDiGiocoPerEmail(testEmail),
+                "Il filtro deve rifiutare la deserializzazione di classi non consentite");
     }
 
     @Test

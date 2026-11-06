@@ -32,7 +32,16 @@ public class PrendiTuttiIDocumentiService extends Service<ArrayList<DocumentoDiT
      * di {@link it.unisa.diem.wordageddong17.database.DatabaseDocumentoDiTesto}.
      */
     public PrendiTuttiIDocumentiService() {
-        this.dbDT = DatabaseDocumentoDiTesto.getInstance();
+        this(DatabaseDocumentoDiTesto.getInstance());
+    }
+
+    /**
+     * Costruisce una nuova istanza del servizio con iniezione del DAO, utilizzabile nei test.
+     *
+     * @param dbDT il DAO dei documenti di testo da utilizzare
+     */
+    PrendiTuttiIDocumentiService(DAODocumentoDiTesto dbDT) {
+        this.dbDT = dbDT;
     }
     
     /**

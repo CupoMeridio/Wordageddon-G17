@@ -21,7 +21,7 @@ import java.util.logging.Logger;
  * <p>La classe adotta il pattern Singleton con Lazy Holder. Il pool viene chiuso
  * automaticamente alla terminazione della JVM.</p>
  */
-public class Database {
+public final class Database {
 
     private static final Logger LOGGER = Logger.getLogger(Database.class.getName());
 

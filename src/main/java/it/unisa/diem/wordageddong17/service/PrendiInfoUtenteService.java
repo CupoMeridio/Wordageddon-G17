@@ -59,8 +59,7 @@ public class PrendiInfoUtenteService extends Service<InfoGiocatore> {
      * @param email l'indirizzo email dell'utente di cui recuperare le informazioni
      */
     public PrendiInfoUtenteService(String email) {
-        this.dbC = DatabaseClassifica.getInstance();
-        this.email = email;
+        this(DatabaseClassifica.getInstance(), email);
     }
     
     /**
@@ -69,7 +68,18 @@ public class PrendiInfoUtenteService extends Service<InfoGiocatore> {
      * prima di avviare il servizio.
      */
     public PrendiInfoUtenteService() {
-        this.dbC = DatabaseClassifica.getInstance();
+        this(DatabaseClassifica.getInstance(), null);
+    }
+
+    /**
+     * Costruisce una nuova istanza del servizio con iniezione del DAO, utilizzabile nei test.
+     *
+     * @param dbC il DAO delle classifiche da utilizzare
+     * @param email l'indirizzo email dell'utente di cui recuperare le informazioni
+     */
+    PrendiInfoUtenteService(DAOClassifica dbC, String email) {
+        this.dbC = dbC;
+        this.email = email;
     }
 
     /**

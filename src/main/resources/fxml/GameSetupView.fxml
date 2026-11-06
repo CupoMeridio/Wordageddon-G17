@@ -10,7 +10,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<ScrollPane fx:id="schermataSelezioneDifficoltà" fitToHeight="true" fitToWidth="true" stylesheets="@../styles/appview.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unisa.diem.wordageddong17.controller.GameSetupController">
+<ScrollPane fx:id="schermataSelezioneDifficolta" fitToHeight="true" fitToWidth="true" stylesheets="@../styles/appview.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unisa.diem.wordageddong17.controller.GameSetupController">
     <VBox alignment="CENTER" maxWidth="Infinity" spacing="25.0" style="-fx-padding: 30;">
         <children>
             <Label style="-fx-font-size: 28px; -fx-font-weight: bold;" text="Seleziona livello di difficoltà" />
@@ -23,7 +23,7 @@
                             <TextArea editable="false" prefHeight="240" prefWidth="270" text="Numero di documenti: 2&#10;&#10;Lunghezza del testo: 80-100 parole&#10;&#10;Tempo di lettura: ~200-240 secondi&#10;(~1 parola al secondo con margine)" wrapText="true" HBox.hgrow="ALWAYS" />
                             <RadioButton fx:id="radioFacile" mnemonicParsing="false" text="Facile">
                                 <toggleGroup>
-                                    <ToggleGroup fx:id="difficoltà" />
+                                    <ToggleGroup fx:id="difficolta" />
                                 </toggleGroup>
                             </RadioButton>
                         </children>
@@ -34,7 +34,7 @@
                         <children>
                             <Label style="-fx-font-size: 20px; -fx-font-weight: bold;" text="Medio" />
                             <TextArea editable="false" prefHeight="240" prefWidth="270" text="Numero di documenti: 2&#10;&#10;Lunghezza per testo: 200-250 parole&#10;&#10;Tempo di lettura totale: ~300 secondi &#10;(~1.5 parole/secondo)&#10;&#10;" wrapText="true" HBox.hgrow="ALWAYS" />
-                            <RadioButton fx:id="radioMedio" mnemonicParsing="false" text="Medio" toggleGroup="$difficoltà" />
+                            <RadioButton fx:id="radioMedio" mnemonicParsing="false" text="Medio" toggleGroup="$difficolta" />
                         </children>
                     </VBox>
 
@@ -43,7 +43,7 @@
                         <children>
                             <Label style="-fx-font-size: 20px; -fx-font-weight: bold;" text="Difficile" />
                             <TextArea editable="false" prefHeight="240" prefWidth="270" text="Numero di documenti: 3&#10;&#10;Lunghezza per testo: 200-250 parole&#10;&#10;Tempo di lettura totale: ~340 secondi &#10;(~2 parole/secondo)&#10;&#10;" wrapText="true" HBox.hgrow="ALWAYS" />
-                            <RadioButton fx:id="radioDifficile" mnemonicParsing="false" text="Difficile" toggleGroup="$difficoltà" />
+                            <RadioButton fx:id="radioDifficile" mnemonicParsing="false" text="Difficile" toggleGroup="$difficolta" />
                         </children>
                     </VBox>
                 </children>

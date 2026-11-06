@@ -35,7 +35,17 @@ public class PrendiStopWordsService extends Service<byte[]> {
      * @param nomeFile il nome del file delle stop words da recuperare
      */
     public PrendiStopWordsService(String nomeFile) {
-        this.dbSW = DatabaseStopWords.getInstance();
+        this(DatabaseStopWords.getInstance(), nomeFile);
+    }
+
+    /**
+     * Costruisce una nuova istanza del servizio con iniezione del DAO, utilizzabile nei test.
+     *
+     * @param dbSW il DAO delle stop words da utilizzare
+     * @param nomeFile il nome del file delle stop words da recuperare
+     */
+    PrendiStopWordsService(DAOListaStopWords dbSW, String nomeFile) {
+        this.dbSW = dbSW;
         this.nomeFile = nomeFile;
     }
     

@@ -25,15 +25,25 @@ public class EliminaTestoService extends Service<Void> {
      * @param selezionati Lista dei documenti di testo da eliminare.
      */
     public EliminaTestoService(List<DocumentoDiTesto> selezionati) {
-        dbDT = DatabaseDocumentoDiTesto.getInstance();
-        this.selezionati = selezionati;
+        this(DatabaseDocumentoDiTesto.getInstance(), selezionati);
     }
 
     /**
      * Costruttore di default che inizializza l'accesso al database dei documenti di testo.
      */
     public EliminaTestoService() {
-        dbDT = DatabaseDocumentoDiTesto.getInstance();
+        this(DatabaseDocumentoDiTesto.getInstance(), null);
+    }
+
+    /**
+     * Costruttore con iniezione del DAO, utilizzabile nei test.
+     *
+     * @param dbDT Il DAO dei documenti di testo da utilizzare.
+     * @param selezionati Lista dei documenti di testo da eliminare.
+     */
+    EliminaTestoService(DAODocumentoDiTesto dbDT, List<DocumentoDiTesto> selezionati) {
+        this.dbDT = dbDT;
+        this.selezionati = selezionati;
     }
 
     /**

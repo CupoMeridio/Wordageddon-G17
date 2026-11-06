@@ -30,7 +30,16 @@ public class PrendiClassificheService extends Service<Map<LivelloPartita, List<C
      * Costruttore di default che inizializza l'accesso al database delle classifiche.
      */
     public PrendiClassificheService() {
-        this.dbC = DatabaseClassifica.getInstance();
+        this(DatabaseClassifica.getInstance());
+    }
+
+    /**
+     * Costruttore con iniezione del DAO, utilizzabile nei test.
+     *
+     * @param dbC Il DAO delle classifiche da utilizzare.
+     */
+    PrendiClassificheService(DAOClassifica dbC) {
+        this.dbC = dbC;
     }
 
     /**

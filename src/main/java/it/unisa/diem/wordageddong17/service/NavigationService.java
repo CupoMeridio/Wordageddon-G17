@@ -81,15 +81,18 @@ public class NavigationService {
      *
      * @param viewContainer Pannello contenitore delle schermate dinamiche.
      * @param loadingOverlay Componente overlay di caricamento.
+     * @return {@code true} se è stata caricata una vista in sospeso, {@code false} altrimenti
      */
-    public void init(StackPane viewContainer, Node loadingOverlay) {
+    public boolean init(StackPane viewContainer, Node loadingOverlay) {
         this.viewContainer = viewContainer;
         this.loadingOverlay = loadingOverlay;
         if (this.pendingView != null) {
             View target = this.pendingView;
             this.pendingView = null;
             navigateTo(target);
+            return true;
         }
+        return false;
     }
 
     /**
@@ -133,7 +136,8 @@ public class NavigationService {
             viewContainer.getChildren().setAll(node);
         } catch (IOException ex) {
             LOGGER.log(Level.SEVERE, "Errore durante il caricamento della vista: " + view, ex);
-            AlertUtils.mostraAlert("Errore interfaccia", "Impossibile caricare la vista: " + ex.getMessage(), Alert.AlertType.ERROR);
+            AlertUtils.mostraAlert("Errore interfaccia", "Impossibile caricare la vista: " + ex.getMessage(),
+                    Alert.AlertType.ERROR);
         }
     }
 

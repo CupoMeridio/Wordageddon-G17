@@ -41,7 +41,9 @@ public class LoginController {
 
     @FXML
     private void accediOnAction(ActionEvent event) {
-        if (accediButton.isDisabled()) return;
+        if (accediButton.isDisabled()) {
+            return;
+        }
 
         String email = emailTextField.getText();
         String password = passwordTextField.getText();
@@ -86,7 +88,8 @@ public class LoginController {
             Throwable ex = loginService.getException();
             String msg = (ex != null && ex.getMessage() != null)
                     ? ex.getMessage()
-                    : "Si è verificato un errore durante la connessione al database. Verifica che PostgreSQL sia attivo.";
+                    : "Si è verificato un errore durante la connessione al database. "
+                            + "Verifica che PostgreSQL sia attivo.";
             AlertUtils.mostraAlert("Errore Connessione", msg, Alert.AlertType.ERROR);
         });
 

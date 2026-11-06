@@ -19,7 +19,6 @@ import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.animation.PauseTransition;
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -57,7 +56,7 @@ public class DocumentManagementController implements Initializable {
     @FXML
     private TableColumn<DocumentoDiTesto, String> gestDocColNomeFile;
     @FXML
-    private TableColumn<DocumentoDiTesto, LivelloPartita> gestDocColDifficoltà;
+    private TableColumn<DocumentoDiTesto, LivelloPartita> gestDocColDifficolta;
     @FXML
     private TableColumn<DocumentoDiTesto, String> gestDocColInserito;
     @FXML
@@ -101,7 +100,7 @@ public class DocumentManagementController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         listaDocumenti = FXCollections.observableArrayList();
 
-        gestDocColDifficoltà.setCellValueFactory(new PropertyValueFactory<>("difficolta"));
+        gestDocColDifficolta.setCellValueFactory(new PropertyValueFactory<>("difficolta"));
         gestDocColInserito.setCellValueFactory(new PropertyValueFactory<>("emailAmministratore"));
         gestDocColNomeFile.setCellValueFactory(new PropertyValueFactory<>("nomeFile"));
         gestDocColLingua.setCellValueFactory(new PropertyValueFactory<>("lingua"));
@@ -123,10 +122,13 @@ public class DocumentManagementController implements Initializable {
             private final Button btnDownload = new Button("🗎");
 
             {
-                btnDownload.setStyle("-fx-background-color: transparent; -fx-cursor: hand; -fx-font-size: 14; -fx-padding: 2;");
+                btnDownload.setStyle("-fx-background-color: transparent; -fx-cursor: hand; "
+                        + "-fx-font-size: 14; -fx-padding: 2;");
                 btnDownload.setOnAction(event -> {
                     DocumentoDiTesto doc = getTableView().getItems().get(getIndex());
-                    if (doc == null) return;
+                    if (doc == null) {
+                        return;
+                    }
 
                     nav.setLoading(true);
                     PrendiTestoService pts = new PrendiTestoService();
@@ -151,10 +153,12 @@ public class DocumentManagementController implements Initializable {
                         if (fileDest != null) {
                             try {
                                 Files.write(fileDest.toPath(), contenuto);
-                                AlertUtils.mostraAlert("Successo", "File salvato in:\n" + fileDest.getAbsolutePath(), Alert.AlertType.INFORMATION);
+                                AlertUtils.mostraAlert("Successo", "File salvato in:\n" + fileDest.getAbsolutePath(),
+                                        Alert.AlertType.INFORMATION);
                             } catch (IOException ex) {
                                 LOGGER.log(Level.SEVERE, "Errore durante il salvataggio su disco del file", ex);
-                                AlertUtils.mostraAlert("Errore", "Impossibile salvare il file: " + ex.getMessage(), Alert.AlertType.ERROR);
+                                AlertUtils.mostraAlert("Errore", "Impossibile salvare il file: " + ex.getMessage(),
+                                        Alert.AlertType.ERROR);
                             }
                         }
                     });
@@ -193,7 +197,8 @@ public class DocumentManagementController implements Initializable {
                         (gestDocCheckMedia.isSelected() && "medio".equalsIgnoreCase(livelloDb)) ||
                         (gestDocCheckDifficile.isSelected() && "difficile".equalsIgnoreCase(livelloDb));
 
-                if (!gestDocCheckFacile.isSelected() && !gestDocCheckMedia.isSelected() && !gestDocCheckDifficile.isSelected()) {
+                if (!gestDocCheckFacile.isSelected() && !gestDocCheckMedia.isSelected()
+                        && !gestDocCheckDifficile.isSelected()) {
                     matchDifficolta = true;
                 }
 

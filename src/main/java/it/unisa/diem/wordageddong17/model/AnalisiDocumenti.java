@@ -1,6 +1,7 @@
 package it.unisa.diem.wordageddong17.model;
 
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -37,7 +38,7 @@ public class AnalisiDocumenti implements Serializable {
      * e le mappe delle parole con le loro frequenze.
      * Struttura: NomeDocumento -> (Parola -> Frequenza)
      */
-    private Map<String, Map<String, Integer>> Matrice;
+    private Map<String, Map<String, Integer>> matrice;
 
     /** Array di byte contenente le stop words da escludere nell'analisi */
     private byte[] stopWords;
@@ -50,9 +51,25 @@ public class AnalisiDocumenti implements Serializable {
      * Inizializza la matrice vuota pronta per ricevere le analisi dei documenti.
      */
     public AnalisiDocumenti() {
-        this.Matrice = new HashMap<>();
+        this.matrice = new HashMap<>();
         this.stopWords = null;
         this.stopWordsSet = Collections.emptySet();
+    }
+
+    /**
+     * Ripristina lo stato dell'oggetto dopo la deserializzazione.
+     * <p>
+     * Il campo {@link #stopWordsSet} è {@code transient} e non viene quindi serializzato:
+     * viene ricostruito a partire dalle stop words ripristinate.
+     * </p>
+     *
+     * @param in il flusso di input da cui leggere lo stato serializzato
+     * @throws IOException se la lettura fallisce
+     * @throws ClassNotFoundException se una classe deserializzata non viene trovata
+     */
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        in.defaultReadObject();
+        aggiornaStopWordsSet();
     }
 
     /**
@@ -87,7 +104,7 @@ public class AnalisiDocumenti implements Serializable {
      * @param m la mappa contenente le parole e le loro frequenze per il documento
      */
     private void aggiungiDocumento(String nomeDocumento, Map<String, Integer> m) {
-        Matrice.put(nomeDocumento, m);
+        matrice.put(nomeDocumento, m);
     }
 
     /**
@@ -97,7 +114,7 @@ public class AnalisiDocumenti implements Serializable {
      * @return Map contenente le parole come chiavi e le loro frequenze come valori, oppure null se non presente
      */
     public Map<String, Integer> restituisciDocumento(String nomeDocumento) {
-        return Matrice.get(nomeDocumento);
+        return matrice.get(nomeDocumento);
     }
 
     /**
@@ -106,7 +123,7 @@ public class AnalisiDocumenti implements Serializable {
      * @return Map completa contenente tutti i documenti analizzati
      */
     public Map<String, Map<String, Integer>> getMatrice() {
-        return Matrice;
+        return matrice;
     }
 
     /**
@@ -157,6 +174,6 @@ public class AnalisiDocumenti implements Serializable {
 
     @Override
     public String toString() {
-        return "AnalisiDocumenti{" + "Matrice=" + Matrice + '}';
+        return "AnalisiDocumenti{" + "Matrice=" + matrice + '}';
     }
 }

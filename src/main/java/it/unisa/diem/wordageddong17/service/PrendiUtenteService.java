@@ -10,7 +10,8 @@ import javafx.concurrent.Task;
  * Questo servizio esegue il recupero in background delle informazioni di un utente
  * identificato dal suo indirizzo email.
  * <p>
- * La classe estende {@link javafx.concurrent.Service} parametrizzata con {@link it.unisa.diem.wordageddong17.model.Utente}.
+ * La classe estende {@link javafx.concurrent.Service} parametrizzata con
+ * {@link it.unisa.diem.wordageddong17.model.Utente}.
  * Attraverso l'utilizzo di un {@link Task}, il servizio invoca il metodo
  * {@link it.unisa.diem.wordageddong17.interfaccia.DAOUtente#prendiUtente(String)} della
  * classe {@link it.unisa.diem.wordageddong17.database.DatabaseUtente} per ottenere i dettagli dell'utente.
@@ -39,8 +40,7 @@ public class PrendiUtenteService extends Service<Utente> {
      * @param email l'indirizzo email dell'utente da recuperare
      */
     public PrendiUtenteService(String email) {
-        this.email = email;
-        dbu = DatabaseUtente.getInstance();
+        this(DatabaseUtente.getInstance(), email);
     }
 
     /**
@@ -50,7 +50,18 @@ public class PrendiUtenteService extends Service<Utente> {
      * {@link #setEmail(String)} prima di avviare il servizio.
      */
     public PrendiUtenteService() {
-        dbu = DatabaseUtente.getInstance();
+        this(DatabaseUtente.getInstance(), null);
+    }
+
+    /**
+     * Costruisce una nuova istanza del servizio con iniezione del DAO, utilizzabile nei test.
+     *
+     * @param dbu il DAO degli utenti da utilizzare
+     * @param email l'indirizzo email dell'utente da recuperare
+     */
+    PrendiUtenteService(DAOUtente dbu, String email) {
+        this.dbu = dbu;
+        this.email = email;
     }
 
     /**

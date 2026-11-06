@@ -1,93 +1,298 @@
 @startuml
+' Diagramma delle classi complessivo (versione semplificata) - branch main
+' Riflette l'architettura MVC modulare con navigazione centralizzata e
+' dependency injection via costruttore nei servizi.
 skinparam classAttributeIconSize 0
-class AnalisiDocumenti
-class App
-class AppState
-class AppViewController
-class CaricaPunteggioService
-class CaricaSessioneDiGiocoService
-class CaricaStopWordsService
-class CaricaTestoService
-class Classifica
-class Database
-class DatabaseClassifica
-class DatabaseDocumentoDiTesto
-class DatabaseStopWords
-class DatabaseUtente
-class EliminaTestoService
-class GeneratoreDomande
-class InserisciUtenteService
-class LoginService
-class MancanzaDiDocumenti
-class ModificaFotoProfiloService
-class PrendiClassificheService
-class PrendiInfoUtenteService
-class PrendiStopWordsService
-class PrendiTestoService
-class PrendiTuttiIDocumentiService
-class PrendiUtenteService
-class RunMain
-class SessionViewController
-class SessioneDiGioco
-class Utente
-class Lingua
-class LivelloPartita
-class TipoUtente
-class Connection
-AppViewController --> PrendiClassificheService
-AppViewController --> InserisciUtenteService
-AppViewController --> CaricaTestoService
-AppViewController --> MenuItem
-AppViewController --> PrendiUtenteService
-AppViewController --> LoginService
-AppViewController --> PrendiTestoService
-AppViewController --> ModificaFotoProfiloService
-AppViewController --> PrendiInfoUtenteService
-AppViewController --> StackPane
-AppViewController --> DAOListaStopWords
-AppViewController --> EliminaTestoService
-AppViewController --> PrendiTuttiIDocumentiService
+hide circle
+hide empty members
+skinparam packageStyle rectangle
+
+package "it.unisa.diem.wordageddong17" {
+  class App
+  class RunMain
+}
+
+package "controller" {
+  class AppViewController
+  class LoginController
+  class RegistrationController
+  class HomeController
+  class GameSetupController
+  class SessionViewController
+  class LeaderboardController
+  class ProfileController
+  class DocumentManagementController
+  class DocumentUploadController
+  class StopwordsController
+}
+
+package "service" {
+  class NavigationService
+  class LoginService
+  class InserisciUtenteService
+  class PrendiUtenteService
+  class ModificaFotoProfiloService
+  class CaricaSessioneDiGiocoService
+  class CaricaPunteggioService
+  class CaricaTestoService
+  class EliminaTestoService
+  class PrendiTestoService
+  class PrendiTuttiIDocumentiService
+  class CaricaStopWordsService
+  class PrendiStopWordsService
+  class PrendiClassificheService
+  class PrendiInfoUtenteService
+}
+
+package "model" {
+  class AppState
+  class SessioneDiGioco
+  class GeneratoreDomande
+  class AnalisiDocumenti
+  class DocumentoDiTesto <<record>>
+  class ListaStopWords <<record>>
+  class InfoGiocatore <<record>>
+  class Classifica
+  class Utente
+  class Lingua <<enumeration>>
+  class LivelloPartita <<enumeration>>
+  class TipoUtente <<enumeration>>
+}
+
+package "database" {
+  class Database
+  class DatabaseClassifica
+  class DatabaseDocumentoDiTesto
+  class DatabaseStopWords
+  class DatabaseUtente
+  class DataAccessException
+  class DuplicateUserException
+  class MancanzaDiDocumenti
+}
+
+package "interfaccia" {
+  interface DAOClassifica
+  interface DAODocumentoDiTesto
+  interface DAOListaStopWords
+  interface DAOUtente
+}
+
+package "util" {
+  class AlertUtils
+  class ImageUtils
+  class ValidationUtils
+}
+
+class "Timeline" as JavaFXTimeline <<JavaFX>>
+
+' ---------- Avvio ----------
+RunMain ..> App
+
+' ---------- Controller -> Servizi / Stato ----------
+AppViewController --> NavigationService
 AppViewController --> AppState
+
+LoginController --> NavigationService
+LoginController --> LoginService
+LoginController --> AppState
+LoginController --> Utente
+LoginController --> AlertUtils
+LoginController --> ValidationUtils
+
+RegistrationController --> NavigationService
+RegistrationController --> InserisciUtenteService
+RegistrationController --> PrendiUtenteService
+RegistrationController --> AppState
+RegistrationController --> Utente
+RegistrationController --> TipoUtente
+RegistrationController --> AlertUtils
+RegistrationController --> ImageUtils
+RegistrationController --> ValidationUtils
+
+HomeController --> NavigationService
+HomeController --> AppState
+HomeController --> SessioneDiGioco
+HomeController --> Utente
+HomeController --> TipoUtente
+HomeController --> AlertUtils
+HomeController --> ImageUtils
+
+GameSetupController --> NavigationService
+GameSetupController --> AppState
+GameSetupController --> Lingua
+GameSetupController --> LivelloPartita
+GameSetupController --> AlertUtils
+
+SessionViewController --> NavigationService
 SessionViewController --> CaricaSessioneDiGiocoService
 SessionViewController --> CaricaPunteggioService
-SessionViewController --> SessioneDiGioco
-SessionViewController --> Timeline
 SessionViewController --> AppState
-Database --> Dotenv
-Database --> Connection
-Database --> Logger
+SessionViewController --> SessioneDiGioco
+SessionViewController --> AlertUtils
+SessionViewController --> JavaFXTimeline
+
+LeaderboardController --> NavigationService
+LeaderboardController --> PrendiClassificheService
+LeaderboardController --> Classifica
+LeaderboardController --> LivelloPartita
+LeaderboardController --> AlertUtils
+
+ProfileController --> NavigationService
+ProfileController --> PrendiInfoUtenteService
+ProfileController --> ModificaFotoProfiloService
+ProfileController --> AppState
+ProfileController --> Utente
+ProfileController --> InfoGiocatore
+ProfileController --> Classifica
+ProfileController --> LivelloPartita
+ProfileController --> AlertUtils
+ProfileController --> ImageUtils
+
+DocumentManagementController --> NavigationService
+DocumentManagementController --> PrendiTuttiIDocumentiService
+DocumentManagementController --> EliminaTestoService
+DocumentManagementController --> PrendiTestoService
+DocumentManagementController --> DocumentoDiTesto
+DocumentManagementController --> Lingua
+DocumentManagementController --> LivelloPartita
+DocumentManagementController --> AlertUtils
+
+DocumentUploadController --> NavigationService
+DocumentUploadController --> CaricaTestoService
+DocumentUploadController --> AppState
+DocumentUploadController --> Lingua
+DocumentUploadController --> LivelloPartita
+DocumentUploadController --> AlertUtils
+
+StopwordsController --> NavigationService
+StopwordsController --> PrendiStopWordsService
+StopwordsController --> CaricaStopWordsService
+StopwordsController --> AppState
+StopwordsController --> AlertUtils
+
+' ---------- NavigationService ----------
+NavigationService --> App
+NavigationService --> AlertUtils
+
+' ---------- Servizi utente ----------
+LoginService --> DAOUtente
+LoginService --> DatabaseUtente
+LoginService --> Utente
+
+InserisciUtenteService --> DAOUtente
+InserisciUtenteService --> DatabaseUtente
+InserisciUtenteService --> Utente
+InserisciUtenteService --> TipoUtente
+
+PrendiUtenteService --> DAOUtente
+PrendiUtenteService --> Utente
+
+ModificaFotoProfiloService --> DAOUtente
+ModificaFotoProfiloService --> DatabaseUtente
+ModificaFotoProfiloService --> Utente
+ModificaFotoProfiloService --> TipoUtente
+
+' ---------- Servizi sessione ----------
+CaricaSessioneDiGiocoService --> DAODocumentoDiTesto
+CaricaSessioneDiGiocoService --> DAOListaStopWords
+CaricaSessioneDiGiocoService --> DatabaseDocumentoDiTesto
+CaricaSessioneDiGiocoService --> DatabaseStopWords
+CaricaSessioneDiGiocoService --> MancanzaDiDocumenti
+CaricaSessioneDiGiocoService --> AnalisiDocumenti
+CaricaSessioneDiGiocoService --> GeneratoreDomande
+CaricaSessioneDiGiocoService --> SessioneDiGioco
+CaricaSessioneDiGiocoService --> Lingua
+CaricaSessioneDiGiocoService --> LivelloPartita
+
+CaricaPunteggioService --> DAOClassifica
+CaricaPunteggioService --> DatabaseClassifica
+CaricaPunteggioService --> LivelloPartita
+
+' ---------- Servizi documenti ----------
+CaricaTestoService --> DAODocumentoDiTesto
+CaricaTestoService --> DatabaseDocumentoDiTesto
+CaricaTestoService --> DocumentoDiTesto
+CaricaTestoService --> Lingua
+CaricaTestoService --> LivelloPartita
+
+EliminaTestoService --> DAODocumentoDiTesto
+EliminaTestoService --> DatabaseDocumentoDiTesto
+EliminaTestoService --> DocumentoDiTesto
+
+PrendiTestoService --> DAODocumentoDiTesto
+PrendiTestoService --> DatabaseDocumentoDiTesto
+
+PrendiTuttiIDocumentiService --> DAODocumentoDiTesto
+PrendiTuttiIDocumentiService --> DatabaseDocumentoDiTesto
+PrendiTuttiIDocumentiService --> DocumentoDiTesto
+
+' ---------- Servizi stopwords ----------
+CaricaStopWordsService --> DAOListaStopWords
+CaricaStopWordsService --> DatabaseStopWords
+CaricaStopWordsService --> ListaStopWords
+
+PrendiStopWordsService --> DAOListaStopWords
+PrendiStopWordsService --> DatabaseStopWords
+
+' ---------- Servizi classifiche ----------
+PrendiClassificheService --> DAOClassifica
+PrendiClassificheService --> DatabaseClassifica
+PrendiClassificheService --> Classifica
+PrendiClassificheService --> LivelloPartita
+
+PrendiInfoUtenteService --> DAOClassifica
+PrendiInfoUtenteService --> DatabaseClassifica
+PrendiInfoUtenteService --> Classifica
+PrendiInfoUtenteService --> InfoGiocatore
+PrendiInfoUtenteService --> LivelloPartita
+
+' ---------- Implementazioni DAO ----------
+DatabaseClassifica ..|> DAOClassifica
 DatabaseClassifica --> Database
+DatabaseClassifica --> Classifica
+DatabaseClassifica --> LivelloPartita
+
+DatabaseDocumentoDiTesto ..|> DAODocumentoDiTesto
 DatabaseDocumentoDiTesto --> Database
+DatabaseDocumentoDiTesto --> DocumentoDiTesto
+DatabaseDocumentoDiTesto --> Lingua
+DatabaseDocumentoDiTesto --> LivelloPartita
+
+DatabaseStopWords ..|> DAOListaStopWords
 DatabaseStopWords --> Database
+DatabaseStopWords --> ListaStopWords
+
+DatabaseUtente ..|> DAOUtente
 DatabaseUtente --> Database
+DatabaseUtente --> Utente
+DatabaseUtente --> TipoUtente
+
+' ---------- Interfacce DAO ----------
+DAOClassifica --> Classifica
+DAOClassifica --> LivelloPartita
+DAODocumentoDiTesto --> DocumentoDiTesto
+DAODocumentoDiTesto --> Lingua
+DAODocumentoDiTesto --> LivelloPartita
+DAOListaStopWords --> ListaStopWords
+DAOUtente --> Utente
+
+' ---------- Modello ----------
 AppState --> Utente
+AppState --> Lingua
 AppState --> LivelloPartita
-Classifica --> LivelloPartita
-Classifica --> DatabaseClassifica
-GeneratoreDomande --> Random
-GeneratoreDomande --> AnalisiDocumenti
+
 SessioneDiGioco --> Utente
 SessioneDiGioco --> LivelloPartita
-SessioneDiGioco --> long
+SessioneDiGioco --> GeneratoreDomande
+
+GeneratoreDomande --> AnalisiDocumenti
+GeneratoreDomande --> Lingua
+
+DocumentoDiTesto --> Lingua
+DocumentoDiTesto --> LivelloPartita
+
+InfoGiocatore --> Classifica
+Classifica --> LivelloPartita
 Utente --> TipoUtente
-CaricaPunteggioService --> DAOClassifica
-CaricaPunteggioService --> LivelloPartita
-CaricaSessioneDiGiocoService --> DAOListaStopWords
-CaricaSessioneDiGiocoService --> SessioneDiGioco
-CaricaSessioneDiGiocoService --> DAODocumentoDiTesto
-CaricaSessioneDiGiocoService --> AnalisiDocumenti
-CaricaSessioneDiGiocoService --> LivelloPartita
-CaricaStopWordsService --> DAOListaStopWords
-CaricaTestoService --> Lingua
-CaricaTestoService --> DAODocumentoDiTesto
-EliminaTestoService --> DAODocumentoDiTesto
-InserisciUtenteService --> DAOUtente
-LoginService --> DAOUtente
-ModificaFotoProfiloService --> DAOUtente
-PrendiClassificheService --> DAOClassifica
-PrendiInfoUtenteService --> DAOClassifica
-PrendiStopWordsService --> DAOListaStopWords
-PrendiTestoService --> DAODocumentoDiTesto
-PrendiTuttiIDocumentiService --> DAODocumentoDiTesto
-PrendiUtenteService --> DAOUtente
+
 @enduml

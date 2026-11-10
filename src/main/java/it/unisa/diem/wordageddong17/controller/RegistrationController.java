@@ -7,6 +7,7 @@ import it.unisa.diem.wordageddong17.service.InserisciUtenteService;
 import it.unisa.diem.wordageddong17.service.NavigationService;
 import it.unisa.diem.wordageddong17.service.NavigationService.View;
 import it.unisa.diem.wordageddong17.service.PrendiUtenteService;
+import it.unisa.diem.wordageddong17.service.ThemeService;
 import it.unisa.diem.wordageddong17.util.AlertUtils;
 import it.unisa.diem.wordageddong17.util.ImageUtils;
 import it.unisa.diem.wordageddong17.util.ValidationUtils;
@@ -17,7 +18,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
@@ -34,25 +34,13 @@ public class RegistrationController implements Initializable {
     public RegistrationController() {}
 
     @FXML
-    private Label usernameLabel;
-
-    @FXML
     private TextField username;
-
-    @FXML
-    private Label emailLabel;
 
     @FXML
     private TextField email;
 
     @FXML
-    private Label passwordLabel;
-
-    @FXML
     private PasswordField password;
-
-    @FXML
-    private Label repeatLabel;
 
     @FXML
     private PasswordField repeatPassword;
@@ -64,6 +52,9 @@ public class RegistrationController implements Initializable {
     private Button registerPageLogin;
 
     @FXML
+    private Button themeToggleButton;
+
+    @FXML
     private ImageView imageView;
 
     private byte[] immagineBytes;
@@ -73,6 +64,20 @@ public class RegistrationController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         ImageUtils.ritagliaQuadrato(imageView, 208);
+        updateThemeButtonText();
+    }
+
+    @FXML
+    private void toggleTheme(ActionEvent event) {
+        ThemeService.getInstance().toggleTheme();
+        updateThemeButtonText();
+    }
+
+    private void updateThemeButtonText() {
+        if (themeToggleButton != null) {
+            boolean isDark = ThemeService.getInstance().isDark();
+            themeToggleButton.setText(isDark ? "☀️ Tema Chiaro" : "🌙 Tema Scuro");
+        }
     }
 
     @FXML

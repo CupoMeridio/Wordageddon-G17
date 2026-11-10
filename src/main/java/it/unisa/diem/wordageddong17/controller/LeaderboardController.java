@@ -17,7 +17,6 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -59,9 +58,6 @@ public class LeaderboardController implements Initializable {
     private TableColumn<Classifica, String> difficileNome;
     @FXML
     private TableColumn<Classifica, Float> difficilePunteggio;
-
-    @FXML
-    private Button chiudiClassificheButton;
 
     private ObservableList<Classifica> classificaFacile;
     private ObservableList<Classifica> classificaMedia;

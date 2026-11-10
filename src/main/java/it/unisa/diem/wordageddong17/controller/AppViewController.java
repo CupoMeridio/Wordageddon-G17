@@ -8,7 +8,6 @@ import java.util.ResourceBundle;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 
 /**
@@ -17,12 +16,6 @@ import javafx.scene.layout.StackPane;
  * della schermata iniziale in base allo stato corrente dell'applicazione.
  */
 public class AppViewController implements Initializable {
-
-    @FXML
-    private BorderPane mainContainer;
-
-    @FXML
-    private StackPane contentArea;
 
     @FXML
     private StackPane viewContainer;

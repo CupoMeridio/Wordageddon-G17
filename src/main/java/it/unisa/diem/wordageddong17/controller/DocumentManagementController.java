@@ -28,7 +28,6 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
-import javafx.scene.control.MenuItem;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
@@ -65,9 +64,6 @@ public class DocumentManagementController implements Initializable {
     private TableColumn<DocumentoDiTesto, String> gestDocColDocumento;
 
     @FXML
-    private MenuItem eliminaDocItem;
-
-    @FXML
     private TextField gestDocBarraDiRicerca;
 
     @FXML
@@ -87,11 +83,6 @@ public class DocumentManagementController implements Initializable {
     private CheckBox gestDocCheckFR;
     @FXML
     private CheckBox gestDocCheckDE;
-
-    @FXML
-    private Button gestDocNuovoButton;
-    @FXML
-    private Button gestDocButtonTornaAllaHome;
 
     private ObservableList<DocumentoDiTesto> listaDocumenti;
     private final NavigationService nav = NavigationService.getInstance();

@@ -73,8 +73,7 @@ public class PrendiStopWordsService extends Service<byte[]> {
         return new Task<byte[]>() {
             @Override
             protected byte[] call() throws Exception {
-                byte[] file = dbSW.prendiStopwords(nomeFile);
-                return file;
+                return dbSW.prendiStopwords(nomeFile);
             }
         };
     }

@@ -6,6 +6,7 @@ import it.unisa.diem.wordageddong17.model.TipoUtente;
 import it.unisa.diem.wordageddong17.model.Utente;
 import it.unisa.diem.wordageddong17.service.NavigationService;
 import it.unisa.diem.wordageddong17.service.NavigationService.View;
+import it.unisa.diem.wordageddong17.service.ThemeService;
 import it.unisa.diem.wordageddong17.util.AlertUtils;
 import it.unisa.diem.wordageddong17.util.ImageUtils;
 import java.net.URL;
@@ -17,8 +18,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
 /**
@@ -32,21 +31,6 @@ public class HomeController implements Initializable {
     public HomeController() {}
 
     @FXML
-    private AnchorPane schermataHome;
-
-    @FXML
-    private VBox contenutoHome;
-
-    @FXML
-    private Button startButton;
-
-    @FXML
-    private Button classificheButton;
-
-    @FXML
-    private HBox quickInfoUtente;
-
-    @FXML
     private Label benvenutoLabel;
 
     @FXML
@@ -56,13 +40,13 @@ public class HomeController implements Initializable {
     private VBox dashboardMenu;
 
     @FXML
-    private Button infoProfiloButton;
-
-    @FXML
     private Button newDocument;
 
     @FXML
     private Button stopwordList;
+
+    @FXML
+    private Button themeToggleButton;
 
     private final AppState appState = AppState.getInstance();
     private final NavigationService nav = NavigationService.getInstance();
@@ -90,6 +74,7 @@ public class HomeController implements Initializable {
             stopwordList.setVisible(false);
             stopwordList.setManaged(false);
         }
+        updateThemeButtonText();
     }
 
     @FXML
@@ -140,6 +125,19 @@ public class HomeController implements Initializable {
     private void mostraGestioneStopwords(ActionEvent event) {
         dashboardMenu.setVisible(false);
         nav.navigateTo(View.STOPWORDS);
+    }
+
+    @FXML
+    private void toggleTheme(ActionEvent event) {
+        ThemeService.getInstance().toggleTheme();
+        updateThemeButtonText();
+    }
+
+    private void updateThemeButtonText() {
+        if (themeToggleButton != null) {
+            boolean isDark = ThemeService.getInstance().isDark();
+            themeToggleButton.setText(isDark ? "☀️ Tema Chiaro" : "🌙 Tema Scuro");
+        }
     }
 
     @FXML

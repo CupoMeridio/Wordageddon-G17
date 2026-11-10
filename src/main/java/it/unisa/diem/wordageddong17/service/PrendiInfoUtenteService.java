@@ -27,7 +27,7 @@ import javafx.concurrent.Task;
 public class PrendiInfoUtenteService extends Service<InfoGiocatore> {
     
     /** Lista contenente la cronologia delle partite giocate dall'utente. */
-    List<Classifica> cronologiaPartiteList;
+    private List<Classifica> cronologiaPartiteList;
     
     /** Numero di partite giocate al livello Facile. */
     private int facileCount;

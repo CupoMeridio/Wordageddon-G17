@@ -5,10 +5,14 @@ import it.unisa.diem.wordageddong17.model.Utente;
 import it.unisa.diem.wordageddong17.service.LoginService;
 import it.unisa.diem.wordageddong17.service.NavigationService;
 import it.unisa.diem.wordageddong17.service.NavigationService.View;
+import it.unisa.diem.wordageddong17.service.ThemeService;
 import it.unisa.diem.wordageddong17.util.AlertUtils;
 import it.unisa.diem.wordageddong17.util.ValidationUtils;
+import java.net.URL;
+import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
@@ -17,12 +21,15 @@ import javafx.scene.control.TextField;
 /**
  * Controller per la schermata di autenticazione (Login).
  */
-public class LoginController {
+public class LoginController implements Initializable {
 
     /**
      * Costruttore predefinito utilizzato da FXMLLoader.
      */
     public LoginController() {}
+
+    @FXML
+    private Button themeToggleButton;
 
     @FXML
     private TextField emailTextField;
@@ -38,6 +45,24 @@ public class LoginController {
 
     private final AppState appState = AppState.getInstance();
     private final NavigationService nav = NavigationService.getInstance();
+
+    @Override
+    public void initialize(URL url, ResourceBundle rb) {
+        updateThemeButtonText();
+    }
+
+    @FXML
+    private void toggleTheme(ActionEvent event) {
+        ThemeService.getInstance().toggleTheme();
+        updateThemeButtonText();
+    }
+
+    private void updateThemeButtonText() {
+        if (themeToggleButton != null) {
+            boolean isDark = ThemeService.getInstance().isDark();
+            themeToggleButton.setText(isDark ? "☀️ Tema Chiaro" : "🌙 Tema Scuro");
+        }
+    }
 
     @FXML
     private void accediOnAction(ActionEvent event) {

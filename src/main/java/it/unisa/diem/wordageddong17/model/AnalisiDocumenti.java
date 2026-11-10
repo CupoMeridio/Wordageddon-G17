@@ -10,7 +10,6 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
@@ -30,7 +29,6 @@ import java.util.stream.Collectors;
  */
 public class AnalisiDocumenti implements Serializable {
 
-    private static final Logger LOGGER = Logger.getLogger(AnalisiDocumenti.class.getName());
     private static final long serialVersionUID = 1L;
 
     /**

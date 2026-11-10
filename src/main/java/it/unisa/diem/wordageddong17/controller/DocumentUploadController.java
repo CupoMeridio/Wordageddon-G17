@@ -15,10 +15,8 @@ import java.util.logging.Logger;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
-import javafx.scene.control.ToggleGroup;
 import javafx.stage.FileChooser;
 
 /**
@@ -46,8 +44,6 @@ public class DocumentUploadController {
     private RadioButton adminRadioDE;
     @FXML
     private RadioButton adminRadioFR;
-    @FXML
-    private ToggleGroup lingua;
 
     @FXML
     private RadioButton adminRadioFacile;
@@ -55,15 +51,6 @@ public class DocumentUploadController {
     private RadioButton adminRadioMedio;
     @FXML
     private RadioButton adminRadioDifficile;
-    @FXML
-    private ToggleGroup inserisciDifficolta;
-
-    @FXML
-    private Button browseButton;
-    @FXML
-    private Button saveButton;
-    @FXML
-    private Button backToGestDoc;
 
     private File fileSelezionato;
     private final AppState appState = AppState.getInstance();

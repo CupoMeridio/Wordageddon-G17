@@ -13,7 +13,6 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 
 /**
@@ -28,12 +27,6 @@ public class StopwordsController implements Initializable {
 
     @FXML
     private TextArea stopwordTextArea;
-
-    @FXML
-    private Button tornaHomeButton;
-
-    @FXML
-    private Button salvaStopwordsButton;
 
     private final AppState appState = AppState.getInstance();
     private final NavigationService nav = NavigationService.getInstance();

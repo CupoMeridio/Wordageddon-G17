@@ -6,39 +6,51 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox fx:id="schermataDiLogin" alignment="CENTER" maxHeight="Infinity" maxWidth="Infinity" spacing="25.0" style="-fx-padding: 40;" stylesheets="@../styles/appview.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unisa.diem.wordageddong17.controller.LoginController">
-    <children>
-        <ImageView fitHeight="150.0" fitWidth="300.0" pickOnBounds="true" preserveRatio="true">
-            <image>
-                <Image url="@../imgs/Logo_senza_sfondo.png" />
-            </image>
-        </ImageView>
-
-        <HBox alignment="CENTER" maxWidth="Infinity" spacing="60.0">
+<BorderPane fx:id="schermataDiLogin" maxHeight="Infinity" maxWidth="Infinity" stylesheets="@../styles/appview.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unisa.diem.wordageddong17.controller.LoginController">
+    <top>
+        <HBox alignment="CENTER_RIGHT" style="-fx-padding: 20 25 0 0;">
             <children>
-                <VBox alignment="CENTER" spacing="8.0">
-                    <children>
-                        <Label text="Email" />
-                        <TextField fx:id="emailTextField" alignment="CENTER" minHeight="35" prefWidth="250" promptText="Inserisci la tua email" />
-                    </children>
-                </VBox>
-                <VBox alignment="CENTER" spacing="8.0">
-                    <children>
-                        <Label text="Password" />
-                        <PasswordField fx:id="passwordTextField" alignment="CENTER" minHeight="35" prefWidth="250" promptText="Inserisci la tua password" />
-                    </children>
-                </VBox>
+                <Button fx:id="themeToggleButton" onAction="#toggleTheme" prefHeight="35" text="☀️ Tema Chiaro" />
             </children>
         </HBox>
-
-        <VBox alignment="CENTER" maxWidth="Infinity" spacing="20">
+    </top>
+    <center>
+        <VBox alignment="CENTER" maxHeight="Infinity" maxWidth="Infinity" spacing="25.0" style="-fx-padding: 10 40 40 40;">
             <children>
-                <Button fx:id="accediButton" onAction="#accediOnAction" prefHeight="45" prefWidth="200" text="Accedi" />
-                <Button fx:id="passaARegistratiButton" onAction="#passaARegistratiOnAction" prefHeight="50" prefWidth="400" text="Non hai ancora un account? Registrati!" wrapText="true" />
+                <ImageView fitHeight="150.0" fitWidth="300.0" pickOnBounds="true" preserveRatio="true">
+                    <image>
+                        <Image url="@../imgs/Logo_senza_sfondo.png" />
+                    </image>
+                </ImageView>
+
+                <HBox alignment="CENTER" maxWidth="Infinity" spacing="60.0">
+                    <children>
+                        <VBox alignment="CENTER" spacing="8.0">
+                            <children>
+                                <Label text="Email" />
+                                <TextField fx:id="emailTextField" alignment="CENTER" minHeight="35" prefWidth="250" promptText="Inserisci la tua email" />
+                            </children>
+                        </VBox>
+                        <VBox alignment="CENTER" spacing="8.0">
+                            <children>
+                                <Label text="Password" />
+                                <PasswordField fx:id="passwordTextField" alignment="CENTER" minHeight="35" prefWidth="250" promptText="Inserisci la tua password" />
+                            </children>
+                        </VBox>
+                    </children>
+                </HBox>
+
+                <VBox alignment="CENTER" maxWidth="Infinity" spacing="20">
+                    <children>
+                        <Button fx:id="accediButton" onAction="#accediOnAction" prefHeight="45" prefWidth="200" text="Accedi" />
+                        <Button fx:id="passaARegistratiButton" onAction="#passaARegistratiOnAction" prefHeight="50" prefWidth="400" text="Non hai ancora un account? Registrati!" wrapText="true" />
+                    </children>
+                </VBox>
             </children>
         </VBox>
-    </children>
-</VBox>
+    </center>
+</BorderPane>

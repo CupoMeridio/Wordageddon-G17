@@ -18,7 +18,6 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.RadioButton;
-import javafx.scene.control.ToggleGroup;
 
 /**
  * Controller per la schermata di configurazione partita (selezione difficoltà e lingue).
@@ -40,9 +39,6 @@ public class GameSetupController implements Initializable {
     private RadioButton radioDifficile;
 
     @FXML
-    private ToggleGroup difficolta;
-
-    @FXML
     private CheckBox checkIT;
 
     @FXML
@@ -56,9 +52,6 @@ public class GameSetupController implements Initializable {
 
     @FXML
     private CheckBox checkES;
-
-    @FXML
-    private Button indietroSelezione;
 
     @FXML
     private Button iniziaPartita;

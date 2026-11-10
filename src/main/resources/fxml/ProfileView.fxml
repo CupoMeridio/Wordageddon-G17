@@ -64,7 +64,7 @@
                         </columnResizePolicy>
                     </TableView>
                     
-                    <VBox alignment="TOP_LEFT" prefHeight="350.0" prefWidth="300.0" spacing="15" style="-fx-padding: 20; -fx-background-color: rgba(255,255,255,0.1); -fx-background-radius: 10;" HBox.hgrow="NEVER">
+                    <VBox alignment="TOP_LEFT" prefHeight="350.0" prefWidth="300.0" spacing="15" styleClass="filter-panel" HBox.hgrow="NEVER">
                         <children>
                             <Label style="-fx-font-weight: bold; -fx-font-size: 16px;" text="Filtri di ricerca" />
                             

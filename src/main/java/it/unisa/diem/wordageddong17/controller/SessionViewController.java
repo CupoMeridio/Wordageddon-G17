@@ -18,11 +18,9 @@ import javafx.animation.Timeline;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextArea;
-import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
@@ -52,13 +50,9 @@ public class SessionViewController implements Initializable {
     @FXML
     private HBox FaseRisposte;
     @FXML
-    private VBox vbox;
-    @FXML
     private Label question;
     @FXML
     private RadioButton risposta1button;
-    @FXML
-    private ToggleGroup RispostaAllaDomanda;
     @FXML
     private RadioButton risposta2button;
     @FXML
@@ -72,33 +66,22 @@ public class SessionViewController implements Initializable {
     @FXML
     private TextArea TestoDaLeggere;
     @FXML
-    private Button TestoPrecedentebutton;
-    @FXML
     private Label timeLettura;
-    @FXML
-    private Button VaiAlQuizbutton;
-    @FXML
-    private Button ProssimoTestobutton;
-    @FXML
-    private Button tornaHomeButton;
     @FXML
     private VBox schermataGameOver;
     @FXML
     private Label highScoreLabel;
     @FXML
-    private Button continuaGiocoButton;
-    @FXML
     private Label contatoreLettura;
 
     private CaricaSessioneDiGiocoService caricaSessione;
     private SessioneDiGioco sessione;
-    private int contatoreDomanda = 1;
     private Timeline tm;
     private int durata;// variabile che salva il tempo in più del giocatore 
     private AppState stato;
     private final CaricaPunteggioService cps = new CaricaPunteggioService();
 
-    Map<String, byte[]> mappaDocumenti;
+    private Map<String, byte[]> mappaDocumenti;
     private String[] nomiDocumenti;
     private final Queue<Domanda> domande = new ConcurrentLinkedDeque<>();
     private int numeroDiDomande;

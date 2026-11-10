@@ -1,5 +1,6 @@
 package it.unisa.diem.wordageddong17;
 
+import it.unisa.diem.wordageddong17.service.ThemeService;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -44,6 +45,7 @@ public class App extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         scene = new Scene(loadFXML("AppView"));
+        ThemeService.getInstance().init(scene);
         stage.setScene(scene);
         stage.setMaximized(true);
         stage.setTitle("Wordageddon");
